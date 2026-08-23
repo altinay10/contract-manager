@@ -1,0 +1,9 @@
+.venv/
+.git/
+__pycache__/
+*.pyc
+backend/storage/
+prototype/
+docs/
+*.md
+.claude/

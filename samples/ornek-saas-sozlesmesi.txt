@@ -1,0 +1,99 @@
+YAZILIM HİZMETİ (SaaS) TEDARİK SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Örnek Katılım Bankası A.Ş. ("Banka") ile diğer taraftan
+Veriteknoloji Bilişim Yazılım Ltd. Şti. ("Tedarikçi") arasında 15.03.2026 tarihinde
+akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+İşbu Sözleşme'de geçen "Hizmet" Tedarikçi tarafından bulut üzerinden sunulan portföy
+yönetim yazılımını, "Banka Verisi" Banka'nın Hizmet üzerinde işlediği tüm verileri ifade eder.
+
+MADDE 2 - SÖZLEŞMENİN KONUSU
+Tedarikçi, Banka'ya abonelik esaslı yazılım hizmeti sunacaktır. Hizmetin kapsamı EK-1'de,
+teknik gereksinimler EK-3'te belirtilmiştir.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren üç (3) yıldır. Sözleşme, süresinin bitiminden
+en az doksan (90) gün önce yazılı olarak feshedilmediği takdirde kendiliğinden birer
+yıllık dönemler hâlinde uzar.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık abonelik bedeli 1.250.000 TL'dir. Bedelin tamamı, her sözleşme yılının başında
+peşin olarak ödenir. Tedarikçi, abonelik ücretlerini her yıl tek taraflı olarak
+güncelleyebilir; güncellenmiş ücretler bildirim tarihinden itibaren geçerli olur.
+
+MADDE 5 - HİZMET SEVİYESİ
+Tedarikçi, Hizmet'in kesintisiz sunulması için ticari makul çaba gösterecektir.
+Kesinti hâlinde Banka'nın yegâne başvuru yolu, ilgili aya ait bedelin orantılı iadesidir.
+Banka'nın bunun dışında herhangi bir talep hakkı bulunmamaktadır.
+
+MADDE 6 - TEDARİKÇİNİN YÜKÜMLÜLÜKLERİ
+Tedarikçi, Hizmet'i sunarken dilediği alt yükleniciyi Banka'nın onayını almaksızın
+kullanabilir. Tedarikçi, alt yüklenicilerinin seçiminde makul özen gösterir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ VE SAKLANMASI
+Banka Verisi, Tedarikçi'nin global altyapısında ve Tedarikçi'nin uygun göreceği veri
+merkezlerinde işlenebilir ve saklanabilir. Tedarikçi, Banka Verisi'ni hizmetlerini
+geliştirmek amacıyla anonimleştirerek kullanabilir.
+
+MADDE 8 - GİZLİLİK
+Taraflar, birbirlerinden öğrendikleri gizli bilgileri üçüncü kişilerle paylaşmayacaktır.
+Bu yükümlülük Sözleşme'nin sona ermesinden itibaren bir (1) yıl süreyle devam eder.
+
+MADDE 9 - GÜVENLİK
+9.1 Tedarikçi, güvenlik ihlalini öğrenmesini müteakip makul bir süre içinde Banka'ya
+bildirimde bulunur.
+9.2 Banka'nın Tedarikçi sistemleri üzerinde sızma testi yapması yasaktır.
+
+MADDE 10 - DENETİM
+Banka, yılda bir (1) kez ve en az otuz (30) gün önceden yazılı bildirimde bulunmak
+kaydıyla, mesai saatleri içinde denetim yapabilir. Denetim masrafları Banka'ya aittir.
+
+MADDE 11 - FİKRİ MÜLKİYET
+Hizmet'e ve Banka için yapılan tüm geliştirmelere ilişkin her türlü fikri mülkiyet hakkı
+Tedarikçi'ye aittir. Banka'ya yalnızca sözleşme süresince kullanım hakkı tanınır.
+
+MADDE 12 - SORUMLULUK
+12.1 Tedarikçi, Hizmet'in kesintisiz veya hatasız olacağını taahhüt etmez.
+12.2 Tedarikçi hiçbir hâlde dolaylı zararlardan, kâr kaybından veya veri kaybından
+sorumlu değildir.
+12.3 Tedarikçi'nin işbu Sözleşme'den doğan toplam sorumluluğu, talebin doğduğu tarihten
+önceki üç (3) ayda ödenen bedeli aşamaz.
+12.4 Banka, Tedarikçi'yi üçüncü kişilerden gelebilecek her türlü talebe karşı tazmin
+edecek ve beri kılacaktır.
+
+MADDE 13 - MÜCBİR SEBEP
+Grev, lokavt, siber saldırı, alt yüklenici kaynaklı aksaklıklar, tedarik zinciri sorunları
+ve personel yetersizliği mücbir sebep hâlleri arasında sayılır.
+
+MADDE 14 - FESİH
+14.1 Tedarikçi, herhangi bir sebep göstermeksizin otuz (30) gün önceden yazılı bildirimde
+bulunarak Sözleşme'yi feshedebilir.
+14.2 Banka, yalnızca Tedarikçi'nin esaslı ihlali hâlinde ve doksan (90) günlük düzeltme
+süresi sonunda Sözleşme'yi feshedebilir.
+
+MADDE 15 - SÖZLEŞMENİN SONA ERMESİ
+Sözleşme'nin sona ermesini takip eden otuz (30) gün içinde Banka Verisi Tedarikçi
+sistemlerinden silinir. Bu süre içinde Banka verilerini kendisi indirmekle yükümlüdür.
+
+MADDE 16 - DEVİR
+Tedarikçi, Sözleşme'den doğan hak ve alacaklarını Banka'nın onayını almaksızın serbestçe
+üçüncü kişilere devredebilir ve temlik edebilir.
+
+MADDE 17 - REFERANS
+Tedarikçi, Banka'nın unvanını ve logosunu tanıtım materyallerinde ve web sitesinde
+referans olarak kullanabilir.
+
+MADDE 18 - KABUL
+Teslim edilen modüllere ilişkin olarak Banka tarafından beş (5) iş günü içinde yazılı
+itirazda bulunulmaz ise teslimat kabul edilmiş sayılır.
+
+MADDE 19 - UYGULANACAK HUKUK
+İşbu Sözleşme İngiltere hukukuna tabidir. Uyuşmazlıklar Londra Uluslararası Tahkim
+Mahkemesi (LCIA) kuralları uyarınca tahkim yoluyla çözülür.
+
+MADDE 20 - MASRAFLAR
+İşbu Sözleşme'den doğan damga vergisi ve diğer tüm masraflar Banka tarafından karşılanır.
+
+MADDE 21 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup, taraflarca imzalanmıştır.
