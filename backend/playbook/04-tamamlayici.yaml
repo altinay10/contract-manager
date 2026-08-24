@@ -1,0 +1,413 @@
+# Doküman 01'deki 42 madde tipinin kalan bölümü.
+- code: REGULATORY_CHANGE
+  name_tr: Mevzuat Değişikliğine Uyum
+  category: REGULASYON
+  obligation: ZORUNLU
+  applies_to: [SAAS, YAZILIM, HIZMET, DIS_KAYNAK, CERCEVE]
+  weight: 4
+  detection:
+    keywords_tr: ["mevzuat değişikliği", "yasal değişiklik", "düzenleme değişikliği", "kanun değişikliği", "mevzuata uyum"]
+    keywords_en: ["change in law", "regulatory change", "compliance"]
+  red_lines:
+    - id: REGCH_COST_ON_BANK
+      text: "Mevzuata uyum için gereken değişikliklerin maliyeti bankaya yükleniyor"
+      severity: YUKSEK
+      patterns:
+        - "mevzuat[^.]{0,90}(?:değişikli|uyum)[^.]{0,80}(?:ek\\s+ücret|ilave\\s+bedel|banka\\s+tarafından\\s+karşılan)"
+    - id: REGCH_MISSING
+      text: "Mevzuat değişikliği hâlinde uyarlama ve cezasız fesih hakkı düzenlenmemiş"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:mevzuat|yasal\\s+düzenleme|kanun)[^.]{0,120}(?:değişikli|uyarla)"
+  ideal_text_tr: >-
+    Bankacılık mevzuatında veya Banka'ya uygulanan düzenlemelerde meydana gelen
+    değişiklikler nedeniyle Hizmet'te uyarlama gerekmesi hâlinde Tedarikçi, gerekli
+    değişiklikleri ek bir bedel talep etmeksizin ve makul süre içinde gerçekleştirir.
+    Uyarlamanın mümkün olmaması hâlinde Banka Sözleşme'yi tazminatsız feshedebilir.
+  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "Banka iç politika: UYU-POL-011"]
+  negotiation_argument_tr: >-
+    Banka mevzuata uymak zorundadır; bu bir tercih değildir. Uyum maliyetinin tamamen
+    bankaya yüklenmesi, düzenleyici riskin tek taraflı devri anlamına gelir.
+  severity_if_missing: YUKSEK
+
+- code: SUPPORT_SERVICE_STATUS
+  name_tr: Destek Hizmeti Kuruluşu Statüsü
+  category: REGULASYON
+  obligation: ZORUNLU
+  applies_to: [DIS_KAYNAK, SAAS, HIZMET]
+  weight: 4
+  detection:
+    keywords_tr: ["destek hizmeti", "dış hizmet", "hizmet sağlayıcı statüsü", "bddk"]
+    keywords_en: ["outsourcing", "service provider status"]
+  red_lines:
+    - id: SUPP_NO_STATUS
+      text: "Tedarikçinin destek hizmeti kuruluşu yükümlülükleri sözleşmeye işlenmemiş"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:destek\\s+hizmeti|dış\\s+hizmet|bddk)"
+  ideal_text_tr: >-
+    Tedarikçi, Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik kapsamında destek
+    hizmeti kuruluşu sıfatını haiz olduğunu kabul eder; anılan mevzuatın öngördüğü risk
+    yönetimi, hizmet sürekliliği, gizlilik ve denetim yükümlülüklerine uyar. Tedarikçi,
+    Banka'nın bu kapsamda hazırlayacağı değerlendirme raporları için gerekli bilgi ve
+    belgeleri sağlar.
+  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik"]
+  negotiation_argument_tr: >-
+    Bu statü sözleşmeyle yaratılmaz, mevzuattan doğar. Sözleşmeye yazılmaması yükümlülüğü
+    ortadan kaldırmaz; yalnızca bankayı denetimde savunmasız bırakır.
+  severity_if_missing: YUKSEK
+
+- code: PERSONNEL_SECURITY
+  name_tr: Personel Güvenliği ve Gizlilik Taahhüdü
+  category: VERI_GUVENLIK
+  obligation: ONERILEN
+  applies_to: [HIZMET, DIS_KAYNAK, SAAS, YAZILIM]
+  weight: 3
+  detection:
+    keywords_tr: ["adli sicil", "özgeçmiş kontrol", "gizlilik taahhütnamesi", "personel güvenliği", "erişim yetkisi"]
+    keywords_en: ["background check", "personnel", "staff vetting"]
+  red_lines:
+    - id: PERS_NO_VETTING
+      text: "Banka verisine erişecek personel için güvenlik kontrolü öngörülmemiş"
+      severity: ORTA
+      absent_patterns:
+        - "(?:adli\\s+sicil|özgeçmiş\\s+kontrol|güvenlik\\s+soruşturma|taahhütname)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka verilerine erişecek personeli için adli sicil ve özgeçmiş kontrolü
+    yapar, her bir personelden yazılı gizlilik taahhütnamesi alır ve personelin
+    ayrılması hâlinde erişim yetkilerini derhâl iptal ederek Banka'ya bildirir.
+  legal_basis: ["6698 sayılı KVKK m.12", "Bankaların Bilgi Sistemleri Yönetmeliği"]
+  negotiation_argument_tr: >-
+    Veri sızıntılarının önemli bölümü teknik açıktan değil, yetkili personelden kaynaklanır.
+  severity_if_missing: ORTA
+
+- code: LICENSE_SCOPE
+  name_tr: Lisans Kapsamı ve Kullanıcı Sınırı
+  category: FIKRI_MULKIYET
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS]
+  weight: 3
+  detection:
+    keywords_tr: ["lisans", "kullanım hakkı", "kullanıcı sayısı", "iştirak", "grup şirketi"]
+    keywords_en: ["license", "named user", "affiliates", "seats"]
+  red_lines:
+    - id: LIC_NO_AFFILIATE
+      text: "Lisans bankanın iştiraklerini ve dış hizmet aldığı tarafları kapsamıyor"
+      severity: ORTA
+      absent_patterns:
+        - "(?:iştirak|bağlı\\s+ortaklık|grup\\s+şirket)"
+    - id: LIC_TERMINATES
+      text: "Kullanım hakkı sözleşme süresiyle sınırlı; devir/birleşmede devamı güvence altında değil"
+      severity: ORTA
+      patterns:
+        - "(?:yalnızca|sadece)\\s+sözleşme\\s+süresince[^.]{0,40}kullan"
+  ideal_text_tr: >-
+    Lisans; Banka'yı, Banka'nın iştiraklerini ve Banka adına hizmet veren üçüncü tarafları
+    kapsar. Banka'nın birleşme, devir veya yeniden yapılanma hâllerinde lisans ek bedel
+    talep edilmeksizin devam eder. Kullanıcı sayısındaki artışlar Ek'teki birim fiyat
+    üzerinden faturalandırılır.
+  legal_basis: ["5846 sayılı FSEK"]
+  negotiation_argument_tr: >-
+    Dar tanımlı bir lisans, banka büyüdükçe sözleşmeyi yeniden pazarlık masasına taşır ve
+    tedarikçiye her seferinde kaldıraç verir.
+  severity_if_missing: ORTA
+
+- code: WARRANTY_MAINTENANCE
+  name_tr: Garanti ve Bakım
+  category: OPERASYONEL
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS, DONANIM, HIZMET]
+  weight: 3
+  detection:
+    keywords_tr: ["garanti süresi", "garanti eder", "bakım hizmeti", "bakım bedeli", "destek süresi", "ayıp"]
+    keywords_en: ["warranty", "maintenance", "support period"]
+  red_lines:
+    - id: WAR_SHORT
+      text: "Garanti süresi kısa (12 aydan az)"
+      severity: ORTA
+      patterns:
+        - "(?:üç|3|altı|6|dokuz|9)\\s*\\(?\\s*\\d*\\s*\\)?\\s*ay(?:lık)?\\s+garanti"
+        - "garanti\\s+süresi[^.]{0,40}(?:üç|3|altı|6)\\s*\\(?\\s*\\d*\\s*\\)?\\s*ay"
+    - id: WAR_NO_DISCLAIM
+      text: "Tedarikçi hizmetin hatasız çalışacağına dair her türlü garantiyi reddediyor"
+      severity: YUKSEK
+      patterns:
+        - "(?:hatasız|kesintisiz)[^.]{0,60}(?:olacağını\\s+taahhüt\\s+etmez|garanti\\s+etmez)"
+        - "hiçbir\\s+(?:açık\\s+veya\\s+z[ıi]mn[îi]\\s+)?garanti\\s+ver(?:mez|ilmez)"
+  ideal_text_tr: >-
+    Tedarikçi, teslim edilen ürün ve hizmetin kabul tarihinden itibaren yirmi dört (24) ay
+    boyunca teknik şartnameye uygun çalışacağını garanti eder. Garanti süresince tespit
+    edilen ayıplar ücretsiz giderilir. Garanti sonrası yıllık bakım bedeli, sözleşme
+    bedelinin %20'sini aşamaz ve Ek'te sabitlenir.
+  legal_basis: ["TBK m.474 vd.", "6502 sayılı Kanun (uygulanabildiği ölçüde)"]
+  negotiation_argument_tr: >-
+    Garanti sonrası bakım bedeli sözleşmede sabitlenmezse, tedarikçi bankanın bağımlılığı
+    oluştuktan sonra fiyatı serbestçe belirler.
+  severity_if_missing: ORTA
+
+- code: CHANGE_MANAGEMENT
+  name_tr: Değişiklik Yönetimi
+  category: OPERASYONEL
+  obligation: ONERILEN
+  applies_to: [SAAS, YAZILIM, HIZMET, DIS_KAYNAK]
+  weight: 3
+  detection:
+    keywords_tr: ["hizmette değişiklik", "sürüm güncelleme", "değişiklik yönetimi", "tek taraflı değiştir", "hizmeti değiştir"]
+    keywords_en: ["change management", "modify the service", "updates"]
+  red_lines:
+    - id: CHG_UNILATERAL
+      text: "Tedarikçi hizmeti tek taraflı ve bildirimsiz değiştirebiliyor"
+      severity: YUKSEK
+      patterns:
+        - "(?:hizmet|ürün|yazılım)[^.]{0,80}(?:tek\\s+taraflı|kendi\\s+takdirine\\s+göre)[^.]{0,50}değiştir"
+        - "(?:önceden\\s+)?bildirimde\\s+bulunmaksızın[^.]{0,60}değiştir"
+  ideal_text_tr: >-
+    Hizmet'in kapsamını, işlevselliğini veya teknik altyapısını esaslı biçimde etkileyen
+    değişiklikler en az altmış (60) gün önceden Banka'ya yazılı olarak bildirilir. Banka
+    değişikliği kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir. Güvenlik
+    yamaları bu süreye tabi değildir ve gecikmeksizin uygulanır.
+  legal_basis: ["Banka iç politika: BT-POL-012"]
+  negotiation_argument_tr: >-
+    Bankanın entegre olduğu bir hizmetin habersiz değişmesi, üretim ortamında kesinti
+    riski demektir; bildirim süresi tedarikçiye maliyet yüklemez.
+  severity_if_missing: ORTA
+
+- code: INSURANCE_GUARANTEE
+  name_tr: Teminat ve Sigorta
+  category: TICARI_RISK
+  obligation: ONERILEN
+  applies_to: [HIZMET, SAAS, DONANIM, YAZILIM, DIS_KAYNAK]
+  weight: 3
+  detection:
+    keywords_tr: ["teminat mektubu", "kesin teminat", "sigorta", "poliçe", "mesleki sorumluluk sigortası"]
+    keywords_en: ["performance bond", "insurance", "professional liability"]
+  red_lines:
+    - id: INS_NONE
+      text: "Teminat veya mesleki/siber sorumluluk sigortası öngörülmemiş"
+      severity: ORTA
+      absent_patterns:
+        - "(?:teminat|sigorta|poliçe)"
+  ideal_text_tr: >-
+    Tedarikçi, sözleşme bedelinin %10'u tutarında süresiz ve kesin teminat mektubu verir.
+    Ayrıca mesleki sorumluluk ve siber sorumluluk sigortası yaptırır; poliçe örneklerini
+    Banka'ya sunar ve sözleşme süresince yürürlükte tutar.
+  legal_basis: ["Banka iç politika: SAT-POL-018"]
+  negotiation_argument_tr: >-
+    Sigorta, tedarikçinin ödeme gücünü aşan bir zararda bankanın tek gerçek güvencesidir;
+    sorumluluk tavanı yüksek olsa bile tahsil edilemeyen tazminatın değeri yoktur.
+  severity_if_missing: ORTA
+
+- code: TAX_WITHHOLDING
+  name_tr: Vergi ve Stopaj Sorumluluğu
+  category: VERGI_MALI
+  obligation: ONERILEN
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  weight: 2
+  detection:
+    keywords_tr: ["stopaj", "tevkifat", "kdv", "vergi hariç", "vergi dahil", "vergiler"]
+    keywords_en: ["withholding tax", "vat", "gross-up"]
+  red_lines:
+    - id: TAX_ALL_ON_BANK
+      text: "Tüm vergi ve yükümlülükler bankaya bırakılmış; brüt/net belirsiz"
+      severity: ORTA
+      patterns:
+        - "(?:tüm|her\\s+türlü)\\s+vergi[^.]{0,70}banka[^.]{0,30}(?:aittir|tarafından)"
+        - "vergiler[^.]{0,60}banka\\s+tarafından\\s+(?:karşılanır|ödenir)"
+  ideal_text_tr: >-
+    Sözleşme bedeli vergiler hariç olarak belirlenmiştir. Her Taraf kendi kazancı üzerinden
+    doğan vergilerden sorumludur. Yurt dışına yapılan ödemelerde doğacak stopaj ve
+    sorumlu sıfatıyla KDV yükümlülükleri Tedarikçi'ye ait olup, bedel bu tutarlar
+    düşülerek ödenir; Tedarikçi brütleştirme talep edemez.
+  legal_basis: ["193 sayılı GVK", "3065 sayılı KDV Kanunu"]
+  negotiation_argument_tr: >-
+    Yurt dışı ödemelerde brütleştirme kaydı, sözleşme bedelini fiilen %20-30 artırır ve
+    bu artış bütçede görünmez.
+  severity_if_missing: DUSUK
+
+- code: EXCLUSIVITY_MINIMUM
+  name_tr: Münhasırlık ve Asgari Alım Taahhüdü
+  category: SOZLESMESEL
+  obligation: ONERILEN
+  applies_to: [SAAS, HIZMET, DONANIM, CERCEVE]
+  weight: 3
+  detection:
+    keywords_tr: ["münhasır", "münhasırlık", "asgari alım", "asgari taahhüt", "minimum taahhüt", "al ya da öde"]
+    keywords_en: ["exclusive", "minimum commitment", "take or pay"]
+  red_lines:
+    - id: EXC_MINIMUM
+      text: "Banka asgari alım/harcama taahhüdü altına giriyor"
+      severity: YUKSEK
+      patterns:
+        - "asgari[^.]{0,50}(?:alım|harcama|tutar|adet)[^.]{0,40}taahhüt"
+        - "(?:al\\s*ya\\s*da\\s*öde|take[\\s-]?or[\\s-]?pay)"
+    - id: EXC_EXCLUSIVE
+      text: "Banka münhasırlık taahhüdü veriyor (başka tedarikçiden alamıyor)"
+      severity: YUKSEK
+      patterns:
+        - "münhasır(?:an|lık)?[^.]{0,80}(?:banka|müşteri)"
+        - "banka[^.]{0,60}(?:yalnızca|sadece)\\s+tedarikçi(?:'?den|den)"
+  ideal_text_tr: >-
+    Banka'nın asgari alım veya harcama taahhüdü bulunmamaktadır. Banka, aynı veya benzer
+    ürün ve hizmetleri üçüncü kişilerden temin etmekte serbesttir.
+  legal_basis: ["4054 sayılı Rekabetin Korunması Hakkında Kanun", "Banka iç politika: SAT-POL-006"]
+  negotiation_argument_tr: >-
+    Asgari taahhüt, ihtiyaç azalsa bile ödeme yükümlülüğü doğurur; bankayı kendi talep
+    riskini tedarikçi adına üstlenmiş duruma sokar.
+  severity_if_missing: DUSUK
+
+- code: NON_SOLICITATION
+  name_tr: Personel Ayartmama
+  category: SOZLESMESEL
+  obligation: OPSIYONEL
+  applies_to: [HIZMET, SAAS, DIS_KAYNAK, YAZILIM]
+  weight: 2
+  detection:
+    keywords_tr: ["ayartma", "istihdam etmeme", "personel transferi", "işe alma yasağı"]
+    keywords_en: ["non-solicitation", "no-hire"]
+  red_lines:
+    - id: SOL_BINDS_BANK
+      text: "Ayartmama yasağı bankayı da bağlıyor ve/veya cezası ağır"
+      severity: ORTA
+      patterns:
+        - "banka[^.]{0,80}(?:istihdam\\s+edemez|işe\\s+alamaz|ayartamaz)"
+        - "(?:ayart|istihdam)[^.]{0,80}(?:brüt\\s+)?(?:yıllık\\s+)?(?:ücretinin|maaşının)\\s+[^.]{0,20}katı"
+  ideal_text_tr: >-
+    Tedarikçi, Sözleşme süresince ve sona ermesinden itibaren bir (1) yıl boyunca, işbu
+    Sözleşme kapsamında görev alan Banka personeline doğrudan iş teklifinde bulunmaz.
+    Genel ilana açık işe alım süreçleri bu hükmün kapsamı dışındadır.
+  legal_basis: ["TBK m.26 (sözleşme özgürlüğü)", "Anayasa m.48-49 (çalışma hürriyeti)"]
+  negotiation_argument_tr: >-
+    Bankayı bağlayan bir işe alım yasağı, bankanın kendi personel havuzunu daraltır ve
+    çalışma hürriyeti bakımından da tartışmalıdır.
+  severity_if_missing: BILGI
+
+- code: ESG_CONDUCT
+  name_tr: Tedarikçi Davranış Kuralları (ESG)
+  category: ETIK_ITIBAR
+  obligation: ONERILEN
+  applies_to: [HIZMET, DONANIM, DIS_KAYNAK, YAZILIM, SAAS]
+  weight: 2
+  detection:
+    keywords_tr: ["davranış kuralları", "etik", "insan hakları", "çevre", "sürdürülebilirlik", "çocuk işçi"]
+    keywords_en: ["code of conduct", "esg", "human rights", "sustainability"]
+  red_lines:
+    - id: ESG_NONE
+      text: "Tedarikçi davranış kuralları / ESG taahhüdü yok"
+      severity: DUSUK
+      absent_patterns:
+        - "(?:davranış\\s+kural|etik|insan\\s+hakları|sürdürülebilir)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'nın Tedarikçi Davranış Kuralları'na uyacağını; çalışma standartları,
+    insan hakları, çevre ve iş sağlığı-güvenliği mevzuatına riayet edeceğini taahhüt eder.
+    Esaslı ihlal hâlinde Banka Sözleşme'yi feshedebilir.
+  legal_basis: ["Banka iç politika: SRD-POL-001"]
+  negotiation_argument_tr: >-
+    Tedarikçi zincirindeki bir ihlal, bankanın sürdürülebilirlik raporlamasına ve itibarına
+    doğrudan yansır.
+  severity_if_missing: BILGI
+
+- code: NOTICES
+  name_tr: Bildirim ve Tebligat
+  category: SOZLESMESEL
+  obligation: ONERILEN
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 2
+  detection:
+    keywords_tr: ["tebligat", "bildirim adresi", "kep adresi", "noter", "iadeli taahhütlü"]
+    keywords_en: ["notices", "registered mail"]
+  red_lines:
+    - id: NOT_EMAIL_ONLY
+      text: "Önemli bildirimler için yalnızca e-posta yeterli sayılmış"
+      severity: DUSUK
+      patterns:
+        - "(?:yalnızca|sadece)\\s+e-?posta[^.]{0,50}(?:yeterli|geçerli)"
+  ideal_text_tr: >-
+    Fesih, ihtar ve hak kaybına yol açabilecek bildirimler KEP, noter veya iadeli
+    taahhütlü mektup yoluyla yapılır. Adres değişiklikleri karşı tarafa yazılı olarak
+    bildirilmediği sürece son bildirilen adrese yapılan tebligat geçerlidir.
+  legal_basis: ["7201 sayılı Tebligat Kanunu", "TTK m.18/3"]
+  negotiation_argument_tr: >-
+    Fesih ihtarının usulüne uygun yapılmaması, haklı feshi geçersiz kılabilir.
+  severity_if_missing: DUSUK
+
+- code: ENTIRE_AGREEMENT
+  name_tr: Sözleşmenin Bütünlüğü ve Ekler Hiyerarşisi
+  category: SOZLESMESEL
+  obligation: ONERILEN
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 2
+  detection:
+    keywords_tr: ["sözleşmenin bütünlüğü", "öncelik sırası", "çelişki hâlinde", "eklerin sırası", "kullanım koşulları"]
+    keywords_en: ["entire agreement", "order of precedence"]
+  red_lines:
+    - id: ENT_VENDOR_TERMS
+      text: "Tedarikçinin çevrimiçi/standart şartları sözleşmeye üstün tutulmuş"
+      severity: YUKSEK
+      patterns:
+        - "(?:çevrimiçi|online|internet\\s+sitesinde|web\\s+sitesinde)[^.]{0,60}(?:şartlar|koşullar)[^.]{0,60}(?:geçerli|üstün|uygulanır)"
+        - "(?:kullanım\\s+koşulları|hizmet\\s+şartları)[^.]{0,60}(?:zaman\\s+zaman\\s+güncellen|değiştirilebilir)"
+  ideal_text_tr: >-
+    İşbu Sözleşme ve ekleri Taraflar arasındaki mutabakatın tamamını oluşturur.
+    Çelişki hâlinde öncelik sırası: (i) işbu Sözleşme metni, (ii) ekler, (iii) sipariş
+    formları şeklindedir. Tedarikçi'nin çevrimiçi kullanım koşulları, standart şartları
+    veya tek taraflı güncellenebilen belgeleri Banka'yı bağlamaz.
+  legal_basis: ["TBK m.20-25 (genel işlem koşulları)"]
+  negotiation_argument_tr: >-
+    Tek taraflı güncellenebilen bir çevrimiçi metnin sözleşmeye üstün tutulması, müzakere
+    edilen tüm hükümleri fiilen geçersiz kılar.
+  severity_if_missing: ORTA
+
+- code: SEVERABILITY_WAIVER
+  name_tr: Bölünebilirlik ve Haklardan Feragat
+  category: SOZLESMESEL
+  obligation: OPSIYONEL
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 1
+  detection:
+    keywords_tr: ["bölünebilirlik", "feragat", "geçersiz", "hükümsüz"]
+    keywords_en: ["severability", "waiver"]
+  red_lines:
+    - id: SEV_IMPLIED_WAIVER
+      text: "Hakkın kullanılmaması feragat sayılıyor"
+      severity: DUSUK
+      patterns:
+        - "(?:kullanılmaması|kullanmaması|sessiz\\s+kalması)[^.]{0,60}feragat"
+  ideal_text_tr: >-
+    Sözleşme hükümlerinden birinin geçersiz sayılması diğer hükümlerin geçerliliğini
+    etkilemez. Bir Tarafın herhangi bir hakkını kullanmaması veya gecikmeli kullanması,
+    o haktan feragat ettiği anlamına gelmez.
+  legal_basis: ["TBK m.27/2"]
+  negotiation_argument_tr: >-
+    Zımni feragat kaydı, bankanın operasyonel yoğunluk nedeniyle geciken bir itirazını
+    hak kaybına çevirir.
+  severity_if_missing: BILGI
+
+- code: RECORDS_RETENTION
+  name_tr: Kayıtların Saklanması ve İbrazı
+  category: REGULASYON
+  obligation: ONERILEN
+  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  weight: 3
+  detection:
+    keywords_tr: ["kayıt saklama", "saklama süresi", "loglama", "iz kaydı", "işlem kayıtları", "arşiv", "ibraz"]
+    keywords_en: ["records", "retention", "audit log"]
+  red_lines:
+    - id: REC_SHORT
+      text: "Kayıt saklama süresi mevzuatın öngördüğünden kısa"
+      severity: ORTA
+      patterns:
+        - "(?:kayıt|log|iz)[^.]{0,70}(?:bir|iki|üç|1|2|3)\\s*\\(?\\s*\\d*\\s*\\)?\\s*(?:ay|yıl)[^.]{0,30}saklan"
+    - id: REC_NONE
+      text: "İşlem ve erişim kayıtlarının tutulması düzenlenmemiş"
+      severity: ORTA
+      absent_patterns:
+        - "(?:kayıt|log|iz\\s+kayd)"
+  ideal_text_tr: >-
+    Tedarikçi, Hizmet kapsamındaki işlem ve erişim kayıtlarını değiştirilemez biçimde en az
+    on (10) yıl süreyle saklar; Banka'nın veya yetkili otoritelerin talebi hâlinde
+    gecikmeksizin ibraz eder. Kayıtlar Sözleşme sona erse dahi bu süre boyunca muhafaza edilir.
+  legal_basis: ["5411 sayılı Bankacılık Kanunu m.42", "Bankaların Bilgi Sistemleri Yönetmeliği"]
+  negotiation_argument_tr: >-
+    Bankanın kayıt saklama yükümlülüğü on yıldır; tedarikçinin daha kısa süre saklaması
+    bankayı denetimde belge sunamaz duruma düşürür.
+  severity_if_missing: ORTA

@@ -1,0 +1,243 @@
+- code: AUDIT_RIGHT
+  name_tr: Denetim Hakkı
+  category: REGULASYON
+  obligation: ZORUNLU
+  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM, CERCEVE]
+  weight: 5
+  detection:
+    keywords_tr: ["denetim", "denetleme", "denetim hakkı", "inceleme hakkı", "yerinde inceleme", "bağımsız denetçi"]
+    keywords_en: ["audit right", "right to audit", "inspection"]
+  red_lines:
+    - id: AUD_NO_REGULATOR
+      text: "Düzenleyici otoritenin (BDDK) denetim/erişim hakkı sözleşmede yok"
+      severity: KRITIK
+      absent_patterns:
+        - "(?:bddk|bankacılık düzenleme|düzenleyici (?:otorite|kurum)|kamu otoritesi|denetim otoritesi)"
+    - id: AUD_TOO_RESTRICTED
+      text: "Denetim sıklığı/şartları aşırı kısıtlanmış (yılda bir, uzun ihbar, mesai saati)"
+      severity: YUKSEK
+      patterns:
+        - "yılda\\s+(?:bir|1)\\s*\\(?\\s*\\d*\\s*\\)?\\s*(?:kez|defa)"
+        - "en\\s+az\\s+(?:otuz|30|altmış|60)\\s*\\(?\\s*\\d*\\s*\\)?\\s*gün\\s+önce[^.]{0,50}denetim"
+    - id: AUD_COST_ON_BANK
+      text: "Denetim masrafı bankaya yüklenmiş"
+      severity: ORTA
+      patterns:
+        - "denetim[^.]{0,80}(?:masraf|gider|maliyet)[^.]{0,40}banka"
+  ideal_text_tr: >-
+    Banka, bağımsız denetçileri ve yetkili düzenleyici otoriteler (BDDK dâhil), Tedarikçi'nin
+    işbu Sözleşme kapsamındaki faaliyetlerini, sistemlerini ve kayıtlarını yerinde veya uzaktan
+    denetleme hakkına sahiptir. Güvenlik ihlali şüphesi hâlinde denetim önceden bildirim
+    şartına tabi değildir. Denetimde tespit edilen uygunsuzlukların giderilme maliyeti
+    Tedarikçi'ye aittir.
+  legal_basis:
+    - "5411 sayılı Bankacılık Kanunu"
+    - "Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik"
+    - "Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında Yönetmelik"
+  negotiation_argument_tr: >-
+    Denetim hakkı bankanın tercihi değil, regülatif yükümlülüğüdür. BDDK'nın erişemediği bir
+    tedarikçiyle çalışmak bankayı doğrudan uygunsuzluğa düşürür; bu madde müzakereye açık değildir.
+  severity_if_missing: KRITIK
+
+- code: SUBCONTRACTOR
+  name_tr: Alt Yüklenici Kullanımı
+  category: REGULASYON
+  obligation: ZORUNLU
+  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  weight: 4
+  detection:
+    keywords_tr: ["alt yüklenici", "alt işveren", "üçüncü kişilere yaptırabilir", "taşeron", "alt tedarikçi"]
+    keywords_en: ["subcontractor", "sub-processor"]
+  red_lines:
+    - id: SUB_FREE_HAND
+      text: "Tedarikçi onay almadan dilediği alt yükleniciyi kullanabiliyor"
+      severity: KRITIK
+      patterns:
+        - "(?:onay(?:ı)?\\s+(?:al[mn]a(?:ksızın|dan)|gerek(?:mez|sizin))|bildirim(?:de bulunmaksızın|siz))[^.]{0,60}(?:alt\\s+yüklenici|üçüncü\\s+kişi)"
+        - "(?:alt\\s+yüklenici|üçüncü\\s+kişi)[^.]{0,80}(?:serbest(?:tir|çe)|dilediği|kendi\\s+takdirine)"
+        - "(?:dilediği|uygun\\s+gördüğü)\\s+(?:alt\\s+yüklenici|üçüncü\\s+kişi)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'nın önceden yazılı onayı olmaksızın işbu Sözleşme kapsamındaki
+    yükümlülüklerinin tamamını veya bir kısmını alt yüklenicilere devredemez. Onay verilen alt
+    yükleniciler Ek'te listelenir; listedeki değişiklikler otuz (30) gün önceden bildirilir ve
+    Banka'nın itiraz hakkı saklıdır. Tedarikçi, alt yüklenicilerinin fiillerinden kendi fiili
+    gibi sorumludur.
+  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "6698 sayılı KVKK m.12"]
+  negotiation_argument_tr: >-
+    Banka, hizmeti kimin verdiğini bilmek ve denetleyebilmek zorundadır. Onaysız alt yüklenici,
+    denetim zincirini ve veri sorumluluğunu kopartır.
+  severity_if_missing: YUKSEK
+
+- code: DATA_LOCATION
+  name_tr: Veri Lokasyonu ve Yurt Dışına Aktarım
+  category: VERI_GUVENLIK
+  obligation: ZORUNLU
+  applies_to: [SAAS, DIS_KAYNAK, HIZMET, YAZILIM]
+  weight: 5
+  detection:
+    keywords_tr: ["veri merkezi", "sunucu", "yurt dışı", "yurtdışı", "lokasyon", "barındır", "saklanacağı yer", "aktarım"]
+    keywords_en: ["data center", "data residency", "cross-border transfer", "hosted"]
+  red_lines:
+    - id: LOC_ABROAD
+      text: "Veriler yurt dışında / tedarikçinin global altyapısında işlenebiliyor"
+      severity: KRITIK
+      patterns:
+        - "yurt\\s*dışı(?:na|nda)?[^.]{0,80}(?:aktar|işle|sakla|barındır|transfer)"
+        - "(?:global|dünya\\s+genelinde|uluslararası)\\s+(?:altyapı|veri\\s+merkez|sunucu|bulut)"
+        - "(?:tedarikçi|firma)['’]?n?[ıi]n\\s+(?:seçeceği|belirleyeceği|uygun\\s+gördüğü)\\s+(?:veri\\s+merkez|lokasyon|bölge)"
+    - id: LOC_UNSPECIFIED
+      text: "Verilerin Türkiye'de tutulacağına dair bir kayıt yok"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:türkiye|yurt\\s*içi|yurtiçi)"
+  ideal_text_tr: >-
+    Banka'ya ait veriler ile birincil ve ikincil sistemler Türkiye Cumhuriyeti sınırları içinde
+    bulundurulur ve işlenir. Verilerin yurt dışına aktarılması, Banka'nın önceden yazılı onayına
+    ve 6698 sayılı Kanun'un 9. maddesindeki şartların sağlanmasına bağlıdır. Tedarikçi, veri
+    merkezlerinin fiziksel konumunu Ek'te beyan eder ve değişiklikleri önceden bildirir.
+  legal_basis:
+    - "6698 sayılı KVKK m.9 (yurt dışına aktarım)"
+    - "Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında Yönetmelik"
+  negotiation_argument_tr: >-
+    Veri lokasyonu bankanın takdirinde olan bir tercih değil, mevzuat gereğidir. Bu madde
+    karşılanmıyorsa tedarikçi bankaya hizmet veremez.
+  severity_if_missing: KRITIK
+
+- code: BREACH_NOTIFICATION
+  name_tr: Güvenlik İhlali Bildirimi
+  category: VERI_GUVENLIK
+  obligation: ZORUNLU
+  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  weight: 5
+  detection:
+    keywords_tr: ["veri ihlali", "güvenlik ihlali", "güvenlik olayı", "ihlal bildirimi", "sızıntı", "ihlali öğren"]
+    keywords_en: ["breach notification", "security incident"]
+  red_lines:
+    - id: BR_VAGUE_TIMING
+      text: "Bildirim süresi ölçülemez bir ifadeye bağlanmış (makul süre, gecikmeksizin)"
+      severity: YUKSEK
+      patterns:
+        - "(?:makul\\s+(?:bir\\s+)?süre|mümkün\\s+olan\\s+en\\s+kısa\\s+süre|gecikmeksizin|ivedilikle|derhal)[^.]{0,40}bildir"
+    - id: BR_TOO_LONG
+      text: "Bildirim süresi 24 saati aşıyor"
+      severity: YUKSEK
+      patterns:
+        - "(?:kırk\\s+sekiz|48|yetmiş\\s+iki|72|beş|5|yedi|7)\\s*\\(?\\s*\\d*\\s*\\)?\\s*(?:saat|gün)[^.]{0,50}bildir"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'ya ait verileri etkileyen veya etkileme ihtimali bulunan her türlü güvenlik
+    ihlalini, ihlali öğrendiği andan itibaren en geç yirmi dört (24) saat içinde Banka'ya yazılı
+    olarak bildirir. Bildirim; ihlalin kapsamını, etkilenen veri kategorilerini ve alınan
+    tedbirleri içerir. Kök neden analizi raporu en geç beş (5) iş günü içinde sunulur.
+  legal_basis: ["6698 sayılı KVKK m.12", "Kişisel Verileri Koruma Kurulu 24.01.2019 tarihli ilke kararı (72 saat)"]
+  negotiation_argument_tr: >-
+    Banka, ihlali Kurul'a 72 saat içinde bildirmek zorundadır. Tedarikçi 72 saatte bildirirse
+    bankanın kendi yükümlülüğünü yerine getirmesine sıfır süre kalır. 24 saat aritmetik bir zorunluluktur.
+  severity_if_missing: KRITIK
+
+- code: CONFIDENTIALITY
+  name_tr: Gizlilik ve Banka Sırrı
+  category: VERI_GUVENLIK
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 4
+  detection:
+    keywords_tr: ["gizlilik", "gizli bilgi", "sır", "ifşa", "üçüncü kişilerle paylaş"]
+    keywords_en: ["confidentiality", "non-disclosure", "confidential information"]
+  red_lines:
+    - id: CONF_SHORT_TERM
+      text: "Gizlilik yükümlülüğü sözleşme sonrası kısa süreyle sınırlı"
+      severity: YUKSEK
+      patterns:
+        - "(?:sona\\s+ermesinden|fesh(?:inden|edilmesinden)|bitiminden)[^.]{0,60}(?:bir|iki|1|2)\\s*\\(?\\s*\\d*\\s*\\)?\\s*yıl"
+    - id: CONF_NO_BANK_SECRET
+      text: "Banka sırrı / müşteri sırrı kavramına atıf yok"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:banka\\s+sırrı|müşteri\\s+sırrı|5411)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'ya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı
+    niteliğindeki bilgilere ilişkin gizlilik yükümlülüğü süresizdir ve 5411 sayılı Bankacılık
+    Kanunu'nun 73. maddesi hükümlerine tabidir. Diğer gizli bilgilere ilişkin yükümlülük
+    Sözleşme'nin sona ermesinden itibaren beş (5) yıl devam eder.
+  legal_basis: ["5411 sayılı Bankacılık Kanunu m.73 (sırların saklanması)"]
+  negotiation_argument_tr: >-
+    Müşteri sırrının ifşası bankacılık mevzuatında cezai sorumluluk doğurur; bu yükümlülüğün
+    süreye bağlanması mümkün değildir.
+  severity_if_missing: KRITIK
+
+- code: NO_MODEL_TRAINING
+  name_tr: Banka Verisiyle Model Eğitimi Yasağı
+  category: VERI_GUVENLIK
+  obligation: ZORUNLU
+  applies_to: [SAAS, YAZILIM, DIS_KAYNAK]
+  weight: 4
+  detection:
+    keywords_tr: ["model", "yapay zeka", "makine öğrenmesi", "eğitim", "analitik", "hizmeti geliştirmek", "anonim"]
+    keywords_en: ["machine learning", "train", "improve the service", "aggregated data"]
+  red_lines:
+    - id: TRAIN_ALLOWED
+      text: "Tedarikçi banka verisini hizmet geliştirme / model eğitimi için kullanabiliyor"
+      severity: KRITIK
+      patterns:
+        - "(?:hizmet(?:ler)?ini?|ürününü|sistemini)\\s+(?:geliştirmek|iyileştirmek)[^.]{0,60}(?:kullan|işle)"
+        - "(?:model|yapay\\s+zeka|makine\\s+öğrenmesi|algoritma)[^.]{0,60}(?:eğit|geliştir|besle)"
+        - "anonim(?:leştiril(?:miş|erek))?[^.]{0,60}(?:istatistik|analiz|kullanabilir)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'ya ait verileri yalnızca işbu Sözleşme kapsamındaki hizmeti sunmak amacıyla
+    işler. Banka verisi; anonimleştirilmiş, toplulaştırılmış veya türetilmiş biçimde dahi olsa
+    yapay zeka/makine öğrenmesi modellerinin eğitiminde, ürün geliştirmede veya Banka dışındaki
+    herhangi bir amaçla kullanılamaz.
+  legal_basis: ["6698 sayılı KVKK m.4 (amaçla bağlılık)", "5411 sayılı Bankacılık Kanunu m.73"]
+  negotiation_argument_tr: >-
+    "Hizmeti geliştirmek" ifadesi pratikte sınırsız bir kullanım hakkıdır. Bankanın müşteri
+    verisinin tedarikçinin ürününe gömülmesi geri alınamaz bir işlemdir.
+  severity_if_missing: YUKSEK
+
+- code: DPA
+  name_tr: Kişisel Verilerin Korunması Eki (Veri İşleyen)
+  category: REGULASYON
+  obligation: ZORUNLU
+  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  weight: 5
+  detection:
+    keywords_tr: ["kişisel veri", "veri işleyen", "veri sorumlusu", "kvkk", "6698", "aydınlatma"]
+    keywords_en: ["personal data", "data processor", "data controller", "gdpr"]
+  red_lines:
+    - id: DPA_NO_INSTRUCTION
+      text: "Veri işleyenin talimatla bağlılığı ve teknik-idari tedbir taahhüdü yok"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:talimat|teknik\\s+ve\\s+idari\\s+tedbir)"
+  ideal_text_tr: >-
+    Tedarikçi, Banka'nın veri işleyeni sıfatıyla hareket eder ve kişisel verileri yalnızca
+    Banka'nın yazılı talimatları doğrultusunda işler. Tedarikçi, 6698 sayılı Kanun'un 12.
+    maddesi uyarınca gerekli teknik ve idari tedbirleri alır; Sözleşme sona erdiğinde verileri
+    Banka'ya iade eder veya imha ederek imha tutanağını sunar.
+  legal_basis: ["6698 sayılı KVKK m.12", "Veri Sorumlusu ve Veri İşleyen ilişkisi"]
+  negotiation_argument_tr: >-
+    Veri işleyen sözleşmesi kanunen zorunludur; yokluğu bankayı doğrudan idari yaptırıma açar.
+  severity_if_missing: KRITIK
+
+- code: SECURITY_TESTING
+  name_tr: Sızma Testi ve Zafiyet Yönetimi
+  category: VERI_GUVENLIK
+  obligation: ONERILEN
+  applies_to: [SAAS, YAZILIM, DIS_KAYNAK]
+  weight: 3
+  detection:
+    keywords_tr: ["sızma testi", "penetrasyon", "zafiyet", "güvenlik testi", "açık"]
+    keywords_en: ["penetration test", "vulnerability", "security testing"]
+  red_lines:
+    - id: SEC_TEST_FORBIDDEN
+      text: "Bankanın güvenlik testi yapması yasaklanmış"
+      severity: YUKSEK
+      patterns:
+        - "(?:sızma|penetrasyon|güvenlik)\\s+test[^.]{0,60}(?:yasak|yapamaz|izin\\s+ver(?:il)?mez)"
+  ideal_text_tr: >-
+    Banka, yılda en az bir kez ve önemli değişiklik sonrasında Tedarikçi'nin sistemleri üzerinde
+    sızma testi ve zafiyet taraması yaptırma hakkına sahiptir. Tespit edilen kritik zafiyetler
+    on beş (15) gün, yüksek zafiyetler otuz (30) gün içinde giderilir.
+  legal_basis: ["Bankaların Bilgi Sistemleri Yönetmeliği"]
+  negotiation_argument_tr: >-
+    Bankanın kendi güvenlik seviyesini doğrulayamadığı bir bağımlılığı taşıması mümkün değildir.
+  severity_if_missing: ORTA

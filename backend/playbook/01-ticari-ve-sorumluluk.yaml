@@ -1,0 +1,181 @@
+# Banka = ALICI. Her kayıt bir madde tipini ve bankanın standardını tanımlar.
+# red_lines[].patterns: maddede bu kalıp bulunursa kırmızı çizgi ihlali adayıdır.
+#   Kalıplar hem çevrimdışı tespit için hem de modele hedef göstermek (K2) için kullanılır.
+- code: LIMITATION_OF_LIABILITY
+  name_tr: Sorumluluğun Sınırlandırılması
+  category: TICARI_RISK
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 5
+  detection:
+    keywords_tr: ["sorumluluğun sınırlandırılması", "toplam sorumluluk", "sorumluluk tavanı", "dolaylı zarar", "sorumlu değildir", "sorumluluğu ... aşamaz", "tazminat tavanı"]
+    keywords_en: ["limitation of liability", "aggregate liability", "consequential damages", "shall not be liable"]
+  red_lines:
+    - id: LOL_LOW_CAP
+      text: "Sorumluluk tavanı aylık / tek seferlik / kısa dönem bedeliyle sınırlanmış"
+      severity: KRITIK
+      patterns:
+        - "(?:son(?:raki)?\\s+)?(?:bir|iki|üç|dört|altı|1|2|3|6)\\s*\\(?\\s*\\d*\\s*\\)?\\s*ay(?:da|lık|ında)?[^.]{0,60}(?:ödenen|fatura|bedel|ücret)"
+        - "(?:ödenen|fatura edilen)[^.]{0,40}(?:bir|iki|üç|altı|1|2|3|6)\\s*\\(?\\s*\\d*\\s*\\)?\\s*ay"
+        - "aylık\\s+(?:ücret|bedel)[^.]{0,30}(?:aşamaz|sınırlı|geçemez)"
+    - id: LOL_NO_CARVEOUT
+      text: "Gizlilik / kişisel veri / kasıt ve ağır kusur tavandan istisna edilmemiş"
+      severity: KRITIK
+      absent_patterns:
+        - "(?:kasıt|ağır kusur|kasten)"
+        - "(?:istisna|hariç|uygulanmaz|saklıdır)"
+    - id: LOL_ONE_SIDED
+      text: "Sınırlama yalnızca tedarikçi lehine kurgulanmış (mütekabil değil)"
+      severity: YUKSEK
+      patterns:
+        - "(?:tedarikçi|yüklenici|firma|satıcı)['’]?(?:n[ıi]n)?[^.]{0,70}toplam\\s+sorumluluğu"
+        - "(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,50}(?:hiçbir\\s+h[âa]lde|hiçbir\\s+şekilde)[^.]{0,40}sorumlu\\s+değildir"
+  ideal_text_tr: >-
+    Tedarikçi'nin işbu Sözleşme'den doğan toplam sorumluluğu, ilgili talebin doğduğu tarihten
+    önceki on iki (12) aylık dönemde Banka tarafından ödenen toplam bedeli aşamaz. Ancak
+    gizlilik yükümlülüklerinin ihlali, kişisel verilerin korunmasına ilişkin yükümlülüklerin
+    ihlali, fikri mülkiyet hakkı ihlali, üçüncü kişilere verilen zararlar ile kasıt ve ağır
+    kusur hâllerinde işbu sorumluluk sınırlaması uygulanmaz. Sorumluluk sınırlaması Taraflar
+    bakımından mütekabildir.
+  fallback_text_tr: >-
+    Tavan, yıllık sözleşme bedelinin bir (1) katından az olmamak üzere belirlenir; gizlilik ve
+    kişisel veri ihlalleri her hâlükârda tavandan istisnadır.
+  legal_basis: ["TBK m.115 (kasıt ve ağır kusurda sorumsuzluk anlaşması geçersizdir)", "Banka iç politika: SAT-POL-014"]
+  negotiation_argument_tr: >-
+    Bankanın bir veri ihlalinde maruz kalacağı idari para cezası, müşteri tazminatı ve itibar
+    zararı sözleşme bedeliyle orantılı değildir. Tavanın kendisi müzakere edilebilir; ancak
+    veri ihlali ve gizlilik kalemlerinin tavandan istisna edilmesi bankanın kırmızı çizgisidir.
+  severity_if_missing: YUKSEK
+
+- code: INDEMNITY
+  name_tr: Tazminat Yükümlülüğü
+  category: TICARI_RISK
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS, HIZMET, DIS_KAYNAK]
+  weight: 4
+  detection:
+    keywords_tr: ["tazmin", "tazminat", "üçüncü kişi talepleri", "beri kılmak", "zararını karşılar"]
+    keywords_en: ["indemnify", "hold harmless", "third party claims"]
+  red_lines:
+    - id: IND_ONE_SIDED
+      text: "Tazminat yükümlülüğü yalnızca banka üzerinde (tek taraflı)"
+      severity: YUKSEK
+      patterns:
+        - "banka[^.]{0,120}(?:tazmin\\s+ed|beri\\s+kıl)"
+  ideal_text_tr: >-
+    Tedarikçi; fikri mülkiyet hakkı ihlali, gizlilik ihlali, kişisel veri ihlali ve kendi
+    kusurundan kaynaklanan üçüncü kişi talepleri nedeniyle Banka'nın uğrayacağı her türlü
+    zararı, idari para cezalarını, yargılama gider ve vekâlet ücretlerini karşılar.
+  legal_basis: ["Banka iç politika: SAT-POL-014"]
+  negotiation_argument_tr: >-
+    Tazminat, riski onu kontrol eden tarafa yükler. Fikri mülkiyet ve veri güvenliği
+    tedarikçinin kontrolündedir; bu kalemlerde tazminat tedarikçide olmalıdır.
+  severity_if_missing: YUKSEK
+
+- code: PRICE_INCREASE
+  name_tr: Fiyat Artışı ve Bedel Güncellemesi
+  category: TICARI_RISK
+  obligation: ZORUNLU
+  applies_to: [SAAS, HIZMET, YAZILIM, DIS_KAYNAK, CERCEVE]
+  weight: 4
+  detection:
+    keywords_tr: ["fiyat artışı", "bedel güncelleme", "ücret güncelle", "fiyat güncelle", "endeks", "tüfe", "üfe", "zam"]
+    keywords_en: ["price increase", "fees may be adjusted", "cpi"]
+  red_lines:
+    - id: PRICE_UNILATERAL
+      text: "Tedarikçi bedeli tek taraflı artırabiliyor; tavan veya formül yok"
+      severity: KRITIK
+      patterns:
+        - "tek\\s+taraflı[^.]{0,60}(?:artır|güncelle|değiştir|belirle)"
+        - "(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,80}(?:ücret|bedel|fiyat)[^.]{0,60}(?:güncelle|artır|değiştir|belirle)[a-zçğıöşü]*"
+        - "(?:her\\s+zaman|dilediği\\s+zaman|zaman\\s+zaman)[^.]{0,50}(?:fiyat|ücret|bedel)"
+    - id: PRICE_NO_CAP
+      text: "Artış için üst sınır (tavan) belirlenmemiş"
+      severity: YUKSEK
+      absent_patterns:
+        - "(?:tüfe|üfe|enflasyon|aşamaz|geçemez|azami|en\\s+fazla|üst\\s+sınır)"
+  ideal_text_tr: >-
+    Bedeller sözleşme süresince sabittir. Yıllık dönemler itibarıyla ve yılda en fazla bir (1)
+    kez olmak üzere, bir önceki on iki aylık TÜİK Tüketici Fiyat Endeksi (TÜFE) oranını aşmamak
+    kaydıyla güncelleme yapılabilir. Güncelleme en az altmış (60) gün önceden yazılı olarak
+    bildirilir; Banka güncellemeyi kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir.
+  legal_basis: ["Banka iç politika: SAT-POL-021"]
+  negotiation_argument_tr: >-
+    Tek taraflı fiyat yetkisi, bütçe planlamasını imkânsız kılar ve fiilen süresiz bir açık çek
+    anlamına gelir. Endekse bağlı tavan tedarikçiyi de enflasyona karşı korur; itiraz gerekçesi kalmaz.
+  severity_if_missing: YUKSEK
+
+- code: PAYMENT_TERMS
+  name_tr: Ödeme Koşulları
+  category: TICARI_RISK
+  obligation: ZORUNLU
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  weight: 3
+  detection:
+    keywords_tr: ["ödeme koşulları", "fatura", "peşin", "ödeme vadesi", "avans", "ödenir"]
+    keywords_en: ["payment terms", "invoice", "in advance"]
+  red_lines:
+    - id: PAY_UPFRONT
+      text: "Kabul öncesi tam peşin ödeme"
+      severity: YUKSEK
+      patterns:
+        - "(?:%\\s*100|yüzde\\s+yüz|tamamı)[^.]{0,40}peşin"
+        - "sipariş[^.]{0,40}peşin"
+        - "peşin\\s+olarak\\s+ödenir"
+  ideal_text_tr: >-
+    Ödemeler, Banka'nın yazılı kabulünü müteakip düzenlenen faturanın tebliğinden itibaren otuz
+    (30) gün içinde yapılır. Kabul edilmemiş teslimatlar için ödeme yükümlülüğü doğmaz; ayıplı
+    ifa hâlinde Banka ödemeyi ayıp giderilene kadar askıya alabilir.
+  legal_basis: ["Banka iç politika: SAT-POL-009"]
+  negotiation_argument_tr: >-
+    Peşin ödeme, ifa riskini tamamen bankaya yükler. Kilometre taşına bağlı ödeme her iki taraf
+    için de disiplin sağlar.
+  severity_if_missing: ORTA
+
+- code: STAMP_DUTY
+  name_tr: Damga Vergisi
+  category: VERGI_MALI
+  obligation: ONERILEN
+  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 3
+  detection:
+    keywords_tr: ["damga vergisi", "damga resmi"]
+    keywords_en: ["stamp duty", "stamp tax"]
+  red_lines:
+    - id: STAMP_ALL_ON_BANK
+      text: "Damga vergisinin tamamı bankaya yüklenmiş"
+      severity: ORTA
+      patterns:
+        - "damga\\s+vergisi[^.]{0,80}(?:banka(?:'?ya|ya|\\s+tarafından)|müşteri(?:ye)?)[^.]{0,30}(?:aittir|ödenir|karşılanır|yükümlü)"
+  ideal_text_tr: >-
+    İşbu Sözleşme'den doğan damga vergisi Taraflarca eşit oranda karşılanır. Sözleşme tek nüsha
+    olarak düzenlenir ve nüsha çoğaltılmaz.
+  legal_basis: ["488 sayılı Damga Vergisi Kanunu", "Banka iç politika: SAT-POL-031"]
+  negotiation_argument_tr: >-
+    Damga vergisi sözleşme bedeli üzerinden hesaplandığı için yüksek tutarlı sözleşmelerde ciddi
+    bir kalemdir. Nüsha sayısının bire indirilmesi vergiyi doğrudan azaltır ve iki tarafın da işine gelir.
+  severity_if_missing: DUSUK
+
+- code: PENALTY
+  name_tr: Cezai Şart
+  category: TICARI_RISK
+  obligation: ONERILEN
+  applies_to: [HIZMET, SAAS, DONANIM, YAZILIM, DIS_KAYNAK]
+  weight: 3
+  detection:
+    keywords_tr: ["cezai şart", "gecikme cezası", "ceza bedeli"]
+    keywords_en: ["liquidated damages", "penalty"]
+  red_lines:
+    - id: PEN_ONLY_ON_BANK
+      text: "Ceza yalnızca bankanın geç ödemesi için öngörülmüş"
+      severity: ORTA
+      patterns:
+        - "banka[^.]{0,60}gecikme[^.]{0,40}(?:faiz|ceza)"
+  ideal_text_tr: >-
+    Tedarikçi'nin teslim/ifa takvimine uymaması hâlinde, gecikilen her takvim günü için ilgili
+    kalem bedelinin binde beşi (‰5) oranında cezai şart uygulanır. Cezai şartın ödenmesi
+    Banka'nın bunu aşan zararlarını talep hakkını ortadan kaldırmaz.
+  legal_basis: ["TBK m.180 (aşkın zarar)"]
+  negotiation_argument_tr: >-
+    Cezai şart olmayan bir teslim takvimi bağlayıcı değil, temenni niteliğindedir.
+  severity_if_missing: ORTA
