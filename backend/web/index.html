@@ -907,8 +907,9 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     $('rowKey').style.display = modelli?'':'none';
     $('rowModel').style.display = modelli?'':'none';
     $('rowBase').style.display = (modelli && (sag==='custom'||sag==='openai'))?'':'none';
-    // Model listeleme Gemini ve OpenAI uyumlu tüm uçlarda çalışır (GET /v1/models)
-    $('sFetch').style.display = (modelli && sag!=='anthropic')?'':'none';
+    // Model listeleme tüm sağlayıcılarda çalışır: Gemini ve Anthropic kendi
+    // uçlarını, OpenAI uyumlu servisler GET /v1/models ucunu kullanır.
+    $('sFetch').style.display = modelli?'':'none';
     $('rowCustom').style.display =
       (modelli && ($('sModel').value==='__diger__' || sag==='custom'))?'':'none';
     $('rowPrice').style.display = modelli?'':'none';

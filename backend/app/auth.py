@@ -191,4 +191,22 @@ def require_user(request: Request,
     return kullanici
 
 
+def optional_user(request: Request,
+                  feneri_oturum: str | None = Cookie(default=None)) -> str:
+    """Girisin zorunlu olmadigi uc noktalar icin.
+
+    Oturum varsa kullanici adini, yoksa bos dizge doner; 401 atmaz.
+    Uygulama herkese acik olsun ama sunucunun kendi API anahtari yalnizca
+    giris yapmis kullanicilara ayrilsin diye kullanilir (bkz. runner.execute).
+    """
+    if not settings.auth_enabled:
+        return "anonim"
+    kullanici = oturum_coz(feneri_oturum) if feneri_oturum else None
+    if kullanici:
+        request.state.kullanici = kullanici
+        return kullanici
+    return ""
+
+
 Kullanici = Depends(require_user)
+IstegeBagliKullanici = Depends(optional_user)

@@ -62,6 +62,10 @@ class Contract(Base):
     involves_personal_data: Mapped[bool] = mapped_column(Boolean, default=True)
     is_outsourcing: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    # Sunucunun kendi LLM anahtarı yalnızca giriş yapmış kullanıcılara ayrılır.
+    # Parolasız yüklenen sözleşmeler kural katmanıyla analiz edilir (bkz. runner.execute).
+    model_izinli: Mapped[bool] = mapped_column(Boolean, default=False)
+
     # analiz çıktısı
     status: Mapped[str] = mapped_column(String(30), default="YUKLENDI", index=True)
     counterparty: Mapped[str] = mapped_column(String(300), default="")

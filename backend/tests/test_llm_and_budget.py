@@ -187,8 +187,11 @@ def _db():
 
 def _sozlesme() -> str:
     with session_scope() as s:
+        # model_izinli: bu testler LLM yolunu dogruluyor; giris yapmis bir
+        # kullanicinin yukledigi sozlesmeyi temsil eder.
         c = Contract(title="t", filename=SAMPLE.name, storage_path=str(SAMPLE),
-                     contract_type="SAAS", involves_personal_data=True)
+                     contract_type="SAAS", involves_personal_data=True,
+                     model_izinli=True)
         s.add(c); s.flush()
         return c.id
 
