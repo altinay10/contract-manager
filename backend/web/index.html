@@ -524,13 +524,14 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
           <label for="sProv">Sağlayıcı</label>
           <div class="fld">
             <select id="sProv" class="wide">
-              <option value="">Otomatik (ortam değişkenine göre)</option>
+              <option value="">Default Sunucu LLM API</option>
               <option value="anthropic">Claude — Anthropic</option>
               <option value="openai">ChatGPT — OpenAI</option>
               <option value="gemini">Gemini — Google</option>
               <option value="custom">Diğer (Qwen, DeepSeek, Groq, OpenRouter, yerel Ollama/vLLM…)</option>
               <option value="heuristic">Model kullanma (yalnız kural katmanı)</option>
             </select>
+            <p class="hint" id="sProvHint"></p>
           </div>
         </div>
 
@@ -911,6 +912,18 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     $('rowCustom').style.display =
       (modelli && ($('sModel').value==='__diger__' || sag==='custom'))?'':'none';
     $('rowPrice').style.display = modelli?'':'none';
+
+    // Sunucunun kendi anahtarı seçildiğinde ne olduğunu ve parola şartını söyle.
+    var ipucu=$('sProvHint');
+    if($('sProv').value===''){
+      ipucu.className='hint warn';
+      ipucu.textContent='Sunucunun kendi API anahtarını kullanır (.env). '+
+        'Bu anahtar parola ile korunur — parolasız kullanılamaz. '+
+        'Kendi anahtarınızla çalışmak için listeden bir sağlayıcı seçip '+
+        'anahtarınızı aşağıya girin.';
+    } else {
+      ipucu.className='hint'; ipucu.textContent='';
+    }
   }
 
   function ciktiYaz(ok, metin){
