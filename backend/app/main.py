@@ -11,8 +11,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import (
-    BackgroundTasks, Body, Depends, FastAPI, File, Form, HTTPException, Request,
-    Response, UploadFile,
+    BackgroundTasks, Body, Cookie, Depends, FastAPI, File, Form, HTTPException,
+    Request, Response, UploadFile,
 )
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from sqlalchemy import select
@@ -120,9 +120,21 @@ def logout(request: Request, response: Response) -> dict:
 
 
 @app.get("/api/session")
-def session_durumu(feneri_oturum: str | None = None) -> dict:
-    """Arayüz açılışta bunu sorar: giriş ekranı mı, uygulama mı?"""
-    return {"auth_required": settings.auth_enabled}
+def session_durumu(feneri_oturum: str | None = Cookie(default=None)) -> dict:
+    """Arayüz açılışta bunu sorar.
+
+    Uygulama herkese açıktır; giriş yalnızca sunucunun LLM anahtarını ve
+    ayar ekranını açar. Bu uç korumasızdır, yoksa arayüz açılışta kilitlenir.
+
+    `feneri_oturum` çerez olarak okunur — düz `str | None` yazılırsa FastAPI
+    onu sorgu parametresi sayar ve çerez hiç ulaşmaz.
+    """
+    kullanici = auth.oturum_coz(feneri_oturum) if feneri_oturum else None
+    return {
+        "auth_required": settings.auth_enabled,
+        "authenticated": bool(kullanici) or not settings.auth_enabled,
+        "kullanici": kullanici or "",
+    }
 
 
 @app.post("/api/password")
