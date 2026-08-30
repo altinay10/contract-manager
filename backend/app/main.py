@@ -293,10 +293,17 @@ def test_settings(
     return {"ok": ok, "detail": detay}
 
 
-@app.get("/api/settings/models")
-def list_models(provider: str = "gemini", api_key: str | None = None,
-                base_url: str | None = None, kullanici: str = Depends(auth.require_user)) -> dict:
+@app.post("/api/settings/models")
+def list_models(
+    provider: str = Body("gemini"),
+    api_key: str | None = Body(None),
+    base_url: str | None = Body(None),
+    kullanici: str = Depends(auth.require_user),
+) -> dict:
     """Sağlayıcıdan gerçek model listesini çeker.
+
+    POST'tur çünkü API anahtarı gövdede taşınır: sorgu dizesinde gitseydi
+    ters vekil erişim kayıtlarına ve tarayıcı geçmişine düz metin yazılırdı.
 
     Gemini kendi uç noktasını, OpenAI uyumlu servisler `GET /v1/models` ucunu
     kullanır — bu uç DeepSeek, Groq, OpenRouter, Ollama ve vLLM'de de vardır.

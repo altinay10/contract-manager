@@ -943,10 +943,12 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
   });
   $('sFetch').addEventListener('click', function(){
     var b=this; b.disabled=true; b.textContent='getiriliyor…';
-    var q='/api/settings/models?provider='+encodeURIComponent(secilenSaglayici());
-    if($('sKey').value.trim()) q+='&api_key='+encodeURIComponent($('sKey').value.trim());
-    if($('sBase').value.trim()) q+='&base_url='+encodeURIComponent($('sBase').value.trim());
-    fetch(q).then(function(r){return r.json();}).then(function(d){
+    // Anahtar gövdede gider: sorgu dizesinde gitseydi vekil loglarina yazilirdi.
+    var govde={provider:secilenSaglayici()};
+    if($('sKey').value.trim()) govde.api_key=$('sKey').value.trim();
+    if($('sBase').value.trim()) govde.base_url=$('sBase').value.trim();
+    fetch('/api/settings/models',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(govde)}).then(function(r){return r.json();}).then(function(d){
       b.disabled=false; b.textContent='Modelleri getir';
       if(d.models && d.models.length){
         modelSecenekleriniKur(modelDegeri(), d.models); alanlariGuncelle();

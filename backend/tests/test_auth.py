@@ -49,6 +49,7 @@ KORUMALI = [
     ("post", "/api/demo"),
     ("get", "/api/contracts/xyz/progress"),
     ("get", "/api/reports/xyz"),
+    ("post", "/api/settings/models"),
 ]
 
 
@@ -62,6 +63,18 @@ def test_sozlesme_yukleme_de_korunur(korumali_istemci):
     r = korumali_istemci.post("/api/contracts",
                               files={"file": ("x.txt", b"deneme metni " * 40)})
     assert r.status_code == 401, "yükleme ucu korumasız"
+
+
+def test_model_listesi_anahtari_sorgu_dizesinde_kabul_etmez(korumali_istemci):
+    """API anahtari GET sorgu dizesinde gitmemeli.
+
+    Sorgu dizesi ters vekil erisim kayitlarina ve tarayici gecmisine duz metin
+    yazilir. Uc nokta POST olmali; GET'e donulurse bu test kirilir.
+    """
+    r = korumali_istemci.get("/api/settings/models", params={"api_key": "gizli"})
+    assert r.status_code == 405, (
+        "uc nokta GET kabul ediyor - anahtar sorgu dizesinde sizabilir"
+    )
 
 
 def test_saglik_ucu_acik_kalir(korumali_istemci):
