@@ -11,7 +11,7 @@
 Contract Manager (Sözleşme Feneri), Pi 5 üzerinde **Docker konteyneri** olarak,
 `127.0.0.1:8099`'a bağlı biçimde çalışacak. Erişim iki ayrı yoldan olacak:
 
-- **LAN'dan:** `http://sozlesmeanaliz.raspberrypi5.local` — nginx `:80` üzerinden (mevcut düzen).
+- **LAN'dan:** `http://contractmanager.raspberrypi5.local` — nginx `:80` üzerinden (mevcut düzen).
 - **İnternetten:** `https://<alan-adı>` — nginx `:8443` üzerinden, TLS ile.
   Router yalnızca bu portu yönlendirir, dolayısıyla **dışarıdan yalnızca bu uygulamaya
   ulaşılabilir**; Grafana, Pi-hole ve OpenVAS LAN'da kapalı kalır.
@@ -23,10 +23,10 @@ Seçilen yaklaşımlar:
 | Yönlendirme | **Alt alan adı** (vhost) | Mevcut deseni izler; uygulamada base-path ayarı gerekmez |
 | İsim çözümü | **avahi (mDNS) alias** | `.local` deseni korunur; macOS/iOS'ta ek ayar gerekmez |
 | Kod aktarımı | **Git deposu** | Tekrarlanabilir; güncelleme `git pull` + rebuild |
-| Dış erişim | **Ayrı dinleme portu** (`8443`) | Router yönlendirmesi yalnız bu uygulamaya ulaşır; Grafana/Pi-hole/OpenVAS LAN'da kalır |
-| TLS | **Zorunlu** (Let's Encrypt) | Uygulama internete açılacak; parola ve API anahtarı düz metin gidemez |
+| Dış erişim | **ERTELENDİ** — şimdilik yalnız LAN | Alan adı hazır olmadığı için; tasarımı §4'te duruyor |
+| TLS | **ERTELENDİ** | `.local` adlarına Let's Encrypt sertifikası alınamaz; gerçek alan adı gerekir |
 | Yetki | **root SSH anahtarı** | Kullanıcı tercihi (bkz. §9 risk notu) |
-| Sunucu adı | **`sozlesmeanaliz`** | Kod içindeki "Feneri" adından bağımsız; yalnız nginx + mDNS |
+| Sunucu adı | **`contractmanager`** | Kod içindeki "Feneri" adından bağımsız; yalnız nginx + mDNS |
 | Çerez | **`COOKIE_SECURE=0`** | LAN (HTTP) ve dış erişim (HTTPS) birlikte çalışsın (§4.4-B) |
 
 ---
@@ -266,7 +266,7 @@ en kritik güvenlik kararıdır (gerekçe §4.2).
 
 ```
 LAN istemcisi                                 İnternet
-     │ http://sozlesmeanaliz.raspberrypi5.local            │ https://<alan-adi>
+     │ http://contractmanager.raspberrypi5.local            │ https://<alan-adi>
      ▼                                             ▼
   nginx :80  (router YÖNLENDİRMEZ)          nginx :8443  (router WAN:443 → 8443)
      ├─ grafana.*  → 127.0.0.1:3000  MEVCUT       ├─ <alan-adi> → 127.0.0.1:8099  (TLS)
@@ -308,7 +308,7 @@ tanımadığı `Host` başlıklarında `return 444` ile bağlantıyı sessizce d
 
 | Uygulama | Dahili port | LAN ismi | Dış erişim |
 |---|---|---|---|
-| Contract Manager | **8099** | `sozlesmeanaliz.raspberrypi5.local`, `sozlesmeanaliz.rasp.local` | **var** (`:8443`) |
+| Contract Manager | **8099** | `contractmanager.raspberrypi5.local`, `contractmanager.rasp.local` | **var** (`:8443`) |
 | (2. uygulama) | **8100** | `app2.*` | ayrılmış |
 | (3. uygulama) | **8101** | `app3.*` | ayrılmış |
 | Grafana | 3000 | `grafana.*` (+ `:80` default) | **yok** |
@@ -369,7 +369,7 @@ Yerelde depo başlatılır ve uzak sunucuya gönderilir; Pi'de klonlanır.
 
 ```
 Yerel:  git init → commit → remote ekle → push
-Pi:     git clone → /opt/sozlesmeanaliz   (sahip: pi:pi)
+Pi:     git clone → /opt/contractmanager   (sahip: pi:pi)
 ```
 
 ### Adım 2 — Pi'ye özgü yapılandırma
@@ -408,12 +408,12 @@ docker compose up -d --build
 
 ### Adım 4 — nginx: LAN vhost'u
 
-`/etc/nginx/sites-available/sozlesmeanaliz.raspberrypi5.local.conf` (ve `.rasp.local` eşi):
+`/etc/nginx/sites-available/contractmanager.raspberrypi5.local.conf` (ve `.rasp.local` eşi):
 
 ```nginx
 server {
     listen 80;                          # default_server YOK — o Grafana'da kalır
-    server_name sozlesmeanaliz.raspberrypi5.local;
+    server_name contractmanager.raspberrypi5.local;
 
     client_max_body_size 25m;           # nginx varsayılanı 1 MB — PDF yüklenemezdi
 
@@ -442,7 +442,7 @@ Gereksiz `Connection: upgrade` başlığı keepalive davranışını bozabilir.
 router'da **WAN:80 → Pi:8081**, **WAN:443 → Pi:8443** yönlendirmesi.
 certbot Pi'de kurulu değil; kurulacak.
 
-`/etc/nginx/sites-available/sozlesmeanaliz-dis.conf`:
+`/etc/nginx/sites-available/contractmanager-dis.conf`:
 
 ```nginx
 # --- hız sınırı bölgesi (http bağlamı, conf.d altında) ---
@@ -511,19 +511,19 @@ Bu adım aynı zamanda **hâlihazırda ölü olan 4 ismi de canlandırır**
 (grafana, pihole, openvas, panel).
 
 `/etc/systemd/system/mdns-alias@.service` şablon birimi oluşturulur; her isim için
-bir örnek etkinleştirilir (`mdns-alias@sozlesmeanaliz.raspberrypi5.local.service` gibi).
+bir örnek etkinleştirilir (`mdns-alias@contractmanager.raspberrypi5.local.service` gibi).
 Böylece isim eklemek/çıkarmak tek bir `systemctl enable/disable` komutudur.
 
 ```bash
 sudo apt install -y avahi-utils
 # şablon birim: ExecStart=/usr/bin/avahi-publish -a -R %I 192.168.1.100
 # etkinleştirilecek örnekler:
-#   sozlesmeanaliz.raspberrypi5.local   sozlesmeanaliz.rasp.local
+#   contractmanager.raspberrypi5.local   contractmanager.rasp.local
 #   grafana.raspberrypi5.local  grafana.rasp.local     ← mevcut, ölü isimler
 #   pihole.*  openvas.*  panel.*                        ← mevcut, ölü isimler
 ```
 
-**Doğrulama:** Mac'ten `ping sozlesmeanaliz.raspberrypi5.local` → `192.168.1.100`
+**Doğrulama:** Mac'ten `ping contractmanager.raspberrypi5.local` → `192.168.1.100`
 
 ### Adım 6 — Uçtan uca doğrulama
 
@@ -531,8 +531,8 @@ sudo apt install -y avahi-utils
 
 | Kontrol | Beklenen |
 |---|---|
-| `curl -H 'Host: sozlesmeanaliz.raspberrypi5.local' http://192.168.1.100/api/health` | `200`, `ocr.ready: true` |
-| LAN tarayıcıdan `http://sozlesmeanaliz.raspberrypi5.local` | giriş ekranı |
+| `curl -H 'Host: contractmanager.raspberrypi5.local' http://192.168.1.100/api/health` | `200`, `ocr.ready: true` |
+| LAN tarayıcıdan `http://contractmanager.raspberrypi5.local` | giriş ekranı |
 | Dışarıdan `https://<alan-adi>` | giriş ekranı, geçerli sertifika |
 | 20 MB PDF yükleme | `413` **almamalı** |
 | `docker compose ps` | `healthy` |
@@ -582,9 +582,9 @@ sürelidir; ancak eşzamanlı çok kullanıcı için uygun değildir (`docs/11` 
 
 | Adım | Geri alma |
 |---|---|
-| nginx vhost | `rm /etc/nginx/sites-enabled/sozlesmeanaliz.*` → `nginx -t` → `systemctl reload nginx` |
+| nginx vhost | `rm /etc/nginx/sites-enabled/contractmanager.*` → `nginx -t` → `systemctl reload nginx` |
 | Konteyner | `docker compose down` (veri `feneri-data` biriminde kalır) |
-| Dış erişim (TLS) | `rm /etc/nginx/sites-enabled/sozlesmeanaliz-dis.conf` → `nginx -t` → reload; router yönlendirmesini kapat |
+| Dış erişim (TLS) | `rm /etc/nginx/sites-enabled/contractmanager-dis.conf` → `nginx -t` → reload; router yönlendirmesini kapat |
 | mDNS alias | `systemctl disable --now <unit>` |
 | Tümü | Yukarıdaki üçü; Pi ilk günkü haline döner |
 
