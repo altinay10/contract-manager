@@ -42,13 +42,26 @@ def _oturumu_temizle(korumali_istemci):
     yield
 
 
+# Yalnizca sunucu yapilandirmasini degistiren/gosteren uclar parola ister.
+# Uygulamanin kendisi herkese aciktir; sunucunun LLM anahtari ise yalnizca
+# giris yapmis kullanicilara ayrilir (bkz. test_parolasiz_yukleme_*).
 KORUMALI = [
     ("get", "/api/settings"),
-    ("get", "/api/contracts"),
+    ("put", "/api/settings"),
     ("get", "/api/audit"),
-    ("post", "/api/demo"),
+    ("post", "/api/password"),
+    ("delete", "/api/settings/key"),
+    ("post", "/api/settings/use-rules"),
+    ("post", "/api/settings/test"),
+    ("post", "/api/settings/models"),
+]
+
+# Parolasiz erisilebilmesi gereken uclar: uygulama herkese acik.
+ACIK = [
+    ("get", "/api/contracts"),
     ("get", "/api/contracts/xyz/progress"),
     ("get", "/api/reports/xyz"),
+    ("post", "/api/demo"),
 ]
 
 
@@ -58,10 +71,57 @@ def test_oturumsuz_erisim_reddedilir(korumali_istemci, yontem, yol):
     assert r.status_code == 401, f"{yol} korumasız! ({r.status_code})"
 
 
-def test_sozlesme_yukleme_de_korunur(korumali_istemci):
+@pytest.mark.parametrize("yontem,yol", ACIK)
+def test_acik_uclar_parolasiz_erisilebilir(korumali_istemci, yontem, yol):
+    """Uygulama herkese acik: bu uclar 401 DONMEMELI."""
+    r = getattr(korumali_istemci, yontem)(yol)
+    assert r.status_code != 401, f"{yol} parola istiyor, acik olmaliydi"
+
+
+def test_parolasiz_yukleme_sunucu_anahtarini_kullanamaz(korumali_istemci):
+    """Parolasiz yuklenen sozlesme kural katmaniyla analiz edilir.
+
+    Uygulama herkese acik ama sunucunun LLM anahtari korunur: yukleme kabul
+    edilir, model_izinli False kalir ve runner kural katmanina duser.
+    """
+    from app.db import session_scope
+    from app.models import Contract
+
     r = korumali_istemci.post("/api/contracts",
                               files={"file": ("x.txt", b"deneme metni " * 40)})
-    assert r.status_code == 401, "yükleme ucu korumasız"
+    assert r.status_code < 400, f"parolasiz yukleme reddedildi ({r.status_code})"
+    cid = r.json()["contract_id"]
+    with session_scope() as s:
+        c = s.get(Contract, cid)
+        assert c.model_izinli is False, "parolasiz yukleme sunucu anahtarina erisiyor"
+
+
+def test_parolali_yukleme_sunucu_anahtarini_kullanabilir(korumali_istemci):
+    """Giris yapmis kullanicinin yuklemesinde model_izinli True olmali."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    giris = korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    assert giris.status_code == 200, "test parolasi calismadi"
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("y.txt", b"deneme metni " * 40)})
+    assert r.status_code < 400
+    cid = r.json()["contract_id"]
+    with session_scope() as s:
+        c = s.get(Contract, cid)
+        assert c.model_izinli is True, "giris yapmis kullanici modele erisemiyor"
+
+
+def test_model_listesi_anahtari_sorgu_dizesinde_kabul_etmez(korumali_istemci):
+    """API anahtari GET sorgu dizesinde gitmemeli.
+
+    Sorgu dizesi ters vekil erisim kayitlarina ve tarayici gecmisine duz metin
+    yazilir. Uc nokta POST olmali; GET'e donulurse bu test kirilir.
+    """
+    r = korumali_istemci.get("/api/settings/models", params={"api_key": "gizli"})
+    assert r.status_code == 405, (
+        "uc nokta GET kabul ediyor - anahtar sorgu dizesinde sizabilir"
+    )
 
 
 def test_saglik_ucu_acik_kalir(korumali_istemci):

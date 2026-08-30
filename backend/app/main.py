@@ -11,8 +11,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import (
-    BackgroundTasks, Body, Depends, FastAPI, File, Form, HTTPException, Request,
-    Response, UploadFile,
+    BackgroundTasks, Body, Cookie, Depends, FastAPI, File, Form, HTTPException,
+    Request, Response, UploadFile,
 )
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from sqlalchemy import select
@@ -120,9 +120,21 @@ def logout(request: Request, response: Response) -> dict:
 
 
 @app.get("/api/session")
-def session_durumu(feneri_oturum: str | None = None) -> dict:
-    """Arayüz açılışta bunu sorar: giriş ekranı mı, uygulama mı?"""
-    return {"auth_required": settings.auth_enabled}
+def session_durumu(feneri_oturum: str | None = Cookie(default=None)) -> dict:
+    """Arayüz açılışta bunu sorar.
+
+    Uygulama herkese açıktır; giriş yalnızca sunucunun LLM anahtarını ve
+    ayar ekranını açar. Bu uç korumasızdır, yoksa arayüz açılışta kilitlenir.
+
+    `feneri_oturum` çerez olarak okunur — düz `str | None` yazılırsa FastAPI
+    onu sorgu parametresi sayar ve çerez hiç ulaşmaz.
+    """
+    kullanici = auth.oturum_coz(feneri_oturum) if feneri_oturum else None
+    return {
+        "auth_required": settings.auth_enabled,
+        "authenticated": bool(kullanici) or not settings.auth_enabled,
+        "kullanici": kullanici or "",
+    }
 
 
 @app.post("/api/password")
@@ -293,13 +305,21 @@ def test_settings(
     return {"ok": ok, "detail": detay}
 
 
-@app.get("/api/settings/models")
-def list_models(provider: str = "gemini", api_key: str | None = None,
-                base_url: str | None = None, kullanici: str = Depends(auth.require_user)) -> dict:
+@app.post("/api/settings/models")
+def list_models(
+    provider: str = Body("gemini"),
+    api_key: str | None = Body(None),
+    base_url: str | None = Body(None),
+    kullanici: str = Depends(auth.require_user),
+) -> dict:
     """Sağlayıcıdan gerçek model listesini çeker.
 
-    Gemini kendi uç noktasını, OpenAI uyumlu servisler `GET /v1/models` ucunu
-    kullanır — bu uç DeepSeek, Groq, OpenRouter, Ollama ve vLLM'de de vardır.
+    POST'tur çünkü API anahtarı gövdede taşınır: sorgu dizesinde gitseydi
+    ters vekil erişim kayıtlarına ve tarayıcı geçmişine düz metin yazılırdı.
+
+    Gemini ve Anthropic kendi uç noktalarını, OpenAI uyumlu servisler
+    `GET /v1/models` ucunu kullanır — bu uç DeepSeek, Groq, OpenRouter,
+    Ollama ve vLLM'de de vardır.
     """
     import json as _j
     import urllib.error
@@ -312,6 +332,11 @@ def list_models(provider: str = "gemini", api_key: str | None = None,
             return {"models": [], "detail": "API anahtarı gerekli"}
         url = "https://generativelanguage.googleapis.com/v1beta/models?pageSize=50"
         basliklar = {"x-goog-api-key": anahtar}
+    elif provider == "anthropic":
+        if not anahtar:
+            return {"models": [], "detail": "API anahtarı gerekli"}
+        url = "https://api.anthropic.com/v1/models?limit=100"
+        basliklar = {"x-api-key": anahtar, "anthropic-version": "2023-06-01"}
     elif provider in ("openai", "custom"):
         uc = (base_url or "").strip().rstrip("/") or rt.etkin_base_url(provider)
         if not uc:
@@ -327,6 +352,8 @@ def list_models(provider: str = "gemini", api_key: str | None = None,
             d = _j.load(r)
         if provider == "gemini":
             adlar = [m["name"].split("/")[-1] for m in d.get("models", [])]
+        elif provider == "anthropic":
+            adlar = [m.get("id", "") for m in (d.get("data") or []) if m.get("id")]
         else:
             adlar = [m.get("id", "") for m in (d.get("data") or []) if m.get("id")]
         uygun = [a for a in adlar if a and "tts" not in a and "embedding" not in a
@@ -346,7 +373,7 @@ async def upload(
     contract_type: str = Form("SAAS"),
     involves_personal_data: bool = Form(True),
     is_outsourcing: bool = Form(False),
-    kullanici: str = Depends(auth.require_user),
+    kullanici: str = Depends(auth.optional_user),
 ) -> JSONResponse:
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_SUFFIX:
@@ -365,6 +392,8 @@ async def upload(
             filename=_safe_name(file.filename or ""),
             mime=file.content_type or "",
             contract_type=contract_type,
+            # Sunucunun LLM anahtari yalnizca giris yapmis kullaniciya acilir.
+            model_izinli=bool(kullanici),
             involves_personal_data=involves_personal_data,
             is_outsourcing=is_outsourcing,
             size_bytes=len(data),
@@ -386,7 +415,8 @@ async def upload(
 
 
 @app.post("/api/demo")
-def demo(kullanici: str = Depends(auth.require_user)) -> JSONResponse:
+def demo(request: Request,
+         kullanici: str = Depends(auth.optional_user)) -> JSONResponse:
     """Pakete gomulu ornek sozlesmeyi analiz eder.
 
     Elinde sozlesme olmayan bir kullanicinin sistemi denemesi icin; ayrica
@@ -406,6 +436,7 @@ def demo(kullanici: str = Depends(auth.require_user)) -> JSONResponse:
             involves_personal_data=True,
             is_outsourcing=True,
             size_bytes=len(data),
+            model_izinli=bool(kullanici),
         )
         s.add(c)
         s.flush()
@@ -417,13 +448,13 @@ def demo(kullanici: str = Depends(auth.require_user)) -> JSONResponse:
         cid = c.id
 
     audit.kaydet(request, kullanici, "UPLOAD", "contract", cid,
-                 f"{file.filename} · {len(data)} bayt · {contract_type}")
+                 f"{src.name} · {len(data)} bayt · SAAS (örnek)")
     runner.start(cid)
     return JSONResponse({"contract_id": cid}, status_code=201)
 
 
 @app.get("/api/contracts/{contract_id}/progress")
-def progress(contract_id: str, kullanici: str = Depends(auth.require_user)) -> dict:
+def progress(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     data = runner.progress(contract_id)
     if not data:
         raise HTTPException(404, "Sözleşme bulunamadı")
@@ -431,7 +462,7 @@ def progress(contract_id: str, kullanici: str = Depends(auth.require_user)) -> d
 
 
 @app.post("/api/contracts/{contract_id}/resume")
-def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(auth.require_user)) -> dict:
+def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Yarım kalan analizi kaldığı yerden devam ettirir.
 
     Tamamlanmış bir analiz için varsayılan olarak HİÇBİR ŞEY YAPMAZ: baştan
@@ -461,7 +492,7 @@ def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(a
 
 @app.post("/api/contracts/{contract_id}/cancel")
 def cancel(contract_id: str, request: Request,
-           kullanici: str = Depends(auth.require_user)) -> dict:
+           kullanici: str = Depends(auth.optional_user)) -> dict:
     """Analizi iptal eder. İşlem bir sonraki güvenli noktada durur;
     o ana kadar tamamlanmış aşamalar korunur ve devam ettirilebilir."""
     with session_scope() as s:
@@ -474,7 +505,7 @@ def cancel(contract_id: str, request: Request,
 
 
 @app.get("/api/contracts/{contract_id}/findings")
-def findings(contract_id: str, kullanici: str = Depends(auth.require_user)) -> dict:
+def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     with session_scope() as s:
         rows = list(s.scalars(select(Finding).where(Finding.contract_id == contract_id)))
         order = {"KRITIK": 0, "YUKSEK": 1, "ORTA": 2, "DUSUK": 3, "BILGI": 4}
@@ -497,21 +528,28 @@ def findings(contract_id: str, kullanici: str = Depends(auth.require_user)) -> d
 
 
 @app.get("/api/contracts/{contract_id}/usage")
-def usage(contract_id: str, kullanici: str = Depends(auth.require_user)) -> dict:
+def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Bu sözleşme için harcanan token ve maliyet dökümü."""
     with session_scope() as s:
-        if s.get(Contract, contract_id) is None:
+        c = s.get(Contract, contract_id)
+        if c is None:
             raise HTTPException(404, "Sözleşme bulunamadı")
         calls = list(s.scalars(select(LLMCall).where(LLMCall.contract_id == contract_id)))
         ozet = runner.usage_summary(calls)
-        ozet["provider"] = get_provider().name
-        ozet["model"] = active_model(get_provider())
+        # O anki yapilandirmayi degil, BU analizin gercekte kullandigini bildir:
+        # parolasiz yuklenen sozlesmeler kural katmaniyla islenir.
+        if c.model_izinli:
+            ozet["provider"] = get_provider().name
+            ozet["model"] = active_model(get_provider())
+        else:
+            ozet["provider"] = "heuristic"
+            ozet["model"] = None
         return ozet
 
 
 @app.get("/api/reports/{report_id}")
 def download(report_id: str, request: Request,
-             kullanici: str = Depends(auth.require_user)) -> FileResponse:
+             kullanici: str = Depends(auth.optional_user)) -> FileResponse:
     with session_scope() as s:
         r = s.get(Report, report_id)
         if r is None or not Path(r.path).exists():
@@ -530,7 +568,7 @@ def download(report_id: str, request: Request,
 
 
 @app.get("/api/contracts")
-def list_contracts(limit: int = 30, kullanici: str = Depends(auth.require_user)) -> dict:
+def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)) -> dict:
     with session_scope() as s:
         rows = list(
             s.scalars(select(Contract).order_by(Contract.created_at.desc()).limit(limit))

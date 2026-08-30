@@ -38,7 +38,8 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .db import session_scope
 from .llm.budget import Budget, BudgetExceeded
-from .llm.provider import LLMProvider, active_model, get_provider
+from .llm.provider import (HeuristicProvider, LLMProvider, active_model,
+                            get_provider)
 from .models import (
     STAGE_KEYS, AnalysisRun, Clause, Contract, DroppedFinding, Finding, LLMCall,
     Report, StageCheckpoint, WorkItem, utcnow,
@@ -814,14 +815,23 @@ def _checkpoint(s: Session, run: AnalysisRun, stage: str, pos: int) -> StageChec
 
 def execute(contract_id: str) -> None:
     """Analizi bastan ya da kaldigi yerden yurutur."""
-    provider = get_provider()
-    # Butce her calistirmada sifirlanir; devam eden bir analiz yeni bir tavanla surer.
-    budget = Budget() if provider.is_llm else None
     with session_scope() as s:
         contract = s.get(Contract, contract_id)
         if contract is None:
             log.error("Sozlesme bulunamadi: %s", contract_id)
             return
+
+        # Sunucunun kendi LLM anahtari yalnizca giris yapmis kullanicilara ayrilir.
+        # Parolasiz yuklenen sozlesmeler kural katmaniyla analiz edilir; boylece
+        # uygulama herkese acik kalirken API kotasi korunur.
+        if contract.model_izinli:
+            provider = get_provider()
+        else:
+            provider = HeuristicProvider()
+            log.info("Sozlesme %s parolasiz yuklendi; kural katmani kullaniliyor",
+                     contract_id)
+        # Butce her calistirmada sifirlanir; devam eden analiz yeni bir tavanla surer.
+        budget = Budget() if provider.is_llm else None
 
         run = _get_or_create_run(s, contract_id)
         contract.status = "ISLENIYOR"
