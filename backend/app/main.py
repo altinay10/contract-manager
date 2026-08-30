@@ -519,12 +519,19 @@ def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Bu sözleşme için harcanan token ve maliyet dökümü."""
     with session_scope() as s:
-        if s.get(Contract, contract_id) is None:
+        c = s.get(Contract, contract_id)
+        if c is None:
             raise HTTPException(404, "Sözleşme bulunamadı")
         calls = list(s.scalars(select(LLMCall).where(LLMCall.contract_id == contract_id)))
         ozet = runner.usage_summary(calls)
-        ozet["provider"] = get_provider().name
-        ozet["model"] = active_model(get_provider())
+        # O anki yapilandirmayi degil, BU analizin gercekte kullandigini bildir:
+        # parolasiz yuklenen sozlesmeler kural katmaniyla islenir.
+        if c.model_izinli:
+            ozet["provider"] = get_provider().name
+            ozet["model"] = active_model(get_provider())
+        else:
+            ozet["provider"] = "heuristic"
+            ozet["model"] = None
         return ozet
 
 
