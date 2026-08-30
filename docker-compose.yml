@@ -7,7 +7,8 @@ services:
     container_name: sozlesme-feneri
     restart: unless-stopped
     ports:
-      - "${HOST_PORT:-8099}:8000"
+      # Yalniz localhost: uygulamaya ters vekil (nginx) uzerinden erisilir.
+      - "127.0.0.1:${HOST_PORT:-8099}:8000"
     # Not: docker compose, proje dizinindeki .env dosyasını aşağıdaki ${...}
     # ifadeleri için otomatik okur; ayrıca env_file tanımlamaya gerek yoktur.
     environment:
@@ -53,7 +54,7 @@ services:
       STAGE_MAX_ATTEMPTS: "3"
       ITEM_MAX_ATTEMPTS: "2"
       ORPHAN_AFTER_SECONDS: "90"
-      MAX_UPLOAD_MB: "40"
+      MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-40}"
     # Küçük donanımda (Raspberry Pi) konteynerin belleği tüketmesini engeller.
     mem_limit: ${MEM_LIMIT:-1500m}
     logging:
