@@ -784,7 +784,9 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
   var SEVIYE={}, HAZIR=[], FIYATLAR={}, mevcutAyar=null;
 
   function ayarYukle(){
-    // Parolasız kullanıcıda bu uç 401 döner: ayar paneli kapalı kalır, hata basılmaz.
+    // Ayar ucu korumalı: parolasız kullanıcıda hiç çağrılmaz. Yalnızca 401'i
+    // yakalamak yetmezdi — tarayıcı başarısız isteği yine de konsola yazar.
+    if(!girisYapildi){ return; }
     fetch('/api/settings').then(function(r){
       if(r.status===401){ return null; }
       return r.json();
@@ -1162,11 +1164,13 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     fetch('/api/contracts/'+contractId+'/usage').then(function(r){return r.json();})
       .then(showUsage).catch(function(){});
     // Analiz sırasında model hata verdiyse kullanıcıya seçeneklerini sun.
-    fetch('/api/settings').then(function(r){
-      return r.status===401 ? null : r.json();
-    }).then(function(d){
-      if(d && d.model_error){ mevcutAyar=d; modelHatasiGoster(d.model_error); $('settings').open=true; }
-    }).catch(function(){});
+    if(girisYapildi){
+      fetch('/api/settings').then(function(r){
+        return r.status===401 ? null : r.json();
+      }).then(function(d){
+        if(d && d.model_error){ mevcutAyar=d; modelHatasiGoster(d.model_error); $('settings').open=true; }
+      }).catch(function(){});
+    }
   }
 
   function fmt(n){ return (n||0).toLocaleString('tr-TR'); }
