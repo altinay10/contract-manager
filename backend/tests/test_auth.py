@@ -124,6 +124,23 @@ def test_model_listesi_anahtari_sorgu_dizesinde_kabul_etmez(korumali_istemci):
     )
 
 
+def test_session_ucu_korumasiz_ve_oturum_durumunu_bildirir(korumali_istemci):
+    """Arayüz açılışta bunu sorar; korunursa uygulama parolasız kilitlenir.
+
+    Daha önce arayüz giriş kararını /api/settings'in 401'inden çıkarıyordu ve
+    bu yüzden uygulama herkese açık olmasına rağmen giriş ekranı gösteriyordu.
+    """
+    r = korumali_istemci.get("/api/session")
+    assert r.status_code == 200, "session ucu korunuyor; açılış kilitlenir"
+    d = r.json()
+    assert d["auth_required"] is True
+    assert d["authenticated"] is False, "oturumsuz istekte authenticated True döndü"
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    d = korumali_istemci.get("/api/session").json()
+    assert d["authenticated"] is True, "giriş sonrası oturum görülmüyor (çerez okunmuyor mu?)"
+
+
 def test_saglik_ucu_acik_kalir(korumali_istemci):
     """Docker healthcheck oturum acamaz; bu uc acik ama ayrinti sizdirmaz."""
     r = korumali_istemci.get("/api/health")

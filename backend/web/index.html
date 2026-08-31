@@ -446,11 +446,13 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     <h1 style="font-size:30px;line-height:1.15;letter-spacing:-.03em;margin:12px 0 10px;
                font-weight:800">Sözleşme Feneri</h1>
     <p class="lead" style="font-size:14.5px;margin-bottom:22px">
-      Devam etmek için giriş yapın.</p>
+      Uygulamayı parolasız da kullanabilirsiniz; sözleşmeler kural katmanıyla
+      analiz edilir. Giriş, sunucunun yapay zekâ modelini ve ayar ekranını açar.</p>
     <div class="panel" style="padding:20px">
       <div class="fld" style="flex-direction:column;align-items:stretch;gap:10px">
         <input type="password" id="gPass" placeholder="parola" autocomplete="current-password">
         <button class="btn" id="gBtn" type="button">Giriş yap</button>
+        <button class="btn ghost" id="gVaz" type="button">Parolasız devam et</button>
         <div id="gErr"></div>
       </div>
     </div>
@@ -669,8 +671,12 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
 
 <footer>
   <div class="wrap">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-      <button class="btn ghost" id="cikis" type="button">Çıkış yap</button>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:14px">
+      <span class="hint" id="modNot" style="display:none;margin:0;text-align:right">
+        Kural katmanı modundasınız — sunucunun yapay zekâ modelini kullanmak için giriş yapın.
+      </span>
+      <button class="btn ghost" id="girisAc" type="button" style="display:none">Giriş yap</button>
+      <button class="btn ghost" id="cikis" type="button" style="display:none">Çıkış yap</button>
     </div>
     <div class="note">
       <div class="bar-i"></div>
@@ -689,12 +695,23 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
 
-  /* --- giriş kapısı --------------------------------------------------------
-     Uygulama, oturum doğrulanmadan hiçbir veri istemez. /api/settings 401
-     dönerse giriş ekranı gösterilir. */
+  /* --- oturum durumu -------------------------------------------------------
+     Uygulama herkese açıktır; giriş yalnızca sunucunun LLM anahtarını ve ayar
+     ekranını açar. Açılışta korumalı bir uç yoklanmaz — /api/settings'in 401'i
+     giriş kapısı olarak kullanılırsa uygulama parolasız kilitlenir. */
+  var girisYapildi = false;
+
+  function girisDurumunuYansit(){
+    var g = girisYapildi;
+    if($('cikis'))    $('cikis').style.display    = g ? '' : 'none';
+    if($('girisAc'))  $('girisAc').style.display  = g ? 'none' : '';
+    if($('modNot'))   $('modNot').style.display   = g ? 'none' : '';
+  }
+
   function uygulamayiAc(){
     $('gate').style.display='none';
     $('uygulama').style.display='';
+    girisDurumunuYansit();
     baslat();
   }
   function girisiGoster(mesaj){
@@ -714,7 +731,7 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
         return r.json().then(function(e){ throw new Error(e.detail||'Giriş başarısız'); });
       })
       .then(function(){ $('gPass').value=''; b.disabled=false; b.textContent='Giriş yap';
-                        uygulamayiAc(); })
+                        girisYapildi = true; uygulamayiAc(); ayarYukle(); })
       .catch(function(e){ b.disabled=false; b.textContent='Giriş yap';
                           $('gErr').innerHTML='<div class="testout err">'+
                             String(e.message).replace(/[<>]/g,'')+'</div>'; });
@@ -726,11 +743,16 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     $('cikis').addEventListener('click', function(){
       fetch('/api/logout',{method:'POST'}).then(function(){ location.reload(); });
     });
-    // Oturum var mı? /api/settings korumalı bir uç: 401 => giriş gerekli.
-    fetch('/api/settings').then(function(r){
-      if(r.status===401){ girisiGoster(''); return; }
+    if($('girisAc')) $('girisAc').addEventListener('click', function(){ girisiGoster(''); });
+    if($('gVaz'))    $('gVaz').addEventListener('click', function(){ uygulamayiAc(); });
+    // /api/session korumasızdır: yalnızca oturum var mı diye sorar, veri döndürmez.
+    fetch('/api/session').then(function(r){return r.json();}).then(function(d){
+      girisYapildi = !!d.authenticated;
       uygulamayiAc();
-    }).catch(function(){ girisiGoster('Sunucuya ulaşılamadı'); });
+    }).catch(function(){
+      girisYapildi = false;
+      uygulamayiAc();   // sunucuya ulaşılamasa da kilitleme; alt bileşenler hatayı gösterir
+    });
   }
 
   // Betik gövdenin sonunda olduğu için DOMContentLoaded çoktan geçmiş olabilir;
@@ -762,7 +784,12 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
   var SEVIYE={}, HAZIR=[], FIYATLAR={}, mevcutAyar=null;
 
   function ayarYukle(){
-    fetch('/api/settings').then(function(r){return r.json();}).then(function(d){
+    // Parolasız kullanıcıda bu uç 401 döner: ayar paneli kapalı kalır, hata basılmaz.
+    fetch('/api/settings').then(function(r){
+      if(r.status===401){ return null; }
+      return r.json();
+    }).then(function(d){
+      if(!d) return;
       mevcutAyar=d; SEVIYE=d.model_options||{};
       SEVIYE=d.model_options||{}; HAZIR=d.presets||[]; FIYATLAR=d.known_prices||{};
       $('sProv').value=d.provider||'';
@@ -1135,8 +1162,10 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     fetch('/api/contracts/'+contractId+'/usage').then(function(r){return r.json();})
       .then(showUsage).catch(function(){});
     // Analiz sırasında model hata verdiyse kullanıcıya seçeneklerini sun.
-    fetch('/api/settings').then(function(r){return r.json();}).then(function(d){
-      if(d.model_error){ mevcutAyar=d; modelHatasiGoster(d.model_error); $('settings').open=true; }
+    fetch('/api/settings').then(function(r){
+      return r.status===401 ? null : r.json();
+    }).then(function(d){
+      if(d && d.model_error){ mevcutAyar=d; modelHatasiGoster(d.model_error); $('settings').open=true; }
     }).catch(function(){});
   }
 
