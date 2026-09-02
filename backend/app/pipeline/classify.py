@@ -92,7 +92,36 @@ def _hits(pattern: re.Pattern, text: str) -> int:
     return len(pattern.findall(text))
 
 
-def score_clause(heading: str, text: str, contract_type: str) -> list[tuple[str, float]]:
+# Bir anahtar kelime belgedeki maddelerin bu orandan fazlasinda geciyorsa, o kelime
+# konu degil TANIMLI TERIM'dir (taraf adi gibi) ve siniflandirmayi bogar.
+# Gercek vaka: "Dis Hizmet Saglayici" taraf adi oldugu icin "dis hizmet" anahtari
+# 73 maddenin 46'sinda eslesti ve SUPPORT_SERVICE_STATUS her yere atandi.
+TANIMLI_TERIM_ORANI = 0.40
+TANIMLI_TERIM_AGIRLIGI = 0.15
+
+
+def yaygin_anahtarlar(maddeler: list[tuple[str, str]], contract_type: str) -> set[str]:
+    """Belge genelinde cok siklikla gecen anahtarlari tespit eder."""
+    pb = load_playbook()
+    toplam = len(maddeler)
+    if toplam < 8:              # kisa belgede oran anlamli degil
+        return set()
+    sayac: dict[str, int] = {}
+    for baslik, govde in maddeler:
+        ft = fold(baslik + " " + govde)
+        for ct in pb.values():
+            if not ct.applies(contract_type):
+                continue
+            for kw in ct.keywords:
+                if keyword_pattern(kw).search(ft):
+                    sayac[kw] = sayac.get(kw, 0) + 1
+    esik = toplam * TANIMLI_TERIM_ORANI
+    return {kw for kw, n in sayac.items() if n > esik}
+
+
+def score_clause(heading: str, text: str, contract_type: str,
+                 yaygin: set[str] | None = None,
+                 alici: str | None = None) -> list[tuple[str, float]]:
     """(code, skor) listesi, azalan sirada."""
     pb = load_playbook()
     fh = fold(heading)
@@ -106,6 +135,8 @@ def score_clause(heading: str, text: str, contract_type: str) -> list[tuple[str,
         for kw in ct.keywords:
             pat = keyword_pattern(kw)
             ozgulluk = 1.0 + OZGULLUK * kw.count(" ")
+            if yaygin and kw in yaygin:
+                ozgulluk *= TANIMLI_TERIM_AGIRLIGI     # tanımlı terim: sinyal değeri düşük
             if pat.search(fh):
                 score += HEADING_WEIGHT * ozgulluk
             n = _hits(pat, ft)
@@ -114,7 +145,7 @@ def score_clause(heading: str, text: str, contract_type: str) -> list[tuple[str,
         # Kirmizi cizgi deseni eslesiyorsa bu, anahtar kelimeden cok daha guclu
         # bir sinyaldir: madde tipi kesin atanir. Aksi halde siniflandirma kacagi
         # "bu koruma sozlesmede yok" seklinde yanlis bir beyana donusur.
-        if score < MIN_SCORE and _desen_isabeti(text, ct):
+        if score < MIN_SCORE and _desen_isabeti(text, ct, alici):
             score = max(score, MIN_SCORE + 1.0)
 
         if score >= MIN_SCORE:
@@ -124,18 +155,26 @@ def score_clause(heading: str, text: str, contract_type: str) -> list[tuple[str,
     return out[:MAX_CANDIDATES]
 
 
-def _desen_isabeti(text: str, ct: ClauseType) -> bool:
-    """Bu madde tipinin kirmizi cizgi desenlerinden biri metinde eslesiyor mu?"""
+def _desen_isabeti(text: str, ct: ClauseType, alici: str | None = None) -> bool:
+    """Bu madde tipinin kirmizi cizgi desenlerinden biri metinde eslesiyor mu?
+
+    Desenlerdeki {ALICI} yer tutucusu burada da doldurulmalidir; aksi halde
+    duz metin olarak aranir ve hicbir zaman eslesmez.
+    """
+    from .redlines import _uygula_alici
+
     hay = tr_lower(text)
     for rl in ct.red_lines:
-        for pat in rl.patterns:          # yalnizca POZITIF desenler; yokluk kurallari degil
-            if pat.search(hay):
+        for ham in rl.patterns:          # yalnizca POZITIF desenler; yokluk kurallari degil
+            if _uygula_alici(ham, alici).search(hay):
                 return True
     return False
 
 
-def classify(heading: str, text: str, contract_type: str) -> list[dict]:
-    raw = score_clause(heading, text, contract_type)
+def classify(heading: str, text: str, contract_type: str,
+             yaygin: set[str] | None = None,
+             alici: str | None = None) -> list[dict]:
+    raw = score_clause(heading, text, contract_type, yaygin, alici)
     if not raw:
         return []
     top = raw[0][1]

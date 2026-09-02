@@ -475,3 +475,73 @@ def test_basarili_analizde_kullanim_bolumu_dogru(monkeypatch, tmp_path):
     assert "Model kullanımı" in html
     assert 'class="bar"' in html, "token çubuğu çizilmemiş"
     assert "Girdi" in html and "Çıktı" in html
+
+
+# --------------------------------------------------------------- prompt hijyeni
+def test_sistem_promptu_taraf_adina_sabitlenmemis():
+    """Gercek hata: prompt "Banka ALICI konumundadir" diyordu. Alici "PRATIK ISLEM"
+    ise model yanlis taraf adiyla calisiyordu."""
+    from app.pipeline.analyze import LENS_PROMPTS, SYSTEM_PROMPT
+
+    assert "banka" not in SYSTEM_PROMPT.lower(), "sistem promptu hâlâ 'banka' diyor"
+    assert "ALICI" in SYSTEM_PROMPT
+    for ad, metin in LENS_PROMPTS.items():
+        assert "banka" not in metin.lower(), f"{ad} merceği 'banka' diyor"
+
+
+def test_gorev_blogu_gercek_taraf_adlarini_tasir():
+    from app.pipeline.analyze import build_task_block
+    from app.pipeline.redlines import evaluate_red_lines
+    from app.playbook.loader import load_playbook
+
+    ct = load_playbook()["STAMP_DUTY"]
+    t = "Damga vergisi Pratik İşlem tarafından ödenir."
+    tb = build_task_block("18", "MASRAFLAR", t, ct, evaluate_red_lines(t, ct), [],
+                          taraflar=(["PRATİK İŞLEM"], ["DIŞ HİZMET SAĞLAYICI"]))
+    assert "PRATİK İŞLEM" in tb
+    assert "DIŞ HİZMET SAĞLAYICI" in tb
+    assert "ALICI" in tb
+
+
+def test_gorev_blogu_sade_anlatimi_tasir():
+    """Model, hukukcu olmayan okuyucunun anlayacagi register'da yazsin diye."""
+    from app.pipeline.analyze import build_task_block
+    from app.playbook.loader import load_playbook
+
+    ct = load_playbook()["LIMITATION_OF_LIABILITY"]
+    assert ct.plain_tr, "sade anlatım yüklenmemiş"
+    tb = build_task_block("12", "SORUMLULUK", "Sorumluluk sınırlıdır.", ct, [], [])
+    assert "SADE ANLATIMI" in tb
+    assert ct.plain_tr.strip()[:40] in tb
+
+
+def test_sema_gereksiz_uretimi_sinirlar():
+    """Model ayni sorunu parcalara bolerek raporu sisiremesin."""
+    from app.pipeline.analyze import FINDING_SCHEMA
+
+    dizi = FINDING_SCHEMA["properties"]["findings"]
+    assert dizi["maxItems"] == 3, "madde başına bulgu sınırı yok"
+    alanlar = dizi["items"]["properties"]
+    assert alanlar["rationale"]["maxLength"] <= 800
+    assert alanlar["title"]["maxLength"] <= 150
+
+
+def test_kirmizi_cizgi_metinleri_taraf_adina_sabitlenmemis():
+    """Bu metinler hem modele checklist olarak gidiyor hem rapora baslik oluyor."""
+    from app.playbook.loader import load_playbook
+
+    # "Banka sırrı" hukuki bir kavramdir; istisna.
+    ISTISNA = {"Banka sırrı / müşteri sırrı kavramına atıf yok"}
+    kotu = [(k, rl.text) for k, c in load_playbook().items() for rl in c.red_lines
+            if "banka" in rl.text.lower() and rl.text not in ISTISNA]
+    assert not kotu, f"taraf adına sabitlenmiş metinler: {kotu}"
+
+
+def test_prompt_uydurmayi_ve_sismeyi_acikca_yasaklar():
+    from app.pipeline.analyze import SYSTEM_PROMPT
+
+    p = SYSTEM_PROMPT.lower()
+    assert "uydurma" in p
+    assert "otomatik olarak silinir" in p          # alıntı doğrulaması caydırıcı
+    assert "bulgu uretme" in p or "bulgu üretme" in p
+    assert "tekrarlama" in p

@@ -591,3 +591,27 @@ def test_arayuz_javascripti_sozdizimsel_gecerli(istemci, tmp_path):
     yol.write_text(js, encoding="utf-8")
     r = subprocess.run([node, "--check", str(yol)], capture_output=True, text=True)
     assert r.returncode == 0, f"arayüz JavaScript'i geçersiz:\n{r.stderr[:600]}"
+
+
+def test_raporda_terimler_aciklaniyor(istemci, tamamlanmis):
+    """Son kullanici 'escrow', 'temlik' gibi terimleri anlamak zorunda kalmamali."""
+    _, p = tamamlanmis
+    rid = next(r["id"] for r in p["reports"] if r["fmt"] == "HTML")
+    h = istemci.get(f"/api/reports/{rid}").text
+
+    assert "Bu ne demek?" in h, "bulgularda sade anlatım yok"
+    assert "Terimler sözlüğü" in h, "sözlük bölümü yok"
+    # Sozlukte gercekten aciklama olmali
+    assert "tarafsız bir kuruluşa emanet" in h or "üst sınırıdır" in h
+
+
+def test_json_ciktisinda_sade_anlatim_tasiniyor(istemci, tamamlanmis):
+    import json as _j
+
+    _, p = tamamlanmis
+    rid = next(r["id"] for r in p["reports"] if r["fmt"] == "JSON")
+    d = _j.loads(istemci.get(f"/api/reports/{rid}").content)
+    if d["findings"]:
+        f = d["findings"][0]
+        assert "plain" in f and f["plain"], "JSON çıktısında sade anlatım yok"
+        assert "clause_name" in f

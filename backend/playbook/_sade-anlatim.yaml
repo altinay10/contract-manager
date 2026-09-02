@@ -1,0 +1,190 @@
+# Madde tiplerinin hukukçu olmayan okuyucu için sade anlatımı.
+# Raporda her bulgunun altında "Bu ne demek?" olarak gösterilir.
+# Tek dosyada tutulur ki Hukuk Müşavirliği tek seferde gözden geçirebilsin.
+
+LIMITATION_OF_LIABILITY: >-
+  Tedarikçi bir hata yaptığında bankaya en fazla ne kadar ödeyeceğinin üst sınırıdır.
+  Sınır düşükse, tedarikçinin hatası bankaya milyonlarca liraya mal olsa bile
+  yalnızca o küçük tutarı alabilirsiniz; kalanı banka üstlenir.
+
+INDEMNITY: >-
+  Üçüncü bir kişi bankaya dava açtığında masrafı ve tazminatı kimin ödeyeceğini belirler.
+  Tek taraflı yazılmışsa, tedarikçinin sebep olduğu bir sorunun faturası bankaya çıkar.
+
+PRICE_INCREASE: >-
+  Tedarikçinin fiyatı sonradan artırıp artıramayacağını, artırırsa ne kadar
+  artırabileceğini düzenler. Tavan yoksa bütçenizi tedarikçi belirler.
+
+PAYMENT_TERMS: >-
+  Paranın ne zaman ödeneceğini belirler. Teslim alınmadan peşin ödeme, iş kötü çıkarsa
+  bankanın elinde koz bırakmaz.
+
+STAMP_DUTY: >-
+  Sözleşme imzalandığında devlete ödenen vergidir ve sözleşme bedeli üzerinden hesaplanır.
+  Yüksek tutarlı sözleşmelerde ciddi bir kalemdir; kimin ödeyeceği yazılmalıdır.
+
+PENALTY: >-
+  Tedarikçi işi zamanında veya doğru yapmazsa ödeyeceği cezadır. Yoksa teslim
+  tarihi bir söz olmaktan öteye gitmez; gecikmenin bankaya maliyeti olur, tedarikçiye olmaz.
+
+AUDIT_RIGHT: >-
+  Bankanın ve BDDK'nın tedarikçiyi yerinde veya uzaktan denetleyebilmesidir.
+  Denetleyemediğiniz bir tedarikçinin ne yaptığını bilemez, denetimde hesabını veremezsiniz.
+
+SUBCONTRACTOR: >-
+  Tedarikçinin işi başkasına yaptırıp yaptıramayacağıdır. Onayınız olmadan
+  yaptırabiliyorsa, banka verisinin kimin elinde olduğunu bilemezsiniz.
+
+DATA_LOCATION: >-
+  Banka verisinin fiziksel olarak hangi ülkedeki sunucularda tutulacağıdır.
+  Yurt dışına çıkması hem mevzuata aykırı olabilir hem de bir sorunda erişiminizi zorlaştırır.
+
+BREACH_NOTIFICATION: >-
+  Tedarikçi bir veri sızıntısı yaşadığında bankaya ne kadar sürede haber vereceğidir.
+  Banka bu olayı Kuruma 72 saat içinde bildirmek zorunda; tedarikçi geç haber verirse
+  banka kendi yükümlülüğünü yerine getiremez.
+
+CONFIDENTIALITY: >-
+  Tedarikçinin banka ve müşteri bilgilerini saklama yükümlülüğüdür. Süreye bağlanırsa,
+  süre dolduğunda bilgiler korumasız kalır.
+
+NO_MODEL_TRAINING: >-
+  Tedarikçinin banka verisini kendi yapay zekâ modelini eğitmek veya ürününü
+  geliştirmek için kullanıp kullanamayacağıdır. Bir kez kullanıldıysa geri alınamaz.
+
+DPA: >-
+  Kişisel verilerin nasıl işleneceğini düzenleyen zorunlu ektir. Yoksa banka,
+  veri sorumlusu olarak doğrudan idari para cezası riskiyle karşı karşıya kalır.
+
+SECURITY_TESTING: >-
+  Bankanın tedarikçinin sistemlerinde güvenlik testi yaptırabilmesidir.
+  Test edemezseniz, güvenlik seviyesini yalnızca tedarikçinin sözüne dayanarak kabul edersiniz.
+
+SLA: >-
+  Hizmetin ne kadar süre ayakta kalacağının ve arızaların ne kadar sürede
+  çözüleceğinin sayısal taahhüdüdür. "Elinden geleni yapar" gibi ifadeler ölçülemez,
+  dolayısıyla ihlal edildiği de ispatlanamaz.
+
+BUSINESS_CONTINUITY: >-
+  Tedarikçinin sistemi çöktüğünde hizmeti ne kadar sürede geri getireceğidir.
+  Ölçülebilir bir hedef yoksa kesinti süresi belirsizdir.
+
+EXIT_TRANSITION: >-
+  Sözleşme bittiğinde bankanın verisini geri alması ve başka bir tedarikçiye
+  geçebilmesidir. Yoksa banka fiilen o tedarikçiye mahkûm olur ve yenileme
+  görüşmesinde pazarlık gücü kalmaz.
+
+ACCEPTANCE: >-
+  Teslim edilen işin ne zaman kabul edilmiş sayılacağıdır. "İtiraz edilmezse kabul
+  edilmiş sayılır" kaydı, ekibin yoğunluğunu tedarikçi lehine bir hakka çevirir.
+
+SOURCE_CODE_ESCROW: >-
+  Yazılımın kaynak kodunun tarafsız bir kuruluşa emanet edilmesidir. Tedarikçi
+  iflas eder veya desteği keserse banka koda ulaşıp hizmeti sürdürebilir; yoksa sistem durur.
+
+IP_OWNERSHIP: >-
+  Banka için özel olarak geliştirilen şeyin kime ait olacağıdır. Tedarikçiye
+  aitse, bankanın parasıyla yapılan geliştirme rakiplere de satılabilir.
+
+TERMINATION: >-
+  Sözleşmeyi kimin, hangi şartlarda sonlandırabileceğidir. Dengesizse tedarikçi
+  istediğinde çıkar, banka sıkışsa bile çıkamaz.
+
+AUTO_RENEWAL: >-
+  Sözleşmenin süresi dolduğunda kendiliğinden uzayıp uzamayacağıdır. İhbar
+  penceresini kaçırmak, ihtiyaç kalmasa bile bir yıl daha bağlı kalmak demektir.
+
+ASSIGNMENT_CHANGE_OF_CONTROL: >-
+  Tedarikçinin sözleşmeyi veya alacağını başkasına devredip devredemeyeceği ve
+  şirketin el değiştirmesi hâlinde ne olacağıdır. Serbestse, banka bir gün
+  hiç seçmediği bir şirketle çalışıyor bulabilir kendini.
+
+GOVERNING_LAW: >-
+  Anlaşmazlıkta hangi ülkenin hukukunun uygulanacağı ve nerede dava açılacağıdır.
+  Yabancı hukuk ve yurt dışı tahkim, hak aramanın maliyetini caydırıcı seviyeye çıkarır.
+
+FORCE_MAJEURE: >-
+  Tedarikçinin sorumluluktan kurtulduğu olağanüstü hâllerdir. Tanım genişse
+  (siber saldırı, grev, alt yüklenici hatası dâhil), tedarikçi kendi kusurunu da
+  bu başlığın altına saklayabilir.
+
+REFERENCE_USE: >-
+  Tedarikçinin bankanın adını ve logosunu tanıtımında kullanıp kullanamayacağıdır.
+  İzinsizse, hangi tedarikçiyle çalıştığınız sizin kararınız olmaktan çıkar.
+
+SANCTIONS_ABC: >-
+  Tedarikçinin uluslararası yaptırım listelerinde olmadığına ve rüşvete
+  bulaşmayacağına dair taahhüdüdür. Yaptırımlı bir tarafla ilişki, bankanın
+  yurt dışı muhabir banka ilişkilerini doğrudan riske atar.
+
+REGULATORY_CHANGE: >-
+  Mevzuat değişirse sistemin buna uyarlanmasının kimin işi ve masrafı olduğudur.
+  Banka mevzuata uymak zorundadır; maliyeti tedarikçi yüklenmezse banka öder.
+
+SUPPORT_SERVICE_STATUS: >-
+  Tedarikçinin bankacılık mevzuatı anlamında "destek hizmeti kuruluşu" sayılması ve
+  buna bağlı yükümlülükleri kabul etmesidir. Sözleşmeye yazılmazsa banka denetimde
+  bu yükümlülüklerin karşılandığını gösteremez.
+
+PERSONNEL_SECURITY: >-
+  Banka verisine erişecek tedarikçi çalışanlarının geçmiş kontrolünden geçmesi ve
+  gizlilik taahhüdü vermesidir. Sızıntıların önemli bölümü teknik açıktan değil,
+  yetkili personelden kaynaklanır.
+
+LICENSE_SCOPE: >-
+  Yazılımı kimlerin kullanabileceğidir. Dar tanımlanmışsa iştirakler veya büyüyen
+  kullanıcı sayısı her seferinde yeni bir pazarlık konusu olur.
+
+WARRANTY_MAINTENANCE: >-
+  Teslim edilen ürünün ne kadar süre garanti kapsamında olacağı ve sonrasında
+  bakımın kaça mal olacağıdır. Bakım bedeli sabitlenmezse, bağımlılık oluştuktan
+  sonra fiyatı tedarikçi belirler.
+
+CHANGE_MANAGEMENT: >-
+  Tedarikçinin hizmeti sonradan değiştirip değiştiremeyeceğidir. Habersiz değişiklik,
+  bankanın entegre olduğu bir sistemde üretim kesintisi demektir.
+
+INSURANCE_GUARANTEE: >-
+  Tedarikçinin teminat mektubu ve sorumluluk sigortası bulundurmasıdır.
+  Tedarikçinin ödeme gücünü aşan bir zararda bankanın tek gerçek güvencesi budur;
+  tahsil edilemeyen tazminatın değeri yoktur.
+
+TAX_WITHHOLDING: >-
+  Sözleşme bedelinin vergi dâhil mi hariç mi olduğu ve yurt dışı ödemelerde
+  kesintiyi kimin üstleneceğidir. Belirsizse sözleşme bedeli fiilen beklenenden
+  yüksek çıkabilir.
+
+EXCLUSIVITY_MINIMUM: >-
+  Bankanın belirli bir tutarda alım yapmayı taahhüt edip etmediğidir. Taahhüt
+  varsa, ihtiyaç azalsa bile ödeme yükümlülüğü sürer.
+
+NON_SOLICITATION: >-
+  Tarafların birbirinin çalışanını işe alamaması kuralıdır. Bankayı da bağlıyorsa,
+  bankanın kendi personel havuzu daralır.
+
+ESG_CONDUCT: >-
+  Tedarikçinin çalışma standartları, insan hakları ve çevre kurallarına uyma
+  taahhüdüdür. Tedarikçi zincirindeki bir ihlal bankanın itibarına yansır.
+
+NOTICES: >-
+  Fesih ve ihtar gibi önemli bildirimlerin hangi yolla yapılacağıdır. Usulüne
+  uygun yapılmayan bir fesih ihtarı, haklı feshi geçersiz kılabilir.
+
+ENTIRE_AGREEMENT: >-
+  İmzalanan metnin dışında hangi belgelerin bağlayıcı olduğudur. Tedarikçinin
+  tek taraflı güncelleyebildiği çevrimiçi koşullar üstün tutulursa, müzakere
+  ettiğiniz her hüküm fiilen geçersiz hâle gelir.
+
+SEVERABILITY_WAIVER: >-
+  Bir hükmün geçersiz olması hâlinde sözleşmenin geri kalanının ayakta kalması ve
+  bir hakkın kullanılmamasının o haktan vazgeçme sayılmamasıdır.
+
+RECORDS_RETENTION: >-
+  Tedarikçinin işlem ve erişim kayıtlarını ne kadar süre saklayacağıdır. Bankanın
+  saklama yükümlülüğü on yıldır; tedarikçi daha kısa saklarsa banka denetimde
+  belge sunamaz.
+
+EVIDENCE_AGREEMENT: >-
+  Bir uyuşmazlıkta hangi tarafın kayıtlarının kesin kanıt sayılacağıdır.
+  Yalnızca tedarikçinin kayıtları esas alınırsa, banka haklı olduğu bir konuda
+  bile iddiasını ispatlayamaz.

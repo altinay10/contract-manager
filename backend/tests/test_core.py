@@ -28,12 +28,31 @@ def test_playbook_yuklenir_ve_dogrulanir():
             assert ct.ideal_text_tr, f"{code}: zorunlu maddenin ideal metni olmali"
 
 
-def test_zorunlu_madde_kumesi_sozlesme_tipine_gore_degisir():
-    saas = set(mandatory_codes("SAAS"))
-    donanim = set(mandatory_codes("DONANIM"))
-    assert saas != donanim
-    assert "DATA_LOCATION" in saas
-    assert "DATA_LOCATION" not in donanim
+# Kapsam politikasi: KISITLAMAK ISTISNADIR. Fazla kisitlamak, o riski o sozlesme
+# tipinde tamamen gorunmez yapiyor (gercek vaka: cerceve sozlesmede 33 madde tipi
+# kapsam disiydi; dis kaynak sozlesmesinde otomatik yenileme hic aranmadi).
+KISITLI_KODLAR = {
+    "SOURCE_CODE_ESCROW", "LICENSE_SCOPE", "NO_MODEL_TRAINING", "SUPPORT_SERVICE_STATUS",
+}
+SOZLESME_TIPLERI = ["SAAS", "YAZILIM", "HIZMET", "DONANIM", "DIS_KAYNAK", "CERCEVE"]
+
+
+def test_kapsam_kisitlamasi_istisna_olmali():
+    pb = load_playbook()
+    kisitli = {k for k, c in pb.items() if len(c.applies_to) < len(SOZLESME_TIPLERI)}
+    assert kisitli == KISITLI_KODLAR, (
+        f"Beklenmeyen kapsam kısıtlaması: {kisitli - KISITLI_KODLAR}. "
+        "Bir madde tipini sözleşme tipinden çıkarmak, o riski görünmez yapar."
+    )
+
+
+@pytest.mark.parametrize("tip", SOZLESME_TIPLERI)
+def test_her_sozlesme_tipi_yeterince_kapsanir(tip):
+    """Cerceve sozlesme neredeyse hicbir maddeye eslesmiyordu."""
+    pb = load_playbook()
+    kapsanan = sum(1 for c in pb.values() if c.applies(tip))
+    assert kapsanan >= len(pb) - 4, f"{tip} yalnızca {kapsanan}/{len(pb)} madde tipini kapsıyor"
+    assert len(mandatory_codes(tip)) >= 18, f"{tip} için zorunlu madde sayısı çok düşük"
 
 
 # --------------------------------------------------------------- metin
@@ -308,3 +327,105 @@ def test_deemed_acceptance_saas_sozlesmesinde_yakalanir():
     ct = load_playbook()["ACCEPTANCE"]
     ids = {h.red_line.id for h in evaluate_red_lines(metin, ct)}
     assert "ACC_DEEMED" in ids, "sessiz kabul kırmızı çizgisi yakalanmadı"
+
+
+def test_yakinlik_penceresi_kisaltma_noktasinda_kirilmaz():
+    """Gercek vaka: "grev ve lokavt vb. hükümler ... mücbir sebep sayılır" cümlesinde
+    "vb." kısaltmasındaki nokta [^.]{0,N} penceresini kesiyor ve mücbir sebep
+    kırmızı çizgisi sessizce kaçıyordu."""
+    from app.pipeline.redlines import evaluate_red_lines
+
+    ct = load_playbook()["FORCE_MAJEURE"]
+    metin = ("Tarafların çalışma imkanlarını durduracak şekilde meydana gelen; yasa ve "
+             "yönetmelik değişiklikleri, doğal afetler, harp, seferberlik, yangın, "
+             "grev ve lokavt vb. hükümler veya resmi makamlarca alınmış kararlar gibi "
+             "tarafların kontrolü haricinde zuhur eden haller taraflar için mücbir "
+             "sebep sayılır.")
+    ids = {h.red_line.id for h in evaluate_red_lines(metin, ct)}
+    assert "FM_TOO_BROAD" in ids, "kısaltma noktası yüzünden kaçtı"
+
+
+def test_otomatik_yenileme_basligi_metinle_ortusur():
+    """30 günlük ihbar süresine "60+ gün" demek yanlış beyandır."""
+    from app.pipeline.redlines import evaluate_red_lines
+
+    ct = load_playbook()["AUTO_RENEWAL"]
+    otuz = ("Taraflar 30 gün öncesinde yazılı ihbarda bulunmadıkları takdirde işbu "
+            "sözleşme otomatik olarak 1 yıl süre ile uzar.")
+    ids = {h.red_line.id for h in evaluate_red_lines(otuz, ct)}
+    assert "RENEW_AUTOMATIC" in ids
+    assert "RENEW_LONG_NOTICE" not in ids, "30 gün için '60+ gün' iddiası üretildi"
+
+    doksan = ("Sözleşme, bitiminden 90 gün önce feshedilmediği takdirde bir yıl uzar.")
+    ids2 = {h.red_line.id for h in evaluate_red_lines(doksan, ct)}
+    assert "RENEW_LONG_NOTICE" in ids2
+
+
+def test_her_madde_tipinin_sade_anlatimi_var():
+    """Rapor hukukçu olmayan okuyucuya da hitap etmeli."""
+    pb = load_playbook()
+    eksik = [k for k, c in pb.items() if not c.plain_tr]
+    assert not eksik, f"sade anlatımı olmayan madde tipi: {eksik}"
+    for k, c in pb.items():
+        assert len(c.plain_tr) > 60, f"{k}: sade anlatım fazla kısa"
+        # Sade anlatimda ham hukuk terimi ACIKLANMADAN kullanilmamali
+        for terim in ("mütekabil", "tevkifat", "tenkis", "zımnen"):
+            assert terim not in c.plain_tr.lower(), f"{k}: '{terim}' sade anlatımda"
+
+
+# --------------------------------------------------------------- taraf adı bağımsızlığı
+def test_alici_taraf_adi_banka_olmak_zorunda_degil():
+    """Gercek vaka: sozlesmede alici "PRATIK ISLEM" adiyla gecince, "banka"
+    kelimesine sabitlenmis 11 kirmizi cizgi deseni SESSIZCE kaciyordu."""
+    from app.pipeline.parties import alici_deseni, taraflari_ayir
+    from app.pipeline.redlines import evaluate_red_lines
+
+    metin_taraflar = ('İşbu Sözleşme, Pratik İşlem Ödeme A.Ş ("PRATİK İŞLEM") ile '
+                      'Örnek Yazılım Ltd. ("TEDARİKÇİ") arasında imzalanmıştır.')
+    alicilar, tedarikciler = taraflari_ayir(metin_taraflar)
+    assert "PRATİK İŞLEM" in alicilar
+    assert "TEDARİKÇİ" in tedarikciler
+
+    ct = load_playbook()["STAMP_DUTY"]
+    madde = "Bu sözleşmeden doğan damga vergisi Pratik İşlem tarafından ödenir."
+    assert not evaluate_red_lines(madde, ct), "yer tutucu çözülmeden eşleşmemeli"
+    assert evaluate_red_lines(madde, ct, alici=alici_deseni(metin_taraflar)), \
+        "alıcı adı çözüldüğünde eşleşmeli"
+
+
+def test_banka_adiyla_da_calismaya_devam_eder():
+    """Yer tutucu, varsayilan adlarla (banka, musteri...) da calismali."""
+    from app.pipeline.redlines import evaluate_red_lines
+
+    ct = load_playbook()["STAMP_DUTY"]
+    madde = "İşbu Sözleşme'den doğan damga vergisi Banka tarafından ödenir."
+    assert evaluate_red_lines(madde, ct), "varsayılan alıcı adları çalışmıyor"
+
+
+# --------------------------------------------------------------- taslak kusurları
+def test_eksik_ozne_yakalanir():
+    """Gercek vaka: "vergilerin tamami tarafindan odenerek" - ozne yok,
+    damga vergisini kimin odeyecegi sozlesmede hic yazmiyor."""
+    from app.pipeline.redlines import taslak_kusurlari
+
+    metin = ("Bu sözleşmeden doğabilecek damga vergisi, harç, vb. vergilerin tamamı "
+             "tarafından ödenerek yarısı Dış Hizmet Sağlayıcı'ya yansıtılacaktır.")
+    k = taslak_kusurlari(metin)
+    assert any("özne eksik" in x["title"] for x in k), "eksik özne yakalanmadı"
+    assert k[0]["severity"] == "YUKSEK"
+
+
+def test_doldurulmamis_bosluk_yakalanir():
+    from app.pipeline.redlines import taslak_kusurlari
+
+    metin = "Tedarikçi ………………… adresinde mukim, …………. Vergi Numarası ile kayıtlıdır."
+    k = taslak_kusurlari(metin)
+    assert any("doldurulmamış boşluk" in x["title"] for x in k)
+
+
+def test_normal_metin_taslak_kusuru_uretmez():
+    from app.pipeline.redlines import taslak_kusurlari
+
+    metin = ("Bu sözleşmeden doğan damga vergisi Banka tarafından ödenir. "
+             "Tedarikçi, No:5 Ümraniye/İstanbul adresinde mukimdir.")
+    assert not taslak_kusurlari(metin), "temiz metinde yanlış pozitif"

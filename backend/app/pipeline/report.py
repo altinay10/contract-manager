@@ -44,6 +44,7 @@ TYPE_LABEL = {
     "AMBIGUOUS": "Belirsiz ifade",
     "INTERNAL_CONFLICT": "İç çelişki",
     "CROSS_REF_ERROR": "Atıf hatası",
+    "DRAFTING_DEFECT": "Taslak kusuru",
     "INFO": "Bilgi",
 }
 
@@ -219,6 +220,8 @@ def build_docx(payload: dict, out_path: Path) -> Path:
                 else:
                     _body(doc, "İlgili madde (aranan koruma bu metinde yok)",
                           f["quote"], size=9)
+            if f.get("plain"):
+                _body(doc, "Bu ne demek", f["plain"])
             _body(doc, "Neden riskli", f.get("rationale"))
             if f.get("legal_basis"):
                 _body(doc, "Dayanak", "; ".join(f["legal_basis"]), size=9)
@@ -232,10 +235,26 @@ def build_docx(payload: dict, out_path: Path) -> Path:
     if not findings:
         doc.add_paragraph("Playbook kontrollerinde bulgu üretilmedi.")
 
+    # --- Terimler sözlüğü ---
+    gecen, goruldu = [], set()
+    for f in findings:
+        kod = f.get("code", "")
+        if kod and kod not in goruldu and pb.get(kod) and pb[kod].plain_tr:
+            goruldu.add(kod)
+            gecen.append(pb[kod])
+    if gecen:
+        _h(doc, "4. Terimler Sözlüğü", 13, space_before=16)
+        nt = doc.add_paragraph()
+        nr = nt.add_run("Raporda geçen madde tiplerinin hukuk dili kullanmadan açıklaması.")
+        nr.font.size = Pt(9)
+        nr.font.color.rgb = RGBColor(0x6E, 0x77, 0x89)
+        for ct in sorted(gecen, key=lambda c: c.name_tr):
+            _body(doc, ct.name_tr, ct.plain_tr, size=9.5)
+
     # --- Model kullanımı ---
     u = payload.get("usage") or {}
     if u.get("calls"):
-        _h(doc, "4. Model Kullanımı", 13, space_before=16)
+        _h(doc, "5. Model Kullanımı", 13, space_before=16)
         _kv_table(doc, [
             ("Toplam token", f'{u.get("total_tokens", 0):,}'.replace(",", ".")),
             ("Girdi tokeni", f'{u.get("input_tokens", 0):,}'.replace(",", ".")),
@@ -273,7 +292,7 @@ def build_docx(payload: dict, out_path: Path) -> Path:
                             run.font.size = Pt(8.5)
 
     # --- Metodoloji ---
-    _h(doc, "5. Metodoloji ve Kapsam", 13, space_before=16)
+    _h(doc, "6. Metodoloji ve Kapsam", 13, space_before=16)
     m = payload.get("method", {})
     _kv_table(doc, [
         ("Playbook madde tipi sayısı", m.get("playbook_size")),

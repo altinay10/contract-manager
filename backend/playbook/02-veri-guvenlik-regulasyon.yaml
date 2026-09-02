@@ -2,7 +2,7 @@
   name_tr: Denetim Hakkı
   category: REGULASYON
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["denetim", "denetleme", "denetim hakkı", "inceleme hakkı", "yerinde inceleme", "bağımsız denetçi"]
@@ -20,10 +20,10 @@
         - "yılda\\s+(?:bir|1)\\s*\\(?\\s*\\d*\\s*\\)?\\s*(?:kez|defa)"
         - "en\\s+az\\s+(?:otuz|30|altmış|60)\\s*\\(?\\s*\\d*\\s*\\)?\\s*gün\\s+önce[^.]{0,50}denetim"
     - id: AUD_COST_ON_BANK
-      text: "Denetim masrafı bankaya yüklenmiş"
+      text: "Denetim masrafı alıcı tarafa yüklenmiş"
       severity: ORTA
       patterns:
-        - "denetim[^.]{0,80}(?:masraf|gider|maliyet)[^.]{0,40}banka"
+        - "denetim[^.]{0,80}(?:masraf|gider|maliyet)[^.]{0,40}{ALICI}"
   ideal_text_tr: >-
     Banka, bağımsız denetçileri ve yetkili düzenleyici otoriteler (BDDK dâhil), Tedarikçi'nin
     işbu Sözleşme kapsamındaki faaliyetlerini, sistemlerini ve kayıtlarını yerinde veya uzaktan
@@ -43,7 +43,7 @@
   name_tr: Alt Yüklenici Kullanımı
   category: REGULASYON
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["alt yüklenici", "alt işveren", "üçüncü kişilere yaptırabilir", "taşeron", "alt tedarikçi"]
@@ -72,7 +72,7 @@
   name_tr: Veri Lokasyonu ve Yurt Dışına Aktarım
   category: VERI_GUVENLIK
   obligation: ZORUNLU
-  applies_to: [SAAS, DIS_KAYNAK, HIZMET, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["veri merkezi", "sunucu", "yurt dışı", "yurtdışı", "lokasyon", "barındır", "saklanacağı yer", "aktarım"]
@@ -107,7 +107,7 @@
   name_tr: Güvenlik İhlali Bildirimi
   category: VERI_GUVENLIK
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["veri ihlali", "güvenlik ihlali", "güvenlik olayı", "ihlal bildirimi", "sızıntı", "ihlali öğren"]
@@ -135,10 +135,10 @@
   severity_if_missing: KRITIK
 
 - code: CONFIDENTIALITY
-  name_tr: Gizlilik ve Banka Sırrı
+  name_tr: Gizlilik ve Banka/Müşteri Sırrı
   category: VERI_GUVENLIK
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["gizlilik", "gizli bilgi", "sır", "ifşa", "üçüncü kişilerle paylaş"]
@@ -166,17 +166,17 @@
   severity_if_missing: KRITIK
 
 - code: NO_MODEL_TRAINING
-  name_tr: Banka Verisiyle Model Eğitimi Yasağı
+  name_tr: Alıcı Verisiyle Model Eğitimi Yasağı
   category: VERI_GUVENLIK
   obligation: ZORUNLU
-  applies_to: [SAAS, YAZILIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["model", "yapay zeka", "makine öğrenmesi", "eğitim", "analitik", "hizmeti geliştirmek", "anonim"]
     keywords_en: ["machine learning", "train", "improve the service", "aggregated data"]
   red_lines:
     - id: TRAIN_ALLOWED
-      text: "Tedarikçi banka verisini hizmet geliştirme / model eğitimi için kullanabiliyor"
+      text: "Tedarikçi alıcının verisini hizmet geliştirme / model eğitimi için kullanabiliyor"
       severity: KRITIK
       patterns:
         - "(?:hizmet(?:ler)?ini?|ürününü|sistemini)\\s+(?:geliştirmek|iyileştirmek)[^.]{0,60}(?:kullan|işle)"
@@ -197,7 +197,7 @@
   name_tr: Kişisel Verilerin Korunması Eki (Veri İşleyen)
   category: REGULASYON
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["kişisel veri", "veri işleyen", "veri sorumlusu", "kvkk", "6698", "aydınlatma"]
@@ -222,14 +222,14 @@
   name_tr: Sızma Testi ve Zafiyet Yönetimi
   category: VERI_GUVENLIK
   obligation: ONERILEN
-  applies_to: [SAAS, YAZILIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["sızma testi", "penetrasyon", "zafiyet", "güvenlik testi", "açık"]
     keywords_en: ["penetration test", "vulnerability", "security testing"]
   red_lines:
     - id: SEC_TEST_FORBIDDEN
-      text: "Bankanın güvenlik testi yapması yasaklanmış"
+      text: "Alıcı tarafın güvenlik testi yapması yasaklanmış"
       severity: YUKSEK
       patterns:
         - "(?:sızma|penetrasyon|güvenlik)\\s+test[^.]{0,60}(?:yasak|yapamaz|izin\\s+ver(?:il)?mez)"

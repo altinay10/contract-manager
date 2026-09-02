@@ -47,11 +47,12 @@ from .models import (
 from .pipeline import gaps as gaps_mod
 from .pipeline import report as report_mod
 from .pipeline.analyze import FindingDraft, analyze_clause, dedupe
-from .pipeline.classify import classify
+from .pipeline.classify import classify, yaygin_anahtarlar
 from .pipeline.extract import ExtractionError, extract_ex
 from .pipeline.meta import extract_meta
 from .pipeline.normalize import normalize
-from .pipeline.redlines import missing_annex_refs
+from .pipeline.parties import alici_deseni, taraflari_ayir
+from .pipeline.redlines import missing_annex_refs, taslak_kusurlari
 from .pipeline.scoring import contract_score, finding_score
 from .pipeline.segment import segment
 from .pipeline.verify import ground, rebut
@@ -216,9 +217,21 @@ def stage_meta(ctx: Ctx) -> str:
 def stage_classify(ctx: Ctx) -> str:
     clauses = _clauses(ctx)
     ctx.beat(total=len(clauses), done=0)
+
+    # Belge genelinde cok gecen anahtarlar taraf adi/tanimli terimdir; agirliklari kirilir.
+    yaygin = yaygin_anahtarlar([(c.heading or "", c.text or "") for c in clauses],
+                               ctx.contract.contract_type)
+    alici = alici_deseni(ctx.contract.normalized_text or "")
+    alicilar, tedarikciler = taraflari_ayir(ctx.contract.normalized_text or "")
+    if alicilar:
+        log.info("Alıcı taraf: %s | tedarikçi: %s",
+                 ", ".join(alicilar), ", ".join(tedarikciler) or "—")
+    if yaygin:
+        log.info("Tanımlı terim sayılan anahtar: %s", ", ".join(sorted(yaygin))[:200])
+
     matched = 0
     for i, cl in enumerate(clauses, 1):
-        cl.codes = classify(cl.heading, cl.text, ctx.contract.contract_type)
+        cl.codes = classify(cl.heading, cl.text, ctx.contract.contract_type, yaygin, alici)
         if cl.codes:
             matched += 1
         if i % 10 == 0:
@@ -232,6 +245,25 @@ def stage_deterministic(ctx: Ctx) -> str:
     _clear_findings(ctx, detected_by="RULE_DET")
     text = ctx.contract.normalized_text or ""
     n = 0
+
+    # --- taslak kusurlari: eksik ozne, doldurulmamis bosluk ---
+    for kusur in taslak_kusurlari(text):
+        _add_finding(
+            ctx,
+            FindingDraft(
+                code="ENTIRE_AGREEMENT",
+                clause_number="",
+                finding_type="DRAFTING_DEFECT",
+                severity=kusur["severity"],
+                title=kusur["title"],
+                rationale=kusur["rationale"],
+                quote=kusur["quote"],
+                confidence=0.95,
+                detected_by="RULE_DET",
+            ),
+        )
+        n += 1
+
     for ref in missing_annex_refs(text):
         _add_finding(
             ctx,
@@ -252,7 +284,7 @@ def stage_deterministic(ctx: Ctx) -> str:
             ),
         )
         n += 1
-    return f"{n} atıf hatası" if n else "sorun bulunamadı"
+    return f"{n} taslak/atıf sorunu" if n else "sorun bulunamadı"
 
 
 def stage_risk(ctx: Ctx) -> str:
@@ -292,6 +324,10 @@ def stage_risk(ctx: Ctx) -> str:
             code = cc["code"]
             scope_by_code[code] = (scope_by_code.get(code, "") + "\n" + cl.text).strip()
             first_clause_of_code.setdefault(code, cl.id)
+
+    # Kural desenlerindeki {ALICI} yer tutucusu bu sozlesmenin alici tarafiyla doldurulur.
+    alici = alici_deseni(ctx.contract.normalized_text or "")
+    taraflar = taraflari_ayir(ctx.contract.normalized_text or "")
 
     # MALIYET KONTROLU: modele yalnizca en agir maddeler gonderilir; geri kalani
     # kural katmaniyla islenir. Dikkat butcesinin (K6) mantiksal sonucu budur.
@@ -337,6 +373,8 @@ def stage_risk(ctx: Ctx) -> str:
                     include_absence=(first_clause_of_code.get(cc["code"]) == cl.id),
                     budget=ctx.budget,
                     use_llm=(cl.id in llm_clause_ids),
+                    alici=alici,
+                    taraflar=taraflar,
                 )
                 for x in d:
                     x.clause_id = cl.id
@@ -758,6 +796,8 @@ def _finding_dict(f: Finding) -> dict:
         "proposed_text": f.proposed_text, "negotiation_note": f.negotiation_note,
         "confidence": f.confidence, "detected_by": f.detected_by, "lens": f.lens,
         "rebuttal": f.rebuttal,
+        "plain": (load_playbook().get(f.code).plain_tr if f.code in load_playbook() else ""),
+        "clause_name": (load_playbook()[f.code].name_tr if f.code in load_playbook() else f.code),
     }
 
 

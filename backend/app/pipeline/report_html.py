@@ -18,7 +18,7 @@ TYPE_TR = {
     "RED_LINE": "Kırmızı çizgi ihlali", "MISSING": "Eksik madde",
     "WEAK": "Zayıf madde", "ONE_SIDED": "Tek taraflı yükümlülük",
     "AMBIGUOUS": "Belirsiz ifade", "INTERNAL_CONFLICT": "İç çelişki",
-    "CROSS_REF_ERROR": "Atıf hatası", "INFO": "Bilgi",
+    "CROSS_REF_ERROR": "Atıf hatası", "DRAFTING_DEFECT": "Taslak kusuru", "INFO": "Bilgi",
 }
 
 CSS = """
@@ -114,6 +114,13 @@ h2.sec{font-size:20px;margin:44px 0 4px;letter-spacing:-.01em}
 .f .loc{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--ink-2)}
 .f h3{font-size:17px;line-height:1.35;margin-bottom:8px;letter-spacing:-.008em}
 .f .why{color:var(--ink-2);font-size:14.5px;margin-bottom:10px;max-width:68ch}
+.plain{margin:0 0 11px;padding:11px 14px;background:var(--surface-2);border-radius:3px;
+  font-size:14px;line-height:1.6;color:var(--ink-2);max-width:70ch}
+.plain b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);margin-bottom:5px;
+  font-weight:500}
+.sozluk dt{font-weight:600;font-size:14.5px;margin-top:16px}
+.sozluk dd{margin:4px 0 0;color:var(--ink-2);font-size:14px;line-height:1.6;max-width:70ch}
 blockquote.ctx{border-left-color:var(--muted);border-left-style:dashed;font-style:normal}
 blockquote .qlabel{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
@@ -293,6 +300,9 @@ def build_html(payload: dict, out_path: Path) -> Path:
                     o.append('<blockquote class="ctx"><span class="qlabel">İlgili madde '
                              "— aranan koruma bu metinde yok</span>"
                              f"{_e(f['quote'])}</blockquote>")
+            if f.get("plain"):
+                o.append('<div class="plain"><b>Bu ne demek?</b>'
+                         f'{_e(f["plain"])}</div>')
             if f.get("rationale"):
                 o.append(f'<p class="why">{_e(f["rationale"])}</p>')
             if f.get("rebuttal"):
@@ -313,6 +323,24 @@ def build_html(payload: dict, out_path: Path) -> Path:
 
     if not findings:
         o.append("<p>Playbook kontrollerinde bulgu üretilmedi.</p>")
+
+    # --- sözlük: raporda geçen madde tiplerinin sade anlatımı ---
+    gecen = []
+    goruldu: set[str] = set()
+    for f in findings:
+        kod = f.get("code", "")
+        if kod and kod not in goruldu and (pb.get(kod) and pb[kod].plain_tr):
+            goruldu.add(kod)
+            gecen.append(pb[kod])
+    if gecen:
+        gecen.sort(key=lambda c: c.name_tr)
+        o.append('<h2 class="sec">Terimler sözlüğü</h2>')
+        o.append('<p class="sec-note">Raporda geçen madde tiplerinin hukuk dili '
+                 "kullanmadan açıklaması.</p>")
+        o.append('<dl class="sozluk">')
+        for ct in gecen:
+            o.append(f"<dt>{_e(ct.name_tr)}</dt><dd>{_e(ct.plain_tr)}</dd>")
+        o.append("</dl>")
 
     # --- model kullanımı ---
     u = payload.get("usage") or {}

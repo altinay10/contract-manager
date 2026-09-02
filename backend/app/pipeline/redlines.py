@@ -13,15 +13,36 @@ from ..playbook.loader import ClauseType, RedLine
 from ..textutil import deaccent, fold, tr_lower
 
 # Olculemez ifadeler sozlugu (docs/01 §7). Gectigi madde AMBIGUOUS adayidir.
-AMBIGUOUS_PHRASES = [
+# Olculemez ifadeler IKI SINIFA ayrilir. Hepsini ayni sekilde isaretlemek raporu
+# gurultuye bogar: gercek vakada 39 bulgunun 25'i "derhal" gibi kelimelerdi ve
+# gercek riskleri gorunmez kildi.
+#
+# ZAYIFLATICI  : bankanin elini zayiflatir; nerede gecerse gecsin risktir.
+# BELIRSIZ_SURE: sure belirsizligidir; YALNIZCA sureye bagli maddelerde anlamlidir.
+#                "Tedarikci derhal bildirir" bankanin lehinedir, kusur degildir.
+ZAYIFLATICI = [
     "makul çaba", "makul gayret", "makul özen", "ticari makul", "ticari olarak makul",
-    "en iyi çaba", "en iyi gayret", "gerektiğinde", "mümkün olan en kısa sürede",
-    "makul bir süre", "makul süre içinde", "uygun gördüğü takdirde",
+    "en iyi çaba", "en iyi gayret", "uygun gördüğü takdirde",
     "uygun görülmesi hâlinde", "uygun görülmesi halinde", "zaman zaman",
-    "önemli ölçüde", "esaslı ölçüde", "derhal", "ivedilikle", "gecikmeksizin",
-    "ve benzeri", "dilediği gibi", "tek taraflı olarak", "bildirimde bulunmaksızın",
-    "onay almaksızın", "kendi takdirine göre", "makul olmayan şekilde",
+    "önemli ölçüde", "esaslı ölçüde", "ve benzeri", "dilediği gibi",
+    "tek taraflı olarak", "bildirimde bulunmaksızın", "onay almaksızın",
+    "kendi takdirine göre", "makul olmayan şekilde", "gerektiğinde",
 ]
+
+BELIRSIZ_SURE = [
+    "derhal", "ivedilikle", "gecikmeksizin", "mümkün olan en kısa sürede",
+    "makul bir süre", "makul süre içinde", "en kısa sürede",
+]
+
+# Sure belirsizliginin gercekten risk oldugu madde tipleri.
+SURE_HASSAS_KODLAR = {
+    "BREACH_NOTIFICATION", "SLA", "ACCEPTANCE", "EXIT_TRANSITION",
+    "WARRANTY_MAINTENANCE", "PAYMENT_TERMS", "CHANGE_MANAGEMENT",
+    "BUSINESS_CONTINUITY", "SECURITY_TESTING", "TERMINATION",
+}
+
+AMBIGUOUS_PHRASES = ZAYIFLATICI + BELIRSIZ_SURE
+
 
 _CROSSREF = re.compile(r"\bEK\s*[-–]?\s*(\d+)", re.IGNORECASE)
 
@@ -40,11 +61,24 @@ def _norm_for_match(s: str) -> str:
     return tr_lower(s)
 
 
+def _uygula_alici(pat: re.Pattern, alici: str | None) -> re.Pattern:
+    """Desendeki {ALICI} yer tutucusunu sozlesmedeki alici adlariyla doldurur."""
+    if not alici or "{ALICI}" not in pat.pattern:
+        # Yer tutucu doldurulmadiysa varsayilan adlarla calis (banka, musteri...).
+        if "{ALICI}" in pat.pattern:
+            from .parties import VARSAYILAN_ALICI
+            alici = "(?:" + "|".join(VARSAYILAN_ALICI) + ")"
+        else:
+            return pat
+    return re.compile(pat.pattern.replace("{ALICI}", alici), pat.flags)
+
+
 def evaluate_red_lines(
     clause_text: str,
     ct: ClauseType,
     scope_text: str | None = None,
     include_absence: bool = True,
+    alici: str | None = None,
 ) -> list[RedLineHit]:
     """Bu maddede playbook kirmizi cizgilerinden hangileri ihlal edilmis?
 
@@ -60,7 +94,8 @@ def evaluate_red_lines(
 
     for rl in ct.red_lines:
         if rl.patterns:
-            for pat in rl.patterns:
+            for ham in rl.patterns:
+                pat = _uygula_alici(ham, alici)
                 m = pat.search(hay)
                 if m:
                     start, end = _expand_to_sentence(clause_text, m.start(), m.end())
@@ -78,7 +113,8 @@ def evaluate_red_lines(
             if not include_absence:
                 continue
             # Bu kaliplarin HICBIRI yoksa ihlal: olmasi gereken koruma eksik.
-            if not any(p.search(hay_scope) for p in rl.absent_patterns):
+            if not any(_uygula_alici(p, alici).search(hay_scope)
+                       for p in rl.absent_patterns):
                 start, end = _first_sentence(clause_text)
                 hits.append(
                     RedLineHit(
@@ -120,17 +156,23 @@ def _first_sentence(text: str, limit: int = 300) -> tuple[int, int]:
     return offset, min(end, len(text))
 
 
-def find_ambiguous(clause_text: str) -> list[tuple[str, int, int]]:
-    """(ifade, start, end) - olculemez ifade gecisleri.
+def find_ambiguous(clause_text: str, kod: str | None = None) -> list[tuple[str, int, int, str]]:
+    """(ifade, start, end, tur) - olculemez ifade gecisleri.
+
+    tur: "zayiflatici" | "sure". Sure ifadeleri yalnizca sureye bagli madde
+    tiplerinde dondurulur; aksi halde gurultu uretirler.
 
     Iki tur: once birebir, sonra aksansiz. Bazi sozlesmeler Turkce karakter
     kullanmadan yazilir ("makul bir sure"); bunlar da yakalanmalidir.
     """
+    sure_onemli = kod is None or kod in SURE_HASSAS_KODLAR
+    aranacak = list(ZAYIFLATICI) + (list(BELIRSIZ_SURE) if sure_onemli else [])
+
     hay = fold(clause_text)
     hay_flat = deaccent(clause_text)
-    found: list[tuple[str, int, int]] = []
+    found: list[tuple[str, int, int, str]] = []
     seen: set[str] = set()
-    for phrase in AMBIGUOUS_PHRASES:
+    for phrase in aranacak:
         p = fold(phrase)
         idx = hay.find(p)
         if idx < 0:
@@ -148,7 +190,8 @@ def find_ambiguous(clause_text: str) -> list[tuple[str, int, int]]:
         if approx is None:
             continue
         s, e = _expand_to_sentence(clause_text, approx, approx + len(p))
-        found.append((phrase, s, e))
+        tur = "sure" if phrase in BELIRSIZ_SURE else "zayiflatici"
+        found.append((phrase, s, e, tur))
     return found
 
 
@@ -173,3 +216,68 @@ def missing_annex_refs(full_text: str) -> list[str]:
     for m in re.finditer(r"^\s*EK\s*[-–]?\s*(\d+)", full_text, re.IGNORECASE | re.MULTILINE):
         present.add(m.group(1))
     return sorted(refs - present, key=lambda x: int(x))
+
+
+# --------------------------------------------------------------------------- #
+# Taslak kusurlari — sozlesmenin KENDI yazim hatalari.
+# Bunlar risk maddesi degil, imzalanmaya hazir olmayan metin isaretleridir.
+# Gercek vaka: "vergilerin tamamı tarafından ödenerek" cumlesinde OZNE YOK;
+# damga vergisini kimin odeyecegi sozlesmede hic yazmiyor.
+# --------------------------------------------------------------------------- #
+
+# "tamamı tarafından" gibi: iyelik ekli isim + tarafından, arada taraf adı yok.
+_EKSIK_OZNE = re.compile(
+    r"\b(tamamı|tümü|yarısı|bedeli|tutarı|masrafı|masrafları|ücreti|giderleri)"
+    r"\s+tarafından\b",
+    re.IGNORECASE,
+)
+
+# Doldurulmamis sablon bosluklari: "…………", "______", "..........."
+# Noktalar ARADA BOSLUK OLMADAN ardisik olmali; aksi halde adres satirlarindaki
+# ("No:5 ... Vergi Dairesi") dagini noktalar yanlis eslesiyordu.
+_BOS_ALAN = re.compile(r"\u2026{2,}|_{5,}|\.{6,}")
+
+
+def taslak_kusurlari(text: str) -> list[dict]:
+    out: list[dict] = []
+
+    for m in _EKSIK_OZNE.finditer(text):
+        s, e = _expand_to_sentence(text, m.start(), m.end())
+        out.append({
+            "severity": "YUKSEK",
+            "title": f"Cümlede özne eksik: \"{m.group(1)} tarafından\" — kimin yükümlü "
+                     "olduğu yazılmamış",
+            "rationale": (
+                "Bu cümlede yükümlülüğün kime ait olduğu belirtilmemiş; taraf adı "
+                "yazılmadan bırakılmış. Sözleşme bu hâliyle imzalanırsa masrafın "
+                "veya edimin hangi tarafa ait olduğu tartışmalı hâle gelir."
+            ),
+            "quote": text[s:e].strip(),
+        })
+
+    # Bosluklar: alintiyi CUMLEYE degil, esslesmenin cevresine gore al.
+    # Taraflar maddesinde nokta az oldugu icin cumle genisletmesi adres metnine
+    # kaciyor ve alinti yaniltici goruunuyordu.
+    bloklar: list[list[int]] = []
+    for m in _BOS_ALAN.finditer(text):
+        if bloklar and m.start() - bloklar[-1][1] < 240:
+            bloklar[-1][1] = m.end()          # yakin bosluklar tek bulgu
+        else:
+            bloklar.append([m.start(), m.end()])
+
+    for bas, son in bloklar:
+        s0 = max(0, bas - 70)
+        e0 = min(len(text), son + 70)
+        alinti = " ".join(text[s0:e0].split())
+        out.append({
+            "severity": "ORTA",
+            "title": "Sözleşmede doldurulmamış boşluk var",
+            "rationale": (
+                "Şablondan gelen boşluk doldurulmamış. İmza öncesinde bu alanların "
+                "tamamlandığı teyit edilmelidir; boş bırakılan bir alan sonradan "
+                "tek taraflı doldurulabilir."
+            ),
+            "quote": ("…" + alinti + "…")[:300],
+        })
+
+    return out[:12]      # rapor bu kusurlarla dolmasin
