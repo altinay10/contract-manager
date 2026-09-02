@@ -129,7 +129,7 @@
     yeniler. Tedarikçi'nin iflası, konkordatoya başvurması, tasfiyeye girmesi, bakım/destek
     hizmetini sona erdirmesi veya esaslı ihlalini otuz (30) gün içinde gidermemesi hâllerinde
     kaynak kodu Alıcı'ya teslim edilir ve Alıcı'ya kullanım hakkı doğar.
-  legal_basis: ["Banka iç politika: BT-POL-007"]
+  legal_basis: ["Alıcı iç politika: BT-POL-007"]
   negotiation_argument_tr: >-
     Escrow tedarikçiden bir şey almaz; yalnızca tedarikçi ortadan kalktığında alıcının
     faaliyetini sürdürebilmesini sağlar. Reddedilmesi için makul bir ticari gerekçe yoktur.
@@ -219,7 +219,7 @@
     Sözleşme süresi sonunda kendiliğinden uzamaz. Tarafların yazılı mutabakatı hâlinde yenilenir.
     Otomatik yenileme öngörülmesi hâlinde Alıcının iptal bildirim süresi otuz (30) günü aşamaz
     ve yenileme fiyat artışına bağlanamaz.
-  legal_basis: ["Banka iç politika: SAT-POL-021"]
+  legal_basis: ["Alıcı iç politika: SAT-POL-021"]
   negotiation_argument_tr: >-
     Uzun ihbar süreli otomatik yenileme, alıcıyı ihtiyacı kalmayan bir hizmete bir yıl daha
     bağlar. İdari bir gecikmenin bedeli bir yıllık lisans olmamalıdır.
@@ -330,7 +330,7 @@
     Tedarikçi, Alıcının önceden ve her kullanım için ayrı ayrı verilmiş yazılı onayı olmaksızın
     Alıcının unvanını, markasını veya logosunu referans, tanıtım veya basın materyallerinde
     kullanamaz.
-  legal_basis: ["Banka iç politika: KUR-POL-002"]
+  legal_basis: ["Alıcı iç politika: KUR-POL-002"]
   negotiation_argument_tr: >-
     Alıcının hangi tedarikçiyle çalıştığı bilgisi, alıcının iletişim stratejisinin parçasıdır.
   severity_if_missing: DUSUK
@@ -350,7 +350,7 @@
     yaptırım listelerinde yer almadığını beyan ve taahhüt eder. Tedarikçi, rüşvet ve
     yolsuzlukla mücadeleye ilişkin mevzuata uyar. Bu taahhütlerin ihlali hâlinde Alıcı
     Sözleşme'yi derhal ve tazminatsız feshedebilir.
-  legal_basis: ["5549 sayılı Kanun (MASAK)", "Banka iç politika: UYU-POL-003"]
+  legal_basis: ["5549 sayılı Kanun (MASAK)", "Alıcı iç politika: UYU-POL-003"]
   negotiation_argument_tr: >-
     Yaptırım listesindeki bir tarafla ilişki, alıcının muhabir alıcı ilişkilerini doğrudan riske atar.
   severity_if_missing: YUKSEK

@@ -155,7 +155,7 @@
       absent_patterns:
         - "(?:banka\\s+sırrı|müşteri\\s+sırrı|5411)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'ya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı
+    Tedarikçi, Alıcıya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı
     niteliğindeki bilgilere ilişkin gizlilik yükümlülüğü süresizdir ve 5411 sayılı Bankacılık
     Kanunu'nun 73. maddesi hükümlerine tabidir. Diğer gizli bilgilere ilişkin yükümlülük
     Sözleşme'nin sona ermesinden itibaren beş (5) yıl devam eder.

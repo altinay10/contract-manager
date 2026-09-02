@@ -40,7 +40,7 @@
   fallback_text_tr: >-
     Tavan, yıllık sözleşme bedelinin bir (1) katından az olmamak üzere belirlenir; gizlilik ve
     kişisel veri ihlalleri her hâlükârda tavandan istisnadır.
-  legal_basis: ["TBK m.115 (kasıt ve ağır kusurda sorumsuzluk anlaşması geçersizdir)", "Banka iç politika: SAT-POL-014"]
+  legal_basis: ["TBK m.115 (kasıt ve ağır kusurda sorumsuzluk anlaşması geçersizdir)", "Alıcı iç politika: SAT-POL-014"]
   negotiation_argument_tr: >-
     Alıcının bir veri ihlalinde maruz kalacağı idari para cezası, müşteri tazminatı ve itibar
     zararı sözleşme bedeliyle orantılı değildir. Tavanın kendisi müzakere edilebilir; ancak
@@ -66,7 +66,7 @@
     Tedarikçi; fikri mülkiyet hakkı ihlali, gizlilik ihlali, kişisel veri ihlali ve kendi
     kusurundan kaynaklanan üçüncü kişi talepleri nedeniyle Alıcının uğrayacağı her türlü
     zararı, idari para cezalarını, yargılama gider ve vekâlet ücretlerini karşılar.
-  legal_basis: ["Banka iç politika: SAT-POL-014"]
+  legal_basis: ["Alıcı iç politika: SAT-POL-014"]
   negotiation_argument_tr: >-
     Tazminat, riski onu kontrol eden tarafa yükler. Fikri mülkiyet ve veri güvenliği
     tedarikçinin kontrolündedir; bu kalemlerde tazminat tedarikçide olmalıdır.
@@ -99,7 +99,7 @@
     kez olmak üzere, bir önceki on iki aylık TÜİK Tüketici Fiyat Endeksi (TÜFE) oranını aşmamak
     kaydıyla güncelleme yapılabilir. Güncelleme en az altmış (60) gün önceden yazılı olarak
     bildirilir; Alıcı güncellemeyi kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir.
-  legal_basis: ["Banka iç politika: SAT-POL-021"]
+  legal_basis: ["Alıcı iç politika: SAT-POL-021"]
   negotiation_argument_tr: >-
     Tek taraflı fiyat yetkisi, bütçe planlamasını imkânsız kılar ve fiilen süresiz bir açık çek
     anlamına gelir. Endekse bağlı tavan tedarikçiyi de enflasyona karşı korur; itiraz gerekçesi kalmaz.
@@ -126,7 +126,7 @@
     Ödemeler, Alıcının yazılı kabulünü müteakip düzenlenen faturanın tebliğinden itibaren otuz
     (30) gün içinde yapılır. Kabul edilmemiş teslimatlar için ödeme yükümlülüğü doğmaz; ayıplı
     ifa hâlinde Alıcı ödemeyi ayıp giderilene kadar askıya alabilir.
-  legal_basis: ["Banka iç politika: SAT-POL-009"]
+  legal_basis: ["Alıcı iç politika: SAT-POL-009"]
   negotiation_argument_tr: >-
     Peşin ödeme, ifa riskini tamamen alıcıya yükler. Kilometre taşına bağlı ödeme her iki taraf
     için de disiplin sağlar.
@@ -150,7 +150,7 @@
   ideal_text_tr: >-
     İşbu Sözleşme'den doğan damga vergisi Taraflarca eşit oranda karşılanır. Sözleşme tek nüsha
     olarak düzenlenir ve nüsha çoğaltılmaz.
-  legal_basis: ["488 sayılı Damga Vergisi Kanunu", "Banka iç politika: SAT-POL-031"]
+  legal_basis: ["488 sayılı Damga Vergisi Kanunu", "Alıcı iç politika: SAT-POL-031"]
   negotiation_argument_tr: >-
     Damga vergisi sözleşme bedeli üzerinden hesaplandığı için yüksek tutarlı sözleşmelerde ciddi
     bir kalemdir. Nüsha sayısının bire indirilmesi vergiyi doğrudan azaltır ve iki tarafın da işine gelir.

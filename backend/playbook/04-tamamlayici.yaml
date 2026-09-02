@@ -20,11 +20,11 @@
       absent_patterns:
         - "(?:mevzuat|yasal\\s+düzenleme|kanun)[^.]{0,120}(?:değişikli|uyarla)"
   ideal_text_tr: >-
-    Bankacılık mevzuatında veya Banka'ya uygulanan düzenlemelerde meydana gelen
+    Bankacılık mevzuatında veya Alıcıya uygulanan düzenlemelerde meydana gelen
     değişiklikler nedeniyle Hizmet'te uyarlama gerekmesi hâlinde Tedarikçi, gerekli
     değişiklikleri ek bir bedel talep etmeksizin ve makul süre içinde gerçekleştirir.
     Uyarlamanın mümkün olmaması hâlinde Alıcı Sözleşme'yi tazminatsız feshedebilir.
-  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "Banka iç politika: UYU-POL-011"]
+  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "Alıcı iç politika: UYU-POL-011"]
   negotiation_argument_tr: >-
     Alıcı mevzuata uymak zorundadır; bu bir tercih değildir. Uyum maliyetinin tamamen
     alıcıya yüklenmesi, düzenleyici riskin tek taraflı devri anlamına gelir.
@@ -166,7 +166,7 @@
     değişiklikler en az altmış (60) gün önceden Alıcı'ya yazılı olarak bildirilir. Alıcı
     değişikliği kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir. Güvenlik
     yamaları bu süreye tabi değildir ve gecikmeksizin uygulanır.
-  legal_basis: ["Banka iç politika: BT-POL-012"]
+  legal_basis: ["Alıcı iç politika: BT-POL-012"]
   negotiation_argument_tr: >-
     Alıcının entegre olduğu bir hizmetin habersiz değişmesi, üretim ortamında kesinti
     riski demektir; bildirim süresi tedarikçiye maliyet yüklemez.
@@ -191,7 +191,7 @@
     Tedarikçi, sözleşme bedelinin %10'u tutarında süresiz ve kesin teminat mektubu verir.
     Ayrıca mesleki sorumluluk ve siber sorumluluk sigortası yaptırır; poliçe örneklerini
     Alıcı'ya sunar ve sözleşme süresince yürürlükte tutar.
-  legal_basis: ["Banka iç politika: SAT-POL-018"]
+  legal_basis: ["Alıcı iç politika: SAT-POL-018"]
   negotiation_argument_tr: >-
     Sigorta, tedarikçinin ödeme gücünü aşan bir zararda alıcının tek gerçek güvencesidir;
     sorumluluk tavanı yüksek olsa bile tahsil edilemeyen tazminatın değeri yoktur.
@@ -249,7 +249,7 @@
   ideal_text_tr: >-
     Alıcının asgari alım veya harcama taahhüdü bulunmamaktadır. Alıcı, aynı veya benzer
     ürün ve hizmetleri üçüncü kişilerden temin etmekte serbesttir.
-  legal_basis: ["4054 sayılı Rekabetin Korunması Hakkında Kanun", "Banka iç politika: SAT-POL-006"]
+  legal_basis: ["4054 sayılı Rekabetin Korunması Hakkında Kanun", "Alıcı iç politika: SAT-POL-006"]
   negotiation_argument_tr: >-
     Asgari taahhüt, ihtiyaç azalsa bile ödeme yükümlülüğü doğurur; alıcıyı kendi talep
     riskini tedarikçi adına üstlenmiş duruma sokar.
@@ -300,7 +300,7 @@
     Tedarikçi, Alıcının Tedarikçi Davranış Kuralları'na uyacağını; çalışma standartları,
     insan hakları, çevre ve iş sağlığı-güvenliği mevzuatına riayet edeceğini taahhüt eder.
     Esaslı ihlal hâlinde Alıcı Sözleşme'yi feshedebilir.
-  legal_basis: ["Banka iç politika: SRD-POL-001"]
+  legal_basis: ["Alıcı iç politika: SRD-POL-001"]
   negotiation_argument_tr: >-
     Tedarikçi zincirindeki bir ihlal, alıcının sürdürülebilirlik raporlamasına ve itibarına
     doğrudan yansır.

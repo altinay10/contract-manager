@@ -406,17 +406,32 @@ def test_playbook_metinleri_taraf_adina_sabitlenmemis():
     import yaml
 
     kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    # Korunan hukuki terimler maskelenir; ayni satirdaki taraf gondermesi yine
+    # de yakalanir. Onceki surumde tum satir atlaniyordu ve "Banka'ya ait her
+    # turlu bilgi" ifadesi "Banka sirri" yuzunden gozden kaciyordu.
+    MASKE = [r"[Bb]ankacılık", r"Bankaların", r"[Bb]anka\s+sırrı"]
     ihlal = []
     for dosya in sorted(kok.glob("*.yaml")):
         for no, satir in enumerate(dosya.read_text(encoding="utf-8").splitlines(), 1):
-            if re.match(r"\s*(-\s*)?legal_basis:", satir):      continue
-            if "(?:" in satir or "\\s" in satir:                 continue
-            if "Bankaların" in satir or "Bankacılık" in satir:   continue
-            if re.search(r"[Bb]anka\s+sırrı", satir):            continue
-            if re.search(r"\b[Bb]anka(nın|ya|yı)?\b", satir):
+            if "(?:" in satir or "\\s" in satir:      continue   # regex deseni
+            temiz = satir
+            for m in MASKE:
+                temiz = re.sub(m, "", temiz)
+            # Kesme isaretli cekimler dahil: Banka'ya, Banka'nin, Bankaya...
+            if re.search(r"\b[Bb]anka('(nın|ya|yı|da|dan))?(nın|ya|yı|da|dan)?\b", temiz):
                 ihlal.append(f"{dosya.name}:{no}")
     assert not ihlal, ("playbook metinleri hâlâ alıcıyı 'banka' sanıyor: "
                        + ", ".join(ihlal[:6]))
+
+
+def test_playbook_hukuki_atiflari_korunur():
+    """Genellestirme mevzuati bozmamali: 5411 sayili Kanun, BDDK yonetmelik
+    adlari ve "banka sirri" terimi taraf gondermesi degildir."""
+    kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    tumu = "\n".join(d.read_text(encoding="utf-8") for d in kok.glob("*.yaml"))
+    for terim in ("Bankacılık Kanunu", "Bankaların Destek", "Banka sırrı",
+                  "bankacılık mevzuat"):
+        assert terim.lower() in tumu.lower(), f"hukuki atıf kayboldu: {terim}"
 
 
 def test_damga_vergisi_banka_olmayan_alicida_da_yakalanir():
