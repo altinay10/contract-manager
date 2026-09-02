@@ -210,7 +210,7 @@ def build_html(payload: dict, out_path: Path) -> Path:
 
     # --- başlık ---
     o.append("<header>")
-    o.append('<div class="label">Banka tedarik sözleşmesi · Madde bazlı risk değerlendirmesi</div>')
+    o.append('<div class="label">Tedarik sözleşmesi · Madde bazlı risk değerlendirmesi</div>')
     o.append("<h1>Sözleşme Risk Raporu</h1>")
     o.append(f'<p class="sub">{_e(c.get("filename"))} · {_e(c.get("counterparty") or "karşı taraf belirtilmemiş")}'
              f' · {_e(payload.get("generated_at"))}</p>')
@@ -452,7 +452,7 @@ def build_html(payload: dict, out_path: Path) -> Path:
     o.append("</section>")
 
     o.append("<footer><strong>Bu rapor hukuki mütalaa yerine geçmez.</strong> "
-             "Karar-destek çıktısıdır; bulgular Banka'nın sözleşme playbook'una ve ilgili "
+             "Karar-destek çıktısıdır; bulgular alıcının sözleşme playbook'una ve ilgili "
              "mevzuata göre otomatik üretilmiştir ve imza öncesinde Hukuk Müşavirliği "
              "tarafından değerlendirilmelidir.</footer>")
     o.append("</div>")

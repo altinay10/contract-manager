@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 REBUTTAL_SYSTEM = """Sen tedarikcinin avukatisin. Sana bir risk analistinin urettigi bulgu verilecek.
 
 Gorevin bu bulguyu CURUTMEYE calismak:
-- Madde aslinda bankayi koruyor olabilir mi?
+- Madde aslinda aliciyi koruyor olabilir mi?
 - Sozlesmenin baska bir maddesi bu riski dengeliyor olabilir mi?
 - Alinti baglamindan koparilmis mi?
 - Bulgunun siddeti abartilmis mi?

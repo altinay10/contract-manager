@@ -50,7 +50,7 @@ TYPE_LABEL = {
 
 DISCLAIMER = (
     "Bu rapor bir karar-destek çıktısıdır ve hukuki mütalaa yerine geçmez. Bulgular "
-    "Banka'nın sözleşme playbook'una ve ilgili mevzuata göre otomatik olarak üretilmiştir; "
+    "Alıcının sözleşme playbook'una ve ilgili mevzuata göre otomatik olarak üretilmiştir; "
     "imza öncesinde Hukuk Müşavirliği tarafından değerlendirilmelidir."
 )
 
@@ -125,7 +125,7 @@ def build_docx(payload: dict, out_path: Path) -> Path:
     tr.bold = True
     tr.font.size = Pt(20)
     sub = doc.add_paragraph()
-    sr = sub.add_run("Banka tedarik sözleşmesi — madde bazlı risk değerlendirmesi")
+    sr = sub.add_run("Tedarik sözleşmesi — madde bazlı risk değerlendirmesi")
     sr.font.size = Pt(10)
     sr.font.color.rgb = RGBColor(0x6E, 0x77, 0x89)
 

@@ -67,8 +67,13 @@ def extract_meta(text: str) -> dict:
         seg_start = low.find("damga vergisi")
         seg = text[max(0, seg_start - 200): seg_start + 300]
         seg_low = fold(seg)
-        if "banka" in seg_low and "eşit" not in seg_low and "esit" not in seg_low:
-            out["stamp_duty"] = "Bankaya ait (risk)"
+        # Alici tarafin adi "banka" olmak zorunda degil; sozlesmedeki gercek
+        # tanimli terimlerle ara. Aksi halde damga vergisi yuku alici tarafa
+        # yiklenmis olsa bile risk olarak isaretlenmezdi.
+        from .parties import alici_adlari
+        alici_izi = any(a in seg_low for a in alici_adlari(text))
+        if alici_izi and "eşit" not in seg_low and "esit" not in seg_low:
+            out["stamp_duty"] = "Alıcıya ait (risk)"
         elif "eşit" in seg_low or "esit" in seg_low or "yarı" in seg_low:
             out["stamp_duty"] = "Eşit paylaşım"
         else:

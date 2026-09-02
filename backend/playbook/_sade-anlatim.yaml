@@ -3,13 +3,13 @@
 # Tek dosyada tutulur ki Hukuk Müşavirliği tek seferde gözden geçirebilsin.
 
 LIMITATION_OF_LIABILITY: >-
-  Tedarikçi bir hata yaptığında bankaya en fazla ne kadar ödeyeceğinin üst sınırıdır.
-  Sınır düşükse, tedarikçinin hatası bankaya milyonlarca liraya mal olsa bile
-  yalnızca o küçük tutarı alabilirsiniz; kalanı banka üstlenir.
+  Tedarikçi bir hata yaptığında alıcıya en fazla ne kadar ödeyeceğinin üst sınırıdır.
+  Sınır düşükse, tedarikçinin hatası alıcıya milyonlarca liraya mal olsa bile
+  yalnızca o küçük tutarı alabilirsiniz; kalanı alıcı üstlenir.
 
 INDEMNITY: >-
-  Üçüncü bir kişi bankaya dava açtığında masrafı ve tazminatı kimin ödeyeceğini belirler.
-  Tek taraflı yazılmışsa, tedarikçinin sebep olduğu bir sorunun faturası bankaya çıkar.
+  Üçüncü bir kişi alıcıya dava açtığında masrafı ve tazminatı kimin ödeyeceğini belirler.
+  Tek taraflı yazılmışsa, tedarikçinin sebep olduğu bir sorunun faturası alıcıya çıkar.
 
 PRICE_INCREASE: >-
   Tedarikçinin fiyatı sonradan artırıp artıramayacağını, artırırsa ne kadar
@@ -17,7 +17,7 @@ PRICE_INCREASE: >-
 
 PAYMENT_TERMS: >-
   Paranın ne zaman ödeneceğini belirler. Teslim alınmadan peşin ödeme, iş kötü çıkarsa
-  bankanın elinde koz bırakmaz.
+  alıcının elinde koz bırakmaz.
 
 STAMP_DUTY: >-
   Sözleşme imzalandığında devlete ödenen vergidir ve sözleşme bedeli üzerinden hesaplanır.
@@ -25,39 +25,39 @@ STAMP_DUTY: >-
 
 PENALTY: >-
   Tedarikçi işi zamanında veya doğru yapmazsa ödeyeceği cezadır. Yoksa teslim
-  tarihi bir söz olmaktan öteye gitmez; gecikmenin bankaya maliyeti olur, tedarikçiye olmaz.
+  tarihi bir söz olmaktan öteye gitmez; gecikmenin alıcıya maliyeti olur, tedarikçiye olmaz.
 
 AUDIT_RIGHT: >-
-  Bankanın ve BDDK'nın tedarikçiyi yerinde veya uzaktan denetleyebilmesidir.
+  Alıcının ve BDDK'nın tedarikçiyi yerinde veya uzaktan denetleyebilmesidir.
   Denetleyemediğiniz bir tedarikçinin ne yaptığını bilemez, denetimde hesabını veremezsiniz.
 
 SUBCONTRACTOR: >-
   Tedarikçinin işi başkasına yaptırıp yaptıramayacağıdır. Onayınız olmadan
-  yaptırabiliyorsa, banka verisinin kimin elinde olduğunu bilemezsiniz.
+  yaptırabiliyorsa, alıcı verisinin kimin elinde olduğunu bilemezsiniz.
 
 DATA_LOCATION: >-
-  Banka verisinin fiziksel olarak hangi ülkedeki sunucularda tutulacağıdır.
+  Alıcı verisinin fiziksel olarak hangi ülkedeki sunucularda tutulacağıdır.
   Yurt dışına çıkması hem mevzuata aykırı olabilir hem de bir sorunda erişiminizi zorlaştırır.
 
 BREACH_NOTIFICATION: >-
-  Tedarikçi bir veri sızıntısı yaşadığında bankaya ne kadar sürede haber vereceğidir.
-  Banka bu olayı Kuruma 72 saat içinde bildirmek zorunda; tedarikçi geç haber verirse
-  banka kendi yükümlülüğünü yerine getiremez.
+  Tedarikçi bir veri sızıntısı yaşadığında alıcıya ne kadar sürede haber vereceğidir.
+  Alıcı bu olayı Kuruma 72 saat içinde bildirmek zorunda; tedarikçi geç haber verirse
+  alıcı kendi yükümlülüğünü yerine getiremez.
 
 CONFIDENTIALITY: >-
-  Tedarikçinin banka ve müşteri bilgilerini saklama yükümlülüğüdür. Süreye bağlanırsa,
+  Tedarikçinin alıcı ve müşteri bilgilerini saklama yükümlülüğüdür. Süreye bağlanırsa,
   süre dolduğunda bilgiler korumasız kalır.
 
 NO_MODEL_TRAINING: >-
-  Tedarikçinin banka verisini kendi yapay zekâ modelini eğitmek veya ürününü
+  Tedarikçinin alıcı verisini kendi yapay zekâ modelini eğitmek veya ürününü
   geliştirmek için kullanıp kullanamayacağıdır. Bir kez kullanıldıysa geri alınamaz.
 
 DPA: >-
-  Kişisel verilerin nasıl işleneceğini düzenleyen zorunlu ektir. Yoksa banka,
+  Kişisel verilerin nasıl işleneceğini düzenleyen zorunlu ektir. Yoksa alıcı,
   veri sorumlusu olarak doğrudan idari para cezası riskiyle karşı karşıya kalır.
 
 SECURITY_TESTING: >-
-  Bankanın tedarikçinin sistemlerinde güvenlik testi yaptırabilmesidir.
+  Alıcının tedarikçinin sistemlerinde güvenlik testi yaptırabilmesidir.
   Test edemezseniz, güvenlik seviyesini yalnızca tedarikçinin sözüne dayanarak kabul edersiniz.
 
 SLA: >-
@@ -70,8 +70,8 @@ BUSINESS_CONTINUITY: >-
   Ölçülebilir bir hedef yoksa kesinti süresi belirsizdir.
 
 EXIT_TRANSITION: >-
-  Sözleşme bittiğinde bankanın verisini geri alması ve başka bir tedarikçiye
-  geçebilmesidir. Yoksa banka fiilen o tedarikçiye mahkûm olur ve yenileme
+  Sözleşme bittiğinde alıcının verisini geri alması ve başka bir tedarikçiye
+  geçebilmesidir. Yoksa alıcı fiilen o tedarikçiye mahkûm olur ve yenileme
   görüşmesinde pazarlık gücü kalmaz.
 
 ACCEPTANCE: >-
@@ -80,15 +80,15 @@ ACCEPTANCE: >-
 
 SOURCE_CODE_ESCROW: >-
   Yazılımın kaynak kodunun tarafsız bir kuruluşa emanet edilmesidir. Tedarikçi
-  iflas eder veya desteği keserse banka koda ulaşıp hizmeti sürdürebilir; yoksa sistem durur.
+  iflas eder veya desteği keserse alıcı koda ulaşıp hizmeti sürdürebilir; yoksa sistem durur.
 
 IP_OWNERSHIP: >-
-  Banka için özel olarak geliştirilen şeyin kime ait olacağıdır. Tedarikçiye
-  aitse, bankanın parasıyla yapılan geliştirme rakiplere de satılabilir.
+  Alıcı için özel olarak geliştirilen şeyin kime ait olacağıdır. Tedarikçiye
+  aitse, alıcının parasıyla yapılan geliştirme rakiplere de satılabilir.
 
 TERMINATION: >-
   Sözleşmeyi kimin, hangi şartlarda sonlandırabileceğidir. Dengesizse tedarikçi
-  istediğinde çıkar, banka sıkışsa bile çıkamaz.
+  istediğinde çıkar, alıcı sıkışsa bile çıkamaz.
 
 AUTO_RENEWAL: >-
   Sözleşmenin süresi dolduğunda kendiliğinden uzayıp uzamayacağıdır. İhbar
@@ -96,7 +96,7 @@ AUTO_RENEWAL: >-
 
 ASSIGNMENT_CHANGE_OF_CONTROL: >-
   Tedarikçinin sözleşmeyi veya alacağını başkasına devredip devredemeyeceği ve
-  şirketin el değiştirmesi hâlinde ne olacağıdır. Serbestse, banka bir gün
+  şirketin el değiştirmesi hâlinde ne olacağıdır. Serbestse, alıcı bir gün
   hiç seçmediği bir şirketle çalışıyor bulabilir kendini.
 
 GOVERNING_LAW: >-
@@ -109,25 +109,25 @@ FORCE_MAJEURE: >-
   bu başlığın altına saklayabilir.
 
 REFERENCE_USE: >-
-  Tedarikçinin bankanın adını ve logosunu tanıtımında kullanıp kullanamayacağıdır.
+  Tedarikçinin alıcının adını ve logosunu tanıtımında kullanıp kullanamayacağıdır.
   İzinsizse, hangi tedarikçiyle çalıştığınız sizin kararınız olmaktan çıkar.
 
 SANCTIONS_ABC: >-
   Tedarikçinin uluslararası yaptırım listelerinde olmadığına ve rüşvete
-  bulaşmayacağına dair taahhüdüdür. Yaptırımlı bir tarafla ilişki, bankanın
-  yurt dışı muhabir banka ilişkilerini doğrudan riske atar.
+  bulaşmayacağına dair taahhüdüdür. Yaptırımlı bir tarafla ilişki, alıcının
+  yurt dışı muhabir alıcı ilişkilerini doğrudan riske atar.
 
 REGULATORY_CHANGE: >-
   Mevzuat değişirse sistemin buna uyarlanmasının kimin işi ve masrafı olduğudur.
-  Banka mevzuata uymak zorundadır; maliyeti tedarikçi yüklenmezse banka öder.
+  Alıcı mevzuata uymak zorundadır; maliyeti tedarikçi yüklenmezse alıcı öder.
 
 SUPPORT_SERVICE_STATUS: >-
   Tedarikçinin bankacılık mevzuatı anlamında "destek hizmeti kuruluşu" sayılması ve
-  buna bağlı yükümlülükleri kabul etmesidir. Sözleşmeye yazılmazsa banka denetimde
+  buna bağlı yükümlülükleri kabul etmesidir. Sözleşmeye yazılmazsa alıcı denetimde
   bu yükümlülüklerin karşılandığını gösteremez.
 
 PERSONNEL_SECURITY: >-
-  Banka verisine erişecek tedarikçi çalışanlarının geçmiş kontrolünden geçmesi ve
+  Alıcı verisine erişecek tedarikçi çalışanlarının geçmiş kontrolünden geçmesi ve
   gizlilik taahhüdü vermesidir. Sızıntıların önemli bölümü teknik açıktan değil,
   yetkili personelden kaynaklanır.
 
@@ -142,11 +142,11 @@ WARRANTY_MAINTENANCE: >-
 
 CHANGE_MANAGEMENT: >-
   Tedarikçinin hizmeti sonradan değiştirip değiştiremeyeceğidir. Habersiz değişiklik,
-  bankanın entegre olduğu bir sistemde üretim kesintisi demektir.
+  alıcının entegre olduğu bir sistemde üretim kesintisi demektir.
 
 INSURANCE_GUARANTEE: >-
   Tedarikçinin teminat mektubu ve sorumluluk sigortası bulundurmasıdır.
-  Tedarikçinin ödeme gücünü aşan bir zararda bankanın tek gerçek güvencesi budur;
+  Tedarikçinin ödeme gücünü aşan bir zararda alıcının tek gerçek güvencesi budur;
   tahsil edilemeyen tazminatın değeri yoktur.
 
 TAX_WITHHOLDING: >-
@@ -155,16 +155,16 @@ TAX_WITHHOLDING: >-
   yüksek çıkabilir.
 
 EXCLUSIVITY_MINIMUM: >-
-  Bankanın belirli bir tutarda alım yapmayı taahhüt edip etmediğidir. Taahhüt
+  Alıcının belirli bir tutarda alım yapmayı taahhüt edip etmediğidir. Taahhüt
   varsa, ihtiyaç azalsa bile ödeme yükümlülüğü sürer.
 
 NON_SOLICITATION: >-
-  Tarafların birbirinin çalışanını işe alamaması kuralıdır. Bankayı da bağlıyorsa,
-  bankanın kendi personel havuzu daralır.
+  Tarafların birbirinin çalışanını işe alamaması kuralıdır. Alıcıyı da bağlıyorsa,
+  alıcının kendi personel havuzu daralır.
 
 ESG_CONDUCT: >-
   Tedarikçinin çalışma standartları, insan hakları ve çevre kurallarına uyma
-  taahhüdüdür. Tedarikçi zincirindeki bir ihlal bankanın itibarına yansır.
+  taahhüdüdür. Tedarikçi zincirindeki bir ihlal alıcının itibarına yansır.
 
 NOTICES: >-
   Fesih ve ihtar gibi önemli bildirimlerin hangi yolla yapılacağıdır. Usulüne
@@ -180,11 +180,11 @@ SEVERABILITY_WAIVER: >-
   bir hakkın kullanılmamasının o haktan vazgeçme sayılmamasıdır.
 
 RECORDS_RETENTION: >-
-  Tedarikçinin işlem ve erişim kayıtlarını ne kadar süre saklayacağıdır. Bankanın
-  saklama yükümlülüğü on yıldır; tedarikçi daha kısa saklarsa banka denetimde
+  Tedarikçinin işlem ve erişim kayıtlarını ne kadar süre saklayacağıdır. Alıcının
+  saklama yükümlülüğü on yıldır; tedarikçi daha kısa saklarsa alıcı denetimde
   belge sunamaz.
 
 EVIDENCE_AGREEMENT: >-
   Bir uyuşmazlıkta hangi tarafın kayıtlarının kesin kanıt sayılacağıdır.
-  Yalnızca tedarikçinin kayıtları esas alınırsa, banka haklı olduğu bir konuda
+  Yalnızca tedarikçinin kayıtları esas alınırsa, alıcı haklı olduğu bir konuda
   bile iddiasını ispatlayamaz.

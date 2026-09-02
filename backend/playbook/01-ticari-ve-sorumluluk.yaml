@@ -1,4 +1,4 @@
-# Banka = ALICI. Her kayıt bir madde tipini ve bankanın standardını tanımlar.
+# Alıcı taraf = müvekkil. Her kayıt bir madde tipini ve alıcının standardını tanımlar.
 # red_lines[].patterns: maddede bu kalıp bulunursa kırmızı çizgi ihlali adayıdır.
 #   Kalıplar hem çevrimdışı tespit için hem de modele hedef göstermek (K2) için kullanılır.
 - code: LIMITATION_OF_LIABILITY
@@ -32,7 +32,7 @@
         - "(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,50}(?:hiçbir\\s+h[âa]lde|hiçbir\\s+şekilde)[^.]{0,40}sorumlu\\s+değildir"
   ideal_text_tr: >-
     Tedarikçi'nin işbu Sözleşme'den doğan toplam sorumluluğu, ilgili talebin doğduğu tarihten
-    önceki on iki (12) aylık dönemde Banka tarafından ödenen toplam bedeli aşamaz. Ancak
+    önceki on iki (12) aylık dönemde Alıcı tarafından ödenen toplam bedeli aşamaz. Ancak
     gizlilik yükümlülüklerinin ihlali, kişisel verilerin korunmasına ilişkin yükümlülüklerin
     ihlali, fikri mülkiyet hakkı ihlali, üçüncü kişilere verilen zararlar ile kasıt ve ağır
     kusur hâllerinde işbu sorumluluk sınırlaması uygulanmaz. Sorumluluk sınırlaması Taraflar
@@ -42,9 +42,9 @@
     kişisel veri ihlalleri her hâlükârda tavandan istisnadır.
   legal_basis: ["TBK m.115 (kasıt ve ağır kusurda sorumsuzluk anlaşması geçersizdir)", "Banka iç politika: SAT-POL-014"]
   negotiation_argument_tr: >-
-    Bankanın bir veri ihlalinde maruz kalacağı idari para cezası, müşteri tazminatı ve itibar
+    Alıcının bir veri ihlalinde maruz kalacağı idari para cezası, müşteri tazminatı ve itibar
     zararı sözleşme bedeliyle orantılı değildir. Tavanın kendisi müzakere edilebilir; ancak
-    veri ihlali ve gizlilik kalemlerinin tavandan istisna edilmesi bankanın kırmızı çizgisidir.
+    veri ihlali ve gizlilik kalemlerinin tavandan istisna edilmesi alıcının kırmızı çizgisidir.
   severity_if_missing: YUKSEK
 
 - code: INDEMNITY
@@ -64,7 +64,7 @@
         - "{ALICI}[^.]{0,120}(?:tazmin\\s+ed|beri\\s+kıl)"
   ideal_text_tr: >-
     Tedarikçi; fikri mülkiyet hakkı ihlali, gizlilik ihlali, kişisel veri ihlali ve kendi
-    kusurundan kaynaklanan üçüncü kişi talepleri nedeniyle Banka'nın uğrayacağı her türlü
+    kusurundan kaynaklanan üçüncü kişi talepleri nedeniyle Alıcının uğrayacağı her türlü
     zararı, idari para cezalarını, yargılama gider ve vekâlet ücretlerini karşılar.
   legal_basis: ["Banka iç politika: SAT-POL-014"]
   negotiation_argument_tr: >-
@@ -98,7 +98,7 @@
     Bedeller sözleşme süresince sabittir. Yıllık dönemler itibarıyla ve yılda en fazla bir (1)
     kez olmak üzere, bir önceki on iki aylık TÜİK Tüketici Fiyat Endeksi (TÜFE) oranını aşmamak
     kaydıyla güncelleme yapılabilir. Güncelleme en az altmış (60) gün önceden yazılı olarak
-    bildirilir; Banka güncellemeyi kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir.
+    bildirilir; Alıcı güncellemeyi kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir.
   legal_basis: ["Banka iç politika: SAT-POL-021"]
   negotiation_argument_tr: >-
     Tek taraflı fiyat yetkisi, bütçe planlamasını imkânsız kılar ve fiilen süresiz bir açık çek
@@ -123,12 +123,12 @@
         - "sipariş[^.]{0,40}peşin"
         - "peşin\\s+olarak\\s+ödenir"
   ideal_text_tr: >-
-    Ödemeler, Banka'nın yazılı kabulünü müteakip düzenlenen faturanın tebliğinden itibaren otuz
+    Ödemeler, Alıcının yazılı kabulünü müteakip düzenlenen faturanın tebliğinden itibaren otuz
     (30) gün içinde yapılır. Kabul edilmemiş teslimatlar için ödeme yükümlülüğü doğmaz; ayıplı
-    ifa hâlinde Banka ödemeyi ayıp giderilene kadar askıya alabilir.
+    ifa hâlinde Alıcı ödemeyi ayıp giderilene kadar askıya alabilir.
   legal_basis: ["Banka iç politika: SAT-POL-009"]
   negotiation_argument_tr: >-
-    Peşin ödeme, ifa riskini tamamen bankaya yükler. Kilometre taşına bağlı ödeme her iki taraf
+    Peşin ödeme, ifa riskini tamamen alıcıya yükler. Kilometre taşına bağlı ödeme her iki taraf
     için de disiplin sağlar.
   severity_if_missing: ORTA
 
@@ -174,7 +174,7 @@
   ideal_text_tr: >-
     Tedarikçi'nin teslim/ifa takvimine uymaması hâlinde, gecikilen her takvim günü için ilgili
     kalem bedelinin binde beşi (‰5) oranında cezai şart uygulanır. Cezai şartın ödenmesi
-    Banka'nın bunu aşan zararlarını talep hakkını ortadan kaldırmaz.
+    Alıcının bunu aşan zararlarını talep hakkını ortadan kaldırmaz.
   legal_basis: ["TBK m.180 (aşkın zarar)"]
   negotiation_argument_tr: >-
     Cezai şart olmayan bir teslim takvimi bağlayıcı değil, temenni niteliğindedir.

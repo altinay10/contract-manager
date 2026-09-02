@@ -489,6 +489,42 @@ def test_sistem_promptu_taraf_adina_sabitlenmemis():
         assert "banka" not in metin.lower(), f"{ad} merceği 'banka' diyor"
 
 
+def test_tum_llm_promptlari_taraf_adina_sabitlenmemis():
+    """Yalnizca analyze.py'yi denetlemek yetmedi: gaps.py'deki GAP_SYSTEM
+    "Sen bir Turk bankasinin sozlesme denetcisisin" diyordu ve gozden kacmisti.
+
+    Bu test modulleri tarayarak TUM prompt sabitlerini bulur; ileride yeni bir
+    prompt eklenirse o da kendiliginden kapsama girer.
+    """
+    import importlib
+
+    MODULLER = ["analyze", "gaps", "verify", "redline", "classify"]
+    bulunan, ihlal = 0, []
+    for ad in MODULLER:
+        try:
+            m = importlib.import_module(f"app.pipeline.{ad}")
+        except ImportError:
+            continue
+        for isim in dir(m):
+            if not isim.isupper():
+                continue
+            if not any(k in isim for k in ("SYSTEM", "PROMPT", "INSTRUCTION")):
+                continue
+            deger = getattr(m, isim)
+            metinler = ([deger] if isinstance(deger, str)
+                        else list(deger.values()) if isinstance(deger, dict)
+                        else list(deger) if isinstance(deger, (list, tuple)) else [])
+            for metin in metinler:
+                if not isinstance(metin, str):
+                    continue
+                bulunan += 1
+                if "banka" in metin.lower():
+                    ihlal.append(f"{ad}.{isim}")
+
+    assert bulunan >= 3, f"prompt sabiti bulunamadi ({bulunan}); test kendini kandiriyor"
+    assert not ihlal, ("su promptlar taraf adina sabitlenmis: " + ", ".join(sorted(set(ihlal))))
+
+
 def test_gorev_blogu_gercek_taraf_adlarini_tasir():
     from app.pipeline.analyze import build_task_block
     from app.pipeline.redlines import evaluate_red_lines

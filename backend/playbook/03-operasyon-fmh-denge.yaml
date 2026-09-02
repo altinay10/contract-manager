@@ -23,7 +23,7 @@
   ideal_text_tr: >-
     Tedarikçi, hizmetin aylık erişilebilirliğinin en az %99,9 olacağını taahhüt eder. Kritik
     arızalarda yanıt süresi otuz (30) dakika, çözüm süresi dört (4) saattir. Ölçüm yöntemi ve
-    aylık raporlama Ek'te düzenlenir. Hizmet kredileri Banka'nın uğradığı zararı talep etme ve
+    aylık raporlama Ek'te düzenlenir. Hizmet kredileri Alıcının uğradığı zararı talep etme ve
     Sözleşme'yi fesih hakkını ortadan kaldırmaz.
   legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik (hizmet sürekliliği)"]
   negotiation_argument_tr: >-
@@ -47,9 +47,9 @@
       absent_patterns:
         - "(?:rto|rpo|kurtarma\\s+süresi|kurtarma\\s+noktası)"
   ideal_text_tr: >-
-    Tedarikçi, hizmete ilişkin iş sürekliliği ve olağanüstü durum planını Banka'ya sunar.
+    Tedarikçi, hizmete ilişkin iş sürekliliği ve olağanüstü durum planını Alıcı'ya sunar.
     Kurtarma Süresi Hedefi (RTO) dört (4) saat, Kurtarma Noktası Hedefi (RPO) on beş (15)
-    dakikadır. Plan yılda en az bir kez test edilir ve test sonuçları Banka ile paylaşılır.
+    dakikadır. Plan yılda en az bir kez test edilir ve test sonuçları Alıcı ile paylaşılır.
   legal_basis: ["Bankaların Bilgi Sistemleri Yönetmeliği (iş sürekliliği)"]
   negotiation_argument_tr: >-
     Test edilmemiş bir süreklilik planı yoktur; yalnızca bir belge vardır.
@@ -71,15 +71,15 @@
       patterns:
         - "(?:sona\\s+erme|fesih)[^.]{0,80}(?:otuz|30|on\\s+beş|15|1|bir)\\s*\\(?\\s*\\d*\\s*\\)?\\s*gün[^.]{0,40}(?:sil|imha)"
   ideal_text_tr: >-
-    Sözleşme'nin sona ermesi hâlinde Tedarikçi, Banka'nın talebi üzerine en az altı (6) ay
-    süreyle mevcut şartlarla hizmet vermeye ve geçiş desteği sağlamaya devam eder. Banka'ya ait
-    tüm veriler, üzerinde anlaşılan makine-okunabilir standart formatta Banka'ya teslim edilir;
-    teslimin Banka tarafından teyidinden sonra Tedarikçi nezdindeki kopyalar kalıcı olarak imha
+    Sözleşme'nin sona ermesi hâlinde Tedarikçi, Alıcının talebi üzerine en az altı (6) ay
+    süreyle mevcut şartlarla hizmet vermeye ve geçiş desteği sağlamaya devam eder. Alıcı'ya ait
+    tüm veriler, üzerinde anlaşılan makine-okunabilir standart formatta Alıcı'ya teslim edilir;
+    teslimin Alıcı tarafından teyidinden sonra Tedarikçi nezdindeki kopyalar kalıcı olarak imha
     edilir ve imha tutanağı sunulur.
   legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik (çıkış stratejisi)"]
   negotiation_argument_tr: >-
     Çıkış maddesi olmayan bir sözleşme, tedarikçiye süresiz pazarlık gücü verir; yenileme
-    görüşmesinde banka masaya elleri bağlı oturur.
+    görüşmesinde alıcı masaya elleri bağlı oturur.
   severity_if_missing: KRITIK
 
 - code: ACCEPTANCE
@@ -99,13 +99,13 @@
         - "(?:itiraz\\s+edilmez(?:se)?|bildirimde\\s+bulunulmaz(?:sa)?|sessiz\\s+kal)[^.]{0,80}kabul\\s+edilmiş\\s+sayılır"
         - "kabul\\s+edilmiş\\s+sayılır"
   ideal_text_tr: >-
-    Teslimatlar, Ek'te yer alan kabul test senaryolarının Banka tarafından başarıyla
+    Teslimatlar, Ek'te yer alan kabul test senaryolarının Alıcı tarafından başarıyla
     tamamlanması ve yazılı kabul tutanağının imzalanmasıyla kabul edilmiş sayılır. Sessiz kalma
     kabul anlamına gelmez. Uygunsuzluk tespit edilmesi hâlinde Tedarikçi on beş (15) gün içinde
-    düzeltir; ikinci kez başarısız olması hâlinde Banka bedeli iade alarak sözleşmeyi feshedebilir.
+    düzeltir; ikinci kez başarısız olması hâlinde Alıcı bedeli iade alarak sözleşmeyi feshedebilir.
   legal_basis: ["TBK m.474 vd. (eser sözleşmesi - ayıba karşı tekeffül)"]
   negotiation_argument_tr: >-
-    "Kabul edilmiş sayılır" kaydı, banka ekibinin yoğunluğunu tedarikçi lehine bir hakka çevirir.
+    "Kabul edilmiş sayılır" kaydı, alıcı ekibinin yoğunluğunu tedarikçi lehine bir hakka çevirir.
   severity_if_missing: ORTA
 
 - code: SOURCE_CODE_ESCROW
@@ -125,13 +125,13 @@
         - "(?:iflas|konkordato|tasfiye|desteğ(?:i|in)\\s+(?:kes|sonlandır))"
   ideal_text_tr: >-
     Tedarikçi, yazılımın kaynak kodunu, derleme talimatlarını ve teknik dokümantasyonunu
-    Banka'nın onaylayacağı bağımsız bir emanet kuruluşuna tevdi eder ve her sürüm güncellemesinde
+    Alıcının onaylayacağı bağımsız bir emanet kuruluşuna tevdi eder ve her sürüm güncellemesinde
     yeniler. Tedarikçi'nin iflası, konkordatoya başvurması, tasfiyeye girmesi, bakım/destek
     hizmetini sona erdirmesi veya esaslı ihlalini otuz (30) gün içinde gidermemesi hâllerinde
-    kaynak kodu Banka'ya teslim edilir ve Banka'ya kullanım hakkı doğar.
+    kaynak kodu Alıcı'ya teslim edilir ve Alıcı'ya kullanım hakkı doğar.
   legal_basis: ["Banka iç politika: BT-POL-007"]
   negotiation_argument_tr: >-
-    Escrow tedarikçiden bir şey almaz; yalnızca tedarikçi ortadan kalktığında bankanın
+    Escrow tedarikçiden bir şey almaz; yalnızca tedarikçi ortadan kalktığında alıcının
     faaliyetini sürdürebilmesini sağlar. Reddedilmesi için makul bir ticari gerekçe yoktur.
   severity_if_missing: YUKSEK
 
@@ -152,13 +152,13 @@
         - "(?:tüm|her\\s+türlü|bütün)[^.]{0,60}(?:fikri\\s+mülkiyet|hak)[^.]{0,60}(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,20}(?:'?ye|ye|ya|na|ne)?\\s*aittir"
         - "{ALICI}\\s+(?:için|talebiyle)\\s+(?:yapıl(?:an|acak)|geliştiril(?:en|ecek))[^.]{0,80}(?:tedarikçi|yüklenici)"
   ideal_text_tr: >-
-    Banka'nın talebi üzerine ve Banka'ya özgü olarak geliştirilen tüm çıktıların fikri mülkiyet
-    hakları Banka'ya aittir. Tedarikçi'nin önceden var olan (background) fikri mülkiyeti kendisinde
-    kalmakla birlikte, Banka'ya süresiz, geri alınamaz, devredilebilir ve alt lisans verilebilir
+    Alıcının talebi üzerine ve Alıcı'ya özgü olarak geliştirilen tüm çıktıların fikri mülkiyet
+    hakları Alıcı'ya aittir. Tedarikçi'nin önceden var olan (background) fikri mülkiyeti kendisinde
+    kalmakla birlikte, Alıcı'ya süresiz, geri alınamaz, devredilebilir ve alt lisans verilebilir
     bir kullanım hakkı tanınır.
   legal_basis: ["5846 sayılı Fikir ve Sanat Eserleri Kanunu"]
   negotiation_argument_tr: >-
-    Bankanın parasıyla, bankanın süreçleri için geliştirilen bir çıktının rakiplere satılabilir
+    Alıcının parasıyla, alıcının süreçleri için geliştirilen bir çıktının rakiplere satılabilir
     olması ticari olarak savunulamaz.
   severity_if_missing: YUKSEK
 
@@ -183,15 +183,15 @@
       absent_patterns:
         - "(?:mevzuat|düzenleyici|otorite|bddk)"
   ideal_text_tr: >-
-    Banka, altmış (60) gün önceden yazılı bildirimde bulunmak kaydıyla Sözleşme'yi sebep
+    Alıcı, altmış (60) gün önceden yazılı bildirimde bulunmak kaydıyla Sözleşme'yi sebep
     göstermeksizin feshedebilir. Mevzuat değişikliği veya düzenleyici otorite talebi hâlinde
-    Banka Sözleşme'yi derhal ve tazminatsız feshedebilir. Tedarikçi'nin sebepsiz fesih hakkı
+    Alıcı Sözleşme'yi derhal ve tazminatsız feshedebilir. Tedarikçi'nin sebepsiz fesih hakkı
     bulunmamakla birlikte, esaslı ihlalin otuz (30) gün içinde giderilmemesi hâlinde her iki
     Taraf da haklı nedenle feshedebilir.
   legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik"]
   negotiation_argument_tr: >-
-    Bankanın regülatif zorunlulukla feshetmesi bir tercih değil, yükümlülüktür; bu hakkın
-    tazminata bağlanması bankayı mevzuata uymakla ceza ödemek arasında bırakır.
+    Alıcının regülatif zorunlulukla feshetmesi bir tercih değil, yükümlülüktür; bu hakkın
+    tazminata bağlanması alıcıyı mevzuata uymakla ceza ödemek arasında bırakır.
   severity_if_missing: KRITIK
 
 - code: AUTO_RENEWAL
@@ -217,11 +217,11 @@
         - "ihbarda\\s+bulunulmadığı|ihbarda\\s+bulunmadıkları"
   ideal_text_tr: >-
     Sözleşme süresi sonunda kendiliğinden uzamaz. Tarafların yazılı mutabakatı hâlinde yenilenir.
-    Otomatik yenileme öngörülmesi hâlinde Banka'nın iptal bildirim süresi otuz (30) günü aşamaz
+    Otomatik yenileme öngörülmesi hâlinde Alıcının iptal bildirim süresi otuz (30) günü aşamaz
     ve yenileme fiyat artışına bağlanamaz.
   legal_basis: ["Banka iç politika: SAT-POL-021"]
   negotiation_argument_tr: >-
-    Uzun ihbar süreli otomatik yenileme, bankayı ihtiyacı kalmayan bir hizmete bir yıl daha
+    Uzun ihbar süreli otomatik yenileme, alıcıyı ihtiyacı kalmayan bir hizmete bir yıl daha
     bağlar. İdari bir gecikmenin bedeli bir yıllık lisans olmamalıdır.
   severity_if_missing: DUSUK
 
@@ -248,10 +248,10 @@
   ideal_text_tr: >-
     Taraflar, diğer Tarafın önceden yazılı onayı olmaksızın Sözleşme'yi veya ondan doğan hak ve
     alacaklarını devredemez. Tedarikçi'nin doğrudan veya dolaylı kontrolünün değişmesi hâlinde
-    Banka, Sözleşme'yi tazminatsız feshetme hakkına sahiptir.
+    Alıcı, Sözleşme'yi tazminatsız feshetme hakkına sahiptir.
   legal_basis: ["TBK m.183 vd."]
   negotiation_argument_tr: >-
-    Bankanın kiminle çalışacağını seçme hakkı, tedarikçinin el değiştirmesiyle ortadan kalkmamalıdır.
+    Alıcının kiminle çalışacağını seçme hakkı, tedarikçinin el değiştirmesiyle ortadan kalkmamalıdır.
   severity_if_missing: ORTA
 
 - code: GOVERNING_LAW
@@ -277,7 +277,7 @@
     arasında çelişki bulunması hâlinde Türkçe metin esas alınır.
   legal_basis: ["5718 sayılı MÖHUK", "HMK m.17"]
   negotiation_argument_tr: >-
-    Yabancı hukuk ve tahkim, bankanın hak arama maliyetini fiilen caydırıcı seviyeye çıkarır ve
+    Yabancı hukuk ve tahkim, alıcının hak arama maliyetini fiilen caydırıcı seviyeye çıkarır ve
     Türk bankacılık mevzuatının uygulanmasını belirsizleştirir.
   severity_if_missing: YUKSEK
 
@@ -304,7 +304,7 @@
     Mücbir sebep; Tarafların kontrolü dışında gelişen, öngörülemeyen ve kaçınılamayan olayları
     ifade eder. Tedarikçi'nin kendi sistemlerine yönelik siber saldırılar, alt yüklenici
     kaynaklı aksaklıklar, personel yetersizliği ve tedarik zinciri sorunları mücbir sebep
-    sayılmaz. Mücbir sebep hâli otuz (30) günü aşarsa Banka Sözleşme'yi tazminatsız feshedebilir.
+    sayılmaz. Mücbir sebep hâli otuz (30) günü aşarsa Alıcı Sözleşme'yi tazminatsız feshedebilir.
   legal_basis: ["TBK m.136"]
   negotiation_argument_tr: >-
     Siber güvenlik tedarikçinin asli edim yükümlülüğüdür; onu mücbir sebep saymak, taahhüdün
@@ -327,12 +327,12 @@
       patterns:
         - "(?:referans|logo|unvan|marka)[^.]{0,80}(?:kullanabilir|gösterebilir|yer\\s+verebilir)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'nın önceden ve her kullanım için ayrı ayrı verilmiş yazılı onayı olmaksızın
-    Banka'nın unvanını, markasını veya logosunu referans, tanıtım veya basın materyallerinde
+    Tedarikçi, Alıcının önceden ve her kullanım için ayrı ayrı verilmiş yazılı onayı olmaksızın
+    Alıcının unvanını, markasını veya logosunu referans, tanıtım veya basın materyallerinde
     kullanamaz.
   legal_basis: ["Banka iç politika: KUR-POL-002"]
   negotiation_argument_tr: >-
-    Bankanın hangi tedarikçiyle çalıştığı bilgisi, bankanın iletişim stratejisinin parçasıdır.
+    Alıcının hangi tedarikçiyle çalıştığı bilgisi, alıcının iletişim stratejisinin parçasıdır.
   severity_if_missing: DUSUK
 
 - code: SANCTIONS_ABC
@@ -348,9 +348,9 @@
   ideal_text_tr: >-
     Tedarikçi, kendisinin, ortaklarının ve alt yüklenicilerinin ulusal veya uluslararası
     yaptırım listelerinde yer almadığını beyan ve taahhüt eder. Tedarikçi, rüşvet ve
-    yolsuzlukla mücadeleye ilişkin mevzuata uyar. Bu taahhütlerin ihlali hâlinde Banka
+    yolsuzlukla mücadeleye ilişkin mevzuata uyar. Bu taahhütlerin ihlali hâlinde Alıcı
     Sözleşme'yi derhal ve tazminatsız feshedebilir.
   legal_basis: ["5549 sayılı Kanun (MASAK)", "Banka iç politika: UYU-POL-003"]
   negotiation_argument_tr: >-
-    Yaptırım listesindeki bir tarafla ilişki, bankanın muhabir banka ilişkilerini doğrudan riske atar.
+    Yaptırım listesindeki bir tarafla ilişki, alıcının muhabir alıcı ilişkilerini doğrudan riske atar.
   severity_if_missing: YUKSEK
