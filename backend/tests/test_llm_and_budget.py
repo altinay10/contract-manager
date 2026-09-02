@@ -489,6 +489,46 @@ def test_sistem_promptu_taraf_adina_sabitlenmemis():
         assert "banka" not in metin.lower(), f"{ad} merceği 'banka' diyor"
 
 
+def test_qwen_modelinde_dusunme_modu_kapatilir():
+    """Qwen3 dusunme modunu varsayilan olarak acar: cikti uc katina, gecikme
+    dort katina cikar (olculdu: 19 sn/994 token -> 5 sn/400 token). Bu is akil
+    yurutme zinciri gerektirmiyor; 90 sn'lik sinir asiliyordu."""
+    from app.llm.provider import _dusunme_kapatilabilir
+
+    for m in ("qwen3.8-flash", "qwen3.8-max", "Qwen3-27B", "qwen-plus"):
+        assert _dusunme_kapatilabilir(m), f"{m} icin dusunme kapatilmiyor"
+    # Metin uretmeyen modellerde parametre anlamsiz
+    for m in ("qwen-image-3.0", "qwen-audio-3.0-asr-flash", "qwen3.7-text-embedding"):
+        assert not _dusunme_kapatilabilir(m), f"{m} icin gereksiz gonderiliyor"
+    # Baska ailelere karisilmaz
+    for m in ("gpt-4o", "deepseek-chat", "llama-3.1-70b"):
+        assert not _dusunme_kapatilabilir(m), f"{m} Qwen degil"
+
+
+def test_dusunme_reddedilirse_onsuz_tekrar_denenir():
+    """Desteklemeyen servis 400 doner; saglayici parametreyi birakip devam
+    etmeli, analizi kaybetmemeli."""
+    from app.llm.provider import OpenAICompatProvider, Turn, _Uyumsuz
+
+    p = OpenAICompatProvider("anahtar", "https://ornek.test/v1", ad="custom")
+    cagri = {"n": 0}
+
+    def sahte_post(govde):
+        cagri["n"] += 1
+        if "enable_thinking" in govde:
+            raise _Uyumsuz("dusunme", "enable_thinking is not supported")
+        return {"choices": [{"message": {"content": '{"findings": []}'}}],
+                "usage": {"prompt_tokens": 5, "completion_tokens": 5}}
+
+    p._post = sahte_post
+    t = Turn(agent="Test", system="s", context_blocks=[], task_block="g",
+             schema={"type": "object", "properties": {}}, model="qwen3.8-flash",
+             max_tokens=100)
+    p._invoke(t)
+    assert cagri["n"] == 2, "parametre reddedilince onsuz tekrar denenmedi"
+    assert p._dusunme["qwen3.8-flash"] is False, "red bilgisi hatirlanmadi"
+
+
 def test_tum_llm_promptlari_taraf_adina_sabitlenmemis():
     """Yalnizca analyze.py'yi denetlemek yetmedi: gaps.py'deki GAP_SYSTEM
     "Sen bir Turk bankasinin sozlesme denetcisisin" diyordu ve gozden kacmisti.
