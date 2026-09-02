@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import glob
 import re
+from pathlib import Path
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any
@@ -49,6 +50,7 @@ class ClauseType:
     legal_basis: tuple[str, ...]
     negotiation_argument_tr: str
     severity_if_missing: str
+    plain_tr: str = ""          # hukukçu olmayan okuyucu için sade anlatım
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
     def applies(self, contract_type: str) -> bool:
@@ -63,6 +65,9 @@ def _compile(patterns: list[str] | None) -> tuple[re.Pattern, ...]:
     out = []
     for p in patterns or []:
         try:
+            # {ALICI} gecerli bir regex niceleyicisi olmadigi icin Python onu duz
+            # metin sayar; calisma aninda gercek alici adlariyla degistirilir
+            # (bkz. pipeline/redlines._uygula_alici).
             out.append(re.compile(p, re.IGNORECASE | re.DOTALL))
         except re.error as exc:  # bozuk regex sessizce yutulmaz
             raise PlaybookError(f"Geçersiz regex: {p!r} ({exc})") from exc
@@ -120,6 +125,7 @@ def _parse_entry(d: dict[str, Any], src: str) -> ClauseType:
         legal_basis=tuple(d.get("legal_basis", []) or []),
         negotiation_argument_tr=(d.get("negotiation_argument_tr") or "").strip(),
         severity_if_missing=sev_missing,
+        plain_tr=(d.get("plain_tr") or "").strip(),
         raw=d,
     )
 
@@ -128,14 +134,24 @@ def _parse_entry(d: dict[str, Any], src: str) -> ClauseType:
 def load_playbook() -> dict[str, ClauseType]:
     out: dict[str, ClauseType] = {}
     files = sorted(glob.glob(str(settings.playbook_dir / "*.yaml")))
+    # "_" ile baslayan dosyalar madde tanimi degil, ek verilerdir.
+    sade_dosya = settings.playbook_dir / "_sade-anlatim.yaml"
+    files = [f for f in files if not Path(f).name.startswith("_")]
     if not files:
         raise PlaybookError(f"Playbook bulunamadı: {settings.playbook_dir}")
+
+    sade: dict[str, str] = {}
+    if sade_dosya.exists():
+        with open(sade_dosya, encoding="utf-8") as fh:
+            sade = {k: (v or "").strip() for k, v in (yaml.safe_load(fh) or {}).items()}
+
     for path in files:
         with open(path, encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or []
         if not isinstance(data, list):
             raise PlaybookError(f"{path}: kök öğe liste olmalı")
         for entry in data:
+            entry.setdefault("plain_tr", sade.get(entry.get("code", ""), ""))
             ct = _parse_entry(entry, path)
             if ct.code in out:
                 raise PlaybookError(f"Mükerrer playbook kodu: {ct.code}")

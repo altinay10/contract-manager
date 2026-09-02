@@ -3,17 +3,17 @@
   name_tr: Mevzuat Değişikliğine Uyum
   category: REGULASYON
   obligation: ZORUNLU
-  applies_to: [SAAS, YAZILIM, HIZMET, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["mevzuat değişikliği", "yasal değişiklik", "düzenleme değişikliği", "kanun değişikliği", "mevzuata uyum"]
     keywords_en: ["change in law", "regulatory change", "compliance"]
   red_lines:
     - id: REGCH_COST_ON_BANK
-      text: "Mevzuata uyum için gereken değişikliklerin maliyeti bankaya yükleniyor"
+      text: "Mevzuata uyum için gereken değişikliklerin maliyeti alıcı tarafa yükleniyor"
       severity: YUKSEK
       patterns:
-        - "mevzuat[^.]{0,90}(?:değişikli|uyum)[^.]{0,80}(?:ek\\s+ücret|ilave\\s+bedel|banka\\s+tarafından\\s+karşılan)"
+        - "mevzuat[^.]{0,90}(?:değişikli|uyum)[^.]{0,80}(?:ek\\s+ücret|ilave\\s+bedel|{ALICI}\\s+tarafından\\s+karşılan)"
     - id: REGCH_MISSING
       text: "Mevzuat değişikliği hâlinde uyarlama ve cezasız fesih hakkı düzenlenmemiş"
       severity: YUKSEK
@@ -34,7 +34,7 @@
   name_tr: Destek Hizmeti Kuruluşu Statüsü
   category: REGULASYON
   obligation: ZORUNLU
-  applies_to: [DIS_KAYNAK, SAAS, HIZMET]
+  applies_to: [DIS_KAYNAK, SAAS, HIZMET, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["destek hizmeti", "dış hizmet", "hizmet sağlayıcı statüsü", "bddk"]
@@ -61,14 +61,14 @@
   name_tr: Personel Güvenliği ve Gizlilik Taahhüdü
   category: VERI_GUVENLIK
   obligation: ONERILEN
-  applies_to: [HIZMET, DIS_KAYNAK, SAAS, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["adli sicil", "özgeçmiş kontrol", "gizlilik taahhütnamesi", "personel güvenliği", "erişim yetkisi"]
     keywords_en: ["background check", "personnel", "staff vetting"]
   red_lines:
     - id: PERS_NO_VETTING
-      text: "Banka verisine erişecek personel için güvenlik kontrolü öngörülmemiş"
+      text: "Alıcının verisine erişecek personel için güvenlik kontrolü öngörülmemiş"
       severity: ORTA
       absent_patterns:
         - "(?:adli\\s+sicil|özgeçmiş\\s+kontrol|güvenlik\\s+soruşturma|taahhütname)"
@@ -85,14 +85,14 @@
   name_tr: Lisans Kapsamı ve Kullanıcı Sınırı
   category: FIKRI_MULKIYET
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS]
+  applies_to: [YAZILIM, SAAS, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["lisans", "kullanım hakkı", "kullanıcı sayısı", "iştirak", "grup şirketi"]
     keywords_en: ["license", "named user", "affiliates", "seats"]
   red_lines:
     - id: LIC_NO_AFFILIATE
-      text: "Lisans bankanın iştiraklerini ve dış hizmet aldığı tarafları kapsamıyor"
+      text: "Lisans alıcı tarafın iştiraklerini ve dış hizmet aldığı tarafları kapsamıyor"
       severity: ORTA
       absent_patterns:
         - "(?:iştirak|bağlı\\s+ortaklık|grup\\s+şirket)"
@@ -116,7 +116,7 @@
   name_tr: Garanti ve Bakım
   category: OPERASYONEL
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, DONANIM, HIZMET]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["garanti süresi", "garanti eder", "bakım hizmeti", "bakım bedeli", "destek süresi", "ayıp"]
@@ -149,7 +149,7 @@
   name_tr: Değişiklik Yönetimi
   category: OPERASYONEL
   obligation: ONERILEN
-  applies_to: [SAAS, YAZILIM, HIZMET, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["hizmette değişiklik", "sürüm güncelleme", "değişiklik yönetimi", "tek taraflı değiştir", "hizmeti değiştir"]
@@ -176,7 +176,7 @@
   name_tr: Teminat ve Sigorta
   category: TICARI_RISK
   obligation: ONERILEN
-  applies_to: [HIZMET, SAAS, DONANIM, YAZILIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["teminat mektubu", "kesin teminat", "sigorta", "poliçe", "mesleki sorumluluk sigortası"]
@@ -201,18 +201,18 @@
   name_tr: Vergi ve Stopaj Sorumluluğu
   category: VERGI_MALI
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["stopaj", "tevkifat", "kdv", "vergi hariç", "vergi dahil", "vergiler"]
     keywords_en: ["withholding tax", "vat", "gross-up"]
   red_lines:
     - id: TAX_ALL_ON_BANK
-      text: "Tüm vergi ve yükümlülükler bankaya bırakılmış; brüt/net belirsiz"
+      text: "Tüm vergi ve yükümlülükler alıcı tarafa bırakılmış; brüt/net belirsiz"
       severity: ORTA
       patterns:
-        - "(?:tüm|her\\s+türlü)\\s+vergi[^.]{0,70}banka[^.]{0,30}(?:aittir|tarafından)"
-        - "vergiler[^.]{0,60}banka\\s+tarafından\\s+(?:karşılanır|ödenir)"
+        - "(?:tüm|her\\s+türlü)\\s+vergi[^.]{0,70}{ALICI}[^.]{0,30}(?:aittir|tarafından)"
+        - "vergiler[^.]{0,60}{ALICI}\\s+tarafından\\s+(?:karşılanır|ödenir)"
   ideal_text_tr: >-
     Sözleşme bedeli vergiler hariç olarak belirlenmiştir. Her Taraf kendi kazancı üzerinden
     doğan vergilerden sorumludur. Yurt dışına yapılan ödemelerde doğacak stopaj ve
@@ -228,24 +228,24 @@
   name_tr: Münhasırlık ve Asgari Alım Taahhüdü
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [SAAS, HIZMET, DONANIM, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["münhasır", "münhasırlık", "asgari alım", "asgari taahhüt", "minimum taahhüt", "al ya da öde"]
     keywords_en: ["exclusive", "minimum commitment", "take or pay"]
   red_lines:
     - id: EXC_MINIMUM
-      text: "Banka asgari alım/harcama taahhüdü altına giriyor"
+      text: "Alıcı taraf asgari alım/harcama taahhüdü altına giriyor"
       severity: YUKSEK
       patterns:
         - "asgari[^.]{0,50}(?:alım|harcama|tutar|adet)[^.]{0,40}taahhüt"
         - "(?:al\\s*ya\\s*da\\s*öde|take[\\s-]?or[\\s-]?pay)"
     - id: EXC_EXCLUSIVE
-      text: "Banka münhasırlık taahhüdü veriyor (başka tedarikçiden alamıyor)"
+      text: "Alıcı taraf münhasırlık taahhüdü veriyor (başka tedarikçiden alamıyor)"
       severity: YUKSEK
       patterns:
-        - "münhasır(?:an|lık)?[^.]{0,80}(?:banka|müşteri)"
-        - "banka[^.]{0,60}(?:yalnızca|sadece)\\s+tedarikçi(?:'?den|den)"
+        - "münhasır(?:an|lık)?[^.]{0,80}{ALICI}"
+        - "{ALICI}[^.]{0,60}(?:yalnızca|sadece)\\s+tedarikçi(?:'?den|den)"
   ideal_text_tr: >-
     Banka'nın asgari alım veya harcama taahhüdü bulunmamaktadır. Banka, aynı veya benzer
     ürün ve hizmetleri üçüncü kişilerden temin etmekte serbesttir.
@@ -259,17 +259,17 @@
   name_tr: Personel Ayartmama
   category: SOZLESMESEL
   obligation: OPSIYONEL
-  applies_to: [HIZMET, SAAS, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["ayartma", "istihdam etmeme", "personel transferi", "işe alma yasağı"]
     keywords_en: ["non-solicitation", "no-hire"]
   red_lines:
     - id: SOL_BINDS_BANK
-      text: "Ayartmama yasağı bankayı da bağlıyor ve/veya cezası ağır"
+      text: "Ayartmama yasağı alıcı tarafı da bağlıyor ve/veya cezası ağır"
       severity: ORTA
       patterns:
-        - "banka[^.]{0,80}(?:istihdam\\s+edemez|işe\\s+alamaz|ayartamaz)"
+        - "{ALICI}[^.]{0,80}(?:istihdam\\s+edemez|işe\\s+alamaz|ayartamaz)"
         - "(?:ayart|istihdam)[^.]{0,80}(?:brüt\\s+)?(?:yıllık\\s+)?(?:ücretinin|maaşının)\\s+[^.]{0,20}katı"
   ideal_text_tr: >-
     Tedarikçi, Sözleşme süresince ve sona ermesinden itibaren bir (1) yıl boyunca, işbu
@@ -285,7 +285,7 @@
   name_tr: Tedarikçi Davranış Kuralları (ESG)
   category: ETIK_ITIBAR
   obligation: ONERILEN
-  applies_to: [HIZMET, DONANIM, DIS_KAYNAK, YAZILIM, SAAS]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["davranış kuralları", "etik", "insan hakları", "çevre", "sürdürülebilirlik", "çocuk işçi"]
@@ -310,7 +310,7 @@
   name_tr: Bildirim ve Tebligat
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["tebligat", "bildirim adresi", "kep adresi", "noter", "iadeli taahhütlü"]
@@ -334,7 +334,7 @@
   name_tr: Sözleşmenin Bütünlüğü ve Ekler Hiyerarşisi
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["sözleşmenin bütünlüğü", "öncelik sırası", "çelişki hâlinde", "eklerin sırası", "kullanım koşulları"]
@@ -361,7 +361,7 @@
   name_tr: Bölünebilirlik ve Haklardan Feragat
   category: SOZLESMESEL
   obligation: OPSIYONEL
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 1
   detection:
     keywords_tr: ["bölünebilirlik", "feragat", "geçersiz", "hükümsüz"]
@@ -386,7 +386,7 @@
   name_tr: Kayıtların Saklanması ve İbrazı
   category: REGULASYON
   obligation: ONERILEN
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["kayıt saklama", "saklama süresi", "loglama", "iz kaydı", "işlem kayıtları", "arşiv", "ibraz"]
@@ -411,3 +411,33 @@
     Bankanın kayıt saklama yükümlülüğü on yıldır; tedarikçinin daha kısa süre saklaması
     bankayı denetimde belge sunamaz duruma düşürür.
   severity_if_missing: ORTA
+
+- code: EVIDENCE_AGREEMENT
+  name_tr: Kesin Delil Anlaşması
+  category: SOZLESMESEL
+  obligation: ONERILEN
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  weight: 3
+  detection:
+    keywords_tr: ["kesin delil", "delil anlaşması", "münhasır delil", "defter ve kayıtları"]
+    keywords_en: ["conclusive evidence"]
+  red_lines:
+    - id: EVD_ONE_SIDED
+      text: "Yalnızca tedarikçinin kayıtları kesin delil sayılıyor"
+      severity: YUKSEK
+      patterns:
+        - "(?:tedarikçi|yüklenici|sağlayıcı|firma)[^.]{0,90}(?:defter|kayıt|kayıtları)[^.]{0,60}kesin\\s+delil"
+    - id: EVD_MISSING
+      text: "Uyuşmazlıkta hangi kayıtların delil sayılacağı düzenlenmemiş"
+      severity: ORTA
+      absent_patterns:
+        - "(?:kesin\\s+delil|delil\\s+anlaşması|münhasır\\s+delil)"
+  ideal_text_tr: >-
+    Taraflar arasındaki uyuşmazlıklarda Banka'nın defter, kayıt, bilgisayar ve ses
+    kayıtları ile elektronik verileri HMK m.193 anlamında kesin delil teşkil eder.
+    Tedarikçi'nin kayıtları bu nitelikte sayılmaz.
+  legal_basis: ["6100 sayılı HMK m.193 (delil sözleşmesi)"]
+  negotiation_argument_tr: >-
+    Kesin delil anlaşması, uyuşmazlıkta kimin kayıtlarının esas alınacağını belirler.
+    Tek taraflı düzenlenirse banka kendi kayıtlarıyla iddiasını ispatlayamaz duruma düşer.
+  severity_if_missing: DUSUK

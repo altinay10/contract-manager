@@ -5,7 +5,7 @@
   name_tr: Sorumluluğun Sınırlandırılması
   category: TICARI_RISK
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["sorumluluğun sınırlandırılması", "toplam sorumluluk", "sorumluluk tavanı", "dolaylı zarar", "sorumlu değildir", "sorumluluğu ... aşamaz", "tazminat tavanı"]
@@ -51,17 +51,17 @@
   name_tr: Tazminat Yükümlülüğü
   category: TICARI_RISK
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["tazmin", "tazminat", "üçüncü kişi talepleri", "beri kılmak", "zararını karşılar"]
     keywords_en: ["indemnify", "hold harmless", "third party claims"]
   red_lines:
     - id: IND_ONE_SIDED
-      text: "Tazminat yükümlülüğü yalnızca banka üzerinde (tek taraflı)"
+      text: "Tazminat yükümlülüğü yalnızca alıcı taraf üzerinde (tek taraflı)"
       severity: YUKSEK
       patterns:
-        - "banka[^.]{0,120}(?:tazmin\\s+ed|beri\\s+kıl)"
+        - "{ALICI}[^.]{0,120}(?:tazmin\\s+ed|beri\\s+kıl)"
   ideal_text_tr: >-
     Tedarikçi; fikri mülkiyet hakkı ihlali, gizlilik ihlali, kişisel veri ihlali ve kendi
     kusurundan kaynaklanan üçüncü kişi talepleri nedeniyle Banka'nın uğrayacağı her türlü
@@ -76,7 +76,7 @@
   name_tr: Fiyat Artışı ve Bedel Güncellemesi
   category: TICARI_RISK
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, YAZILIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["fiyat artışı", "bedel güncelleme", "ücret güncelle", "fiyat güncelle", "endeks", "tüfe", "üfe", "zam"]
@@ -109,7 +109,7 @@
   name_tr: Ödeme Koşulları
   category: TICARI_RISK
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["ödeme koşulları", "fatura", "peşin", "ödeme vadesi", "avans", "ödenir"]
@@ -136,17 +136,17 @@
   name_tr: Damga Vergisi
   category: VERGI_MALI
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["damga vergisi", "damga resmi"]
     keywords_en: ["stamp duty", "stamp tax"]
   red_lines:
     - id: STAMP_ALL_ON_BANK
-      text: "Damga vergisinin tamamı bankaya yüklenmiş"
+      text: "Damga vergisinin tamamı alıcı tarafa yüklenmiş"
       severity: ORTA
       patterns:
-        - "damga\\s+vergisi[^.]{0,80}(?:banka(?:'?ya|ya|\\s+tarafından)|müşteri(?:ye)?)[^.]{0,30}(?:aittir|ödenir|karşılanır|yükümlü)"
+        - "damga\\s+vergisi[^.]{0,80}{ALICI}[^.]{0,40}(?:aittir|ödenir|karşılanır|yükümlü|yansıtıl)"
   ideal_text_tr: >-
     İşbu Sözleşme'den doğan damga vergisi Taraflarca eşit oranda karşılanır. Sözleşme tek nüsha
     olarak düzenlenir ve nüsha çoğaltılmaz.
@@ -160,17 +160,17 @@
   name_tr: Cezai Şart
   category: TICARI_RISK
   obligation: ONERILEN
-  applies_to: [HIZMET, SAAS, DONANIM, YAZILIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["cezai şart", "gecikme cezası", "ceza bedeli"]
     keywords_en: ["liquidated damages", "penalty"]
   red_lines:
     - id: PEN_ONLY_ON_BANK
-      text: "Ceza yalnızca bankanın geç ödemesi için öngörülmüş"
+      text: "Ceza yalnızca alıcı tarafın geç ödemesi için öngörülmüş"
       severity: ORTA
       patterns:
-        - "banka[^.]{0,60}gecikme[^.]{0,40}(?:faiz|ceza)"
+        - "{ALICI}[^.]{0,60}gecikme[^.]{0,40}(?:faiz|ceza)"
   ideal_text_tr: >-
     Tedarikçi'nin teslim/ifa takvimine uymaması hâlinde, gecikilen her takvim günü için ilgili
     kalem bedelinin binde beşi (‰5) oranında cezai şart uygulanır. Cezai şartın ödenmesi

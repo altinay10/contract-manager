@@ -2,7 +2,7 @@
   name_tr: Hizmet Seviyesi Taahhüdü (SLA)
   category: OPERASYONEL
   obligation: ZORUNLU
-  applies_to: [SAAS, HIZMET, DIS_KAYNAK, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["hizmet seviyesi", "erişilebilirlik", "kullanılabilirlik", "çalışma süresi", "yanıt süresi", "sla"]
@@ -35,7 +35,7 @@
   name_tr: İş Sürekliliği ve Felaket Kurtarma
   category: OPERASYONEL
   obligation: ZORUNLU
-  applies_to: [SAAS, DIS_KAYNAK, HIZMET]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["iş sürekliliği", "felaket", "olağanüstü durum", "yedek", "kurtarma", "rto", "rpo"]
@@ -59,7 +59,7 @@
   name_tr: Çıkış ve Geçiş Desteği
   category: OPERASYONEL
   obligation: ZORUNLU
-  applies_to: [SAAS, DIS_KAYNAK, HIZMET, YAZILIM]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["geçiş", "çıkış", "devir", "veri iadesi", "verilerin iadesi", "sona erme"]
@@ -86,7 +86,7 @@
   name_tr: Kabul Kriterleri ve Kabul Testi
   category: OPERASYONEL
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, DONANIM, HIZMET, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["kabul", "kabul testi", "teslim", "muayene"]
@@ -112,7 +112,7 @@
   name_tr: Kaynak Kodu Emaneti (Escrow)
   category: FIKRI_MULKIYET
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, DIS_KAYNAK]
+  applies_to: [YAZILIM, SAAS, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["escrow", "emanet", "kaynak kod", "kaynak kodu"]
@@ -139,18 +139,18 @@
   name_tr: Fikri Mülkiyet ve Geliştirme Sahipliği
   category: FIKRI_MULKIYET
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["fikri mülkiyet", "telif", "mülkiyet", "lisans", "kullanım hakkı", "geliştirme"]
     keywords_en: ["intellectual property", "ownership", "license", "work product"]
   red_lines:
     - id: IP_ALL_TO_VENDOR
-      text: "Bankaya özel geliştirmelerin mülkiyeti de tedarikçide"
+      text: "Alıcıya özel geliştirmelerin mülkiyeti de tedarikçide"
       severity: YUKSEK
       patterns:
         - "(?:tüm|her\\s+türlü|bütün)[^.]{0,60}(?:fikri\\s+mülkiyet|hak)[^.]{0,60}(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,20}(?:'?ye|ye|ya|na|ne)?\\s*aittir"
-        - "banka\\s+(?:için|talebiyle)\\s+(?:yapıl(?:an|acak)|geliştiril(?:en|ecek))[^.]{0,80}(?:tedarikçi|yüklenici)"
+        - "{ALICI}\\s+(?:için|talebiyle)\\s+(?:yapıl(?:an|acak)|geliştiril(?:en|ecek))[^.]{0,80}(?:tedarikçi|yüklenici)"
   ideal_text_tr: >-
     Banka'nın talebi üzerine ve Banka'ya özgü olarak geliştirilen tüm çıktıların fikri mülkiyet
     hakları Banka'ya aittir. Tedarikçi'nin önceden var olan (background) fikri mülkiyeti kendisinde
@@ -166,19 +166,19 @@
   name_tr: Fesih Hakkı
   category: SOZLESMESEL
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 5
   detection:
     keywords_tr: ["fesih", "feshedebilir", "sona erdirme", "sözleşmenin sona ermesi"]
     keywords_en: ["termination", "terminate for convenience"]
   red_lines:
     - id: TERM_ASYMMETRIC
-      text: "Tedarikçi sebepsiz feshedebiliyor; banka için aynı hak yok"
+      text: "Tedarikçi sebepsiz feshedebiliyor; alıcı taraf için aynı hak yok"
       severity: KRITIK
       patterns:
         - "(?:tedarikçi|yüklenici|firma|satıcı)[^.]{0,80}(?:sebep\\s+göstermeksizin|herhangi\\s+bir\\s+sebep|gerekçe\\s+göstermeksizin)[^.]{0,60}feshed"
     - id: TERM_NO_REGULATORY
-      text: "Regülatif zorunluluk hâlinde bankaya cezasız fesih hakkı tanınmamış"
+      text: "Regülatif zorunluluk hâlinde alıcı tarafa cezasız fesih hakkı tanınmamış"
       severity: YUKSEK
       absent_patterns:
         - "(?:mevzuat|düzenleyici|otorite|bddk)"
@@ -198,18 +198,23 @@
   name_tr: Otomatik Yenileme
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [SAAS, HIZMET, YAZILIM, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["yenilen", "uzar", "otomatik olarak", "süre uzatımı"]
     keywords_en: ["auto-renew", "automatically renewed", "evergreen"]
   red_lines:
     - id: RENEW_LONG_NOTICE
-      text: "Otomatik yenileme var ve iptal ihbar süresi uzun (60+ gün)"
+      text: "Otomatik yenilemede iptal ihbar süresi uzun (60 gün ve üzeri)"
       severity: ORTA
       patterns:
         - "(?:altmış|60|doksan|90|yüz\\s+seksen|180)\\s*\\(?\\s*\\d*\\s*\\)?\\s*gün[^.]{0,80}(?:yenilen|uzar)"
-        - "(?:kendiliğinden|otomatik\\s+olarak)[^.]{0,40}(?:yenilen(?:ir|miş)|uzar)"
+    - id: RENEW_AUTOMATIC
+      text: "Sözleşme kendiliğinden uzuyor; yenileme kararı alıcı tarafın iradesine bağlı değil"
+      severity: ORTA
+      patterns:
+        - "(?:kendiliğinden|otomatik\\s+olarak)[^.]{0,60}(?:yenilen[a-zçğıöşü]*|uzar|uzatıl[a-zçğıöşü]*)"
+        - "ihbarda\\s+bulunulmadığı|ihbarda\\s+bulunmadıkları"
   ideal_text_tr: >-
     Sözleşme süresi sonunda kendiliğinden uzamaz. Tarafların yazılı mutabakatı hâlinde yenilenir.
     Otomatik yenileme öngörülmesi hâlinde Banka'nın iptal bildirim süresi otuz (30) günü aşamaz
@@ -224,7 +229,7 @@
   name_tr: Devir, Temlik ve Kontrol Değişikliği
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["devir", "devredebilir", "temlik", "hisse", "kontrol değişikliği", "birleşme"]
@@ -236,7 +241,7 @@
       patterns:
         - "(?:tedarikçi|yüklenici|firma)[^.]{0,80}(?:onay\\s+(?:almaksızın|olmaksızın)|serbestçe)[^.]{0,40}(?:devred|temlik)"
     - id: ASSIGN_NO_COC
-      text: "Kontrol değişikliği hâlinde bankaya fesih hakkı tanınmamış"
+      text: "Kontrol değişikliği hâlinde alıcı tarafa fesih hakkı tanınmamış"
       severity: ORTA
       absent_patterns:
         - "(?:kontrol\\s+değişikliği|hisse(?:leri)?nin\\s+devri|pay\\s+devri|birleşme)"
@@ -253,7 +258,7 @@
   name_tr: Uygulanacak Hukuk ve Yetkili Merci
   category: SOZLESMESEL
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 4
   detection:
     keywords_tr: ["uygulanacak hukuk", "yetkili mahkeme", "tahkim", "uyuşmazlık", "icra daireleri"]
@@ -280,7 +285,7 @@
   name_tr: Mücbir Sebep
   category: SOZLESMESEL
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["mücbir sebep", "beklenmeyen hal", "force majeure"]
@@ -290,7 +295,11 @@
       text: "Mücbir sebep tanımı tedarikçinin kendi alanındaki riskleri de kapsıyor"
       severity: YUKSEK
       patterns:
-        - "mücbir\\s+sebep[^.]{0,200}(?:siber\\s+saldırı|alt\\s+yüklenici|tedarik\\s+zinciri|personel\\s+yetersizliği|grev)"
+        # Yakınlık penceresi ([^.]{0,N}) kullanılmıyor: Türkçe hukuk metninde
+        # "vb.", "m.", "A.Ş." gibi kısaltmalardaki nokta pencereyi kesiyor ve
+        # eşleşme sessizce kaçıyordu. Desen zaten YALNIZCA mücbir sebep maddesi
+        # olarak sınıflandırılmış maddede çalıştığı için yakınlık şartı gereksiz.
+        - "(?:siber\\s+saldırı|alt\\s+yüklenici|tedarik\\s+zinciri|personel\\s+yetersizliği|grev|lokavt)"
   ideal_text_tr: >-
     Mücbir sebep; Tarafların kontrolü dışında gelişen, öngörülemeyen ve kaçınılamayan olayları
     ifade eder. Tedarikçi'nin kendi sistemlerine yönelik siber saldırılar, alt yüklenici
@@ -306,14 +315,14 @@
   name_tr: Referans ve Marka Kullanımı
   category: ETIK_ITIBAR
   obligation: ONERILEN
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 2
   detection:
     keywords_tr: ["referans", "logo", "unvan", "marka", "tanıtım", "basın"]
     keywords_en: ["reference", "logo", "publicity", "press release"]
   red_lines:
     - id: REF_FREE_USE
-      text: "Tedarikçi bankayı izinsiz referans gösterebiliyor"
+      text: "Tedarikçi alıcı tarafı izinsiz referans gösterebiliyor"
       severity: ORTA
       patterns:
         - "(?:referans|logo|unvan|marka)[^.]{0,80}(?:kullanabilir|gösterebilir|yer\\s+verebilir)"
@@ -330,7 +339,7 @@
   name_tr: Yaptırımlar ve Rüşvetle Mücadele
   category: ETIK_ITIBAR
   obligation: ZORUNLU
-  applies_to: [YAZILIM, SAAS, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
+  applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
   weight: 3
   detection:
     keywords_tr: ["yaptırım", "ambargo", "rüşvet", "yolsuzluk", "ofac", "kara para"]

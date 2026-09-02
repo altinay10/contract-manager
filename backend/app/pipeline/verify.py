@@ -55,7 +55,7 @@ def ground(drafts: list[FindingDraft], source_by_clause: dict[str, str], full_te
             continue
         if not d.quote:
             # Bu tipler tanimi geregi metne dayanmaz: olmayan bir seyi isaret ederler.
-            if d.finding_type in ("INFO", "MISSING", "CROSS_REF_ERROR"):
+            if d.finding_type in ("INFO", "MISSING", "CROSS_REF_ERROR", "DRAFTING_DEFECT"):
                 kept.append(d)
             else:
                 dropped.append((d, "alinti yok"))
