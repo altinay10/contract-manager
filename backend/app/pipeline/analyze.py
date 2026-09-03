@@ -2,7 +2,7 @@
 
 K1 Daraltma        : bir cagri = bir madde
 K2 Hipotez zerki   : playbook kirmizi cizgileri zorunlu kontrol listesi olarak zerk edilir
-K3 Bakis acisi     : sistem promptu tarafsiz ozetleyici degil, bankanin avukati
+K3 Bakis acisi     : sistem promptu tarafsiz ozetleyici degil, alicinin avukati
 K6 Effort tahsisi  : madde agirligina gore model/effort secimi
 K7 Karsi-gorus     : kritik bulgular ayri bir cagrida curutulmeye calisilir
 """
@@ -203,7 +203,7 @@ def build_task_block(
     lines.append("</madde_metni>")
     lines.append("")
 
-    lines.append("=== BANKANIN STANDARDI ===")
+    lines.append("=== ALICININ STANDARDI ===")
     if ct.ideal_text_tr:
         lines.append("Ideal madde metni:")
         lines.append(ct.ideal_text_tr)
@@ -249,7 +249,7 @@ def build_task_block(
     lines.append("")
     lines.append(
         "proposed_text alanina, bu sozlesmenin diline ve numaralandirmasina uygun, "
-        "banka lehine ALTERNATIF MADDE METNI yaz. negotiation_note alanina tedarikciye "
+        "alici lehine ALTERNATIF MADDE METNI yaz. negotiation_note alanina tedarikciye "
         "soylenecek tek cumlelik muzakere argumanini yaz."
     )
     return "\n".join(lines)
@@ -280,7 +280,7 @@ def rule_findings(
                 severity=rl.severity,
                 title=rl.text,
                 rationale=(
-                    f"{ct.name_tr} maddesi bankanın standardını karşılamıyor: {rl.text}. "
+                    f"{ct.name_tr} maddesi alıcının standardını karşılamıyor: {rl.text}. "
                     + (ct.negotiation_argument_tr or "")
                 ).strip(),
                 quote=h.quote,
@@ -300,7 +300,7 @@ def rule_findings(
                 code=ct.code,
                 clause_number=clause_number,
                 finding_type="AMBIGUOUS",
-                # Sure belirsizligi, bankayi zayiflatan ifadeden daha hafiftir.
+                # Sure belirsizligi, aliciyi zayiflatan ifadeden daha hafiftir.
                 severity="ORTA" if tur == "zayiflatici" else "DUSUK",
                 title=f"Ölçülemez ifade: \"{phrase}\"",
                 rationale=(

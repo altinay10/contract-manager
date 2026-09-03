@@ -65,3 +65,16 @@ def alici_deseni(text: str) -> str:
     # Uzun olan once: "iş sahibi" | "iş" siralamasi onemli
     adlar = sorted({a for a in adlar if a}, key=len, reverse=True)
     return "(?:" + "|".join(re.escape(a) for a in adlar) + ")"
+
+
+def alici_adlari(text: str) -> list[str]:
+    """Alici tarafi arayan duz metin aramalari icin katlanmis ad listesi.
+
+    `alici_deseni` regex uretir; bu ise `in` ile arama yapan yerler icindir
+    (ornegin damga vergisi yukunun kimde oldugunu bulan sezgisel). Sozlesmede
+    tanimli terim bulunamazsa varsayilan adlara duser, yani en kotu durumda
+    eski davranis korunur.
+    """
+    alici, _ = taraflari_ayir(text)
+    adlar = [fold(a) for a in alici] + list(VARSAYILAN_ALICI)
+    return sorted({a for a in adlar if a}, key=len, reverse=True)

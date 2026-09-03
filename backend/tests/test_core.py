@@ -5,6 +5,8 @@ bir grounding zafiyeti, ekranda hata vermeden yanlis rapor uretir.
 """
 from __future__ import annotations
 
+import pathlib
+
 import pytest
 
 from app.playbook.loader import load_playbook, mandatory_codes
@@ -391,6 +393,73 @@ def test_alici_taraf_adi_banka_olmak_zorunda_degil():
     assert not evaluate_red_lines(madde, ct), "yer tutucu çözülmeden eşleşmemeli"
     assert evaluate_red_lines(madde, ct, alici=alici_deseni(metin_taraflar)), \
         "alıcı adı çözüldüğünde eşleşmeli"
+
+
+def test_playbook_metinleri_taraf_adina_sabitlenmemis():
+    """Tespit genellestirildi ama insanin okudugu metinler "banka" diyordu:
+    alici İDARE iken rapor "bankaya en fazla ne kadar odeyecegi" yaziyordu.
+
+    Mevzuat atiflari (legal_basis) ve hukuki terimler ("banka sirri",
+    "Bankalarin ... Yonetmelik") disarida birakilir; onlar taraf gondermesi degil.
+    """
+    import re
+    import yaml
+
+    kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    # Korunan hukuki terimler maskelenir; ayni satirdaki taraf gondermesi yine
+    # de yakalanir. Onceki surumde tum satir atlaniyordu ve "Banka'ya ait her
+    # turlu bilgi" ifadesi "Banka sirri" yuzunden gozden kaciyordu.
+    MASKE = [r"[Bb]ankacılık", r"Bankaların", r"[Bb]anka\s+sırrı"]
+    ihlal = []
+    for dosya in sorted(kok.glob("*.yaml")):
+        for no, satir in enumerate(dosya.read_text(encoding="utf-8").splitlines(), 1):
+            if "(?:" in satir or "\\s" in satir:      continue   # regex deseni
+            temiz = satir
+            for m in MASKE:
+                temiz = re.sub(m, "", temiz)
+            # Kesme isaretli cekimler dahil: Banka'ya, Banka'nin, Bankaya...
+            if re.search(r"\b[Bb]anka('(nın|ya|yı|da|dan))?(nın|ya|yı|da|dan)?\b", temiz):
+                ihlal.append(f"{dosya.name}:{no}")
+    assert not ihlal, ("playbook metinleri hâlâ alıcıyı 'banka' sanıyor: "
+                       + ", ".join(ihlal[:6]))
+
+
+def test_playbook_hukuki_atiflari_korunur():
+    """Genellestirme mevzuati bozmamali: 5411 sayili Kanun, BDDK yonetmelik
+    adlari ve "banka sirri" terimi taraf gondermesi degildir."""
+    kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    tumu = "\n".join(d.read_text(encoding="utf-8") for d in kok.glob("*.yaml"))
+    for terim in ("Bankacılık Kanunu", "Bankaların Destek", "Banka sırrı",
+                  "bankacılık mevzuat"):
+        assert terim.lower() in tumu.lower(), f"hukuki atıf kayboldu: {terim}"
+
+
+def test_damga_vergisi_banka_olmayan_alicida_da_yakalanir():
+    """Damga vergisi sezgiseli "banka" kelimesine bakiyordu; alici İDARE ise
+    yuk alici tarafa yiklenmis olsa bile risk olarak isaretlenmiyordu."""
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        'MADDE 1 - TARAFLAR\n'
+        'KAMU DİJİTAL HİZMETLER GENEL MÜDÜRLÜĞÜ ("İDARE") ile '
+        'Veriteknoloji Bilişim Ltd. Şti. ("YÜKLENİCİ") arasında akdedilmiştir.\n'
+        'MADDE 9 - DAMGA VERGİSİ\n'
+        'İşbu sözleşmeden doğan damga vergisi İDARE tarafından ödenir.\n'
+    )
+    assert extract_meta(metin)["stamp_duty"] == "Alıcıya ait (risk)"
+
+
+def test_damga_vergisi_bankada_da_calismaya_devam_eder():
+    """Eski davranis korunmali: alici gercekten banka ise yine yakalanir."""
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        'MADDE 1 - TARAFLAR\n'
+        'Örnek Bankası A.Ş. ("Banka") ile Tedarikçi Ltd. ("Tedarikçi") arasında.\n'
+        'MADDE 9 - DAMGA VERGİSİ\n'
+        'İşbu sözleşmeye ait damga vergisi Banka tarafından ödenecektir.\n'
+    )
+    assert extract_meta(metin)["stamp_duty"] == "Alıcıya ait (risk)"
 
 
 def test_banka_adiyla_da_calismaya_devam_eder():
