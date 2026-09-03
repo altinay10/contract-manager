@@ -550,6 +550,85 @@ def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dic
         return ozet
 
 
+@app.get("/api/dashboard")
+def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
+    """Portföy görünümü: tüm sözleşmelerin toplu durumu.
+
+    Tek bir sözleşmeyi incelemek ayrı, portföyü yönetmek ayrı bir iştir.
+    Bu uç ikincisini besler: hangi banka, hangi tedarikçi, hangi risk bandı,
+    en sık ihlal edilen maddeler.
+    """
+    from collections import Counter
+
+    from .models import Clause
+    from .playbook.loader import load_playbook
+
+    pb = load_playbook()
+    with session_scope() as s:
+        sozlesmeler = list(s.scalars(select(Contract).order_by(Contract.created_at.desc())))
+        bulgular = list(s.scalars(select(Finding)))
+
+        bulgu_ix: dict[str, list] = {}
+        for f in bulgular:
+            bulgu_ix.setdefault(f.contract_id, []).append(f)
+
+        satirlar = []
+        for c in sozlesmeler:
+            fs = bulgu_ix.get(c.id, [])
+            sayac = Counter(f.severity for f in fs)
+            satirlar.append({
+                "id": c.id,
+                "alici": (c.meta_json or {}).get("alici") or "—",
+                "counterparty": c.counterparty or "—",
+                "filename": c.filename,
+                "contract_type": c.contract_type,
+                "status": c.status,
+                "risk_score": c.risk_score,
+                "risk_band": c.risk_band,
+                "value_text": c.value_text or "—",
+                "term_text": c.term_text or "—",
+                "kritik": sayac.get("KRITIK", 0),
+                "yuksek": sayac.get("YUKSEK", 0),
+                "orta": sayac.get("ORTA", 0),
+                "toplam": len(fs),
+                "eksik": sum(1 for f in fs if f.finding_type == "MISSING"),
+                "created_at": c.created_at.isoformat() if c.created_at else "",
+            })
+
+        bitmis = [r for r in satirlar if r["risk_score"] is not None]
+        bant = Counter(r["risk_band"] for r in bitmis)
+
+        # En sik ihlal edilen madde tipleri
+        ihlal = Counter(f.code for f in bulgular if f.severity in ("KRITIK", "YUKSEK"))
+        en_sik = [{"code": k, "name": pb[k].name_tr if k in pb else k, "adet": v}
+                  for k, v in ihlal.most_common(8)]
+
+        # En riskli tedarikciler
+        ted: dict[str, list] = {}
+        for r in bitmis:
+            ted.setdefault(r["counterparty"], []).append(r["risk_score"])
+        en_riskli = sorted(
+            ({"ad": k, "sozlesme": len(v), "ort_skor": round(sum(v) / len(v), 1)}
+             for k, v in ted.items() if k != "—"),
+            key=lambda x: x["ort_skor"])[:6]
+
+        return {
+            "ozet": {
+                "toplam": len(satirlar),
+                "tamamlanan": len(bitmis),
+                "kirmizi": bant.get("KIRMIZI", 0),
+                "sari": bant.get("SARI", 0),
+                "yesil": bant.get("YESIL", 0),
+                "ort_skor": round(sum(r["risk_score"] for r in bitmis) / len(bitmis), 1) if bitmis else None,
+                "toplam_bulgu": len(bulgular),
+                "kritik_bulgu": sum(1 for f in bulgular if f.severity == "KRITIK"),
+            },
+            "sozlesmeler": satirlar,
+            "en_sik_ihlal": en_sik,
+            "en_riskli_tedarikciler": en_riskli,
+        }
+
+
 @app.get("/api/reports/{report_id}")
 def download(report_id: str, request: Request,
              kullanici: str = Depends(auth.optional_user)) -> FileResponse:

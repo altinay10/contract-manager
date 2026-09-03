@@ -1,0 +1,65 @@
+YAZILIM LİSANS VE BAKIM SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Marmara Yatırım Bankası A.Ş. ("MARMARA YATIRIM") ile diğer tarafta
+Nexora Bulut Hizmetleri A.Ş. ("HİZMET SAĞLAYICI") arasında 16.06.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" HİZMET SAĞLAYICI tarafından sunulan çözümü, "MARMARA YATIRIM Verisi" MARMARA YATIRIM'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+HİZMET SAĞLAYICI, MARMARA YATIRIM'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 3 yıldır.
+Sözleşme, en az doksan (90) gün önce feshedilmediği takdirde kendiliğinden birer yıl uzar.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 760.000 TL'dir. Bedelin tamamı her sözleşme yılının başında peşin olarak
+ödenir. HİZMET SAĞLAYICI, ücretleri her yıl tek taraflı olarak güncelleyebilir.
+
+MADDE 5 - SORUMLULUK
+5.1 HİZMET SAĞLAYICI hiçbir hâlde dolaylı zararlardan, kâr kaybından veya veri kaybından sorumlu değildir.
+5.2 HİZMET SAĞLAYICI'nin toplam sorumluluğu, talebin doğduğu tarihten önceki üç (3) ayda ödenen bedeli aşamaz.
+
+MADDE 6 - DENETİM
+MARMARA YATIRIM, yılda bir (1) kez ve en az otuz (30) gün önceden yazılı bildirimde bulunmak kaydıyla,
+mesai saatleri içinde denetim yapabilir. Denetim masrafları MARMARA YATIRIM'ya aittir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+MARMARA YATIRIM Verisi, HİZMET SAĞLAYICI'nin global altyapısında ve uygun göreceği veri merkezlerinde işlenebilir.
+HİZMET SAĞLAYICI, MARMARA YATIRIM Verisi'ni hizmetlerini geliştirmek amacıyla anonimleştirerek kullanabilir.
+
+MADDE 8 - GÜVENLİK
+8.1 HİZMET SAĞLAYICI, güvenlik ihlalini öğrenmesini müteakip makul bir süre içinde MARMARA YATIRIM'ya bildirimde bulunur.
+8.2 MARMARA YATIRIM'nın HİZMET SAĞLAYICI sistemleri üzerinde sızma testi yapması yasaktır.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üçüncü kişilerle paylaşmayacaktır. Bu yükümlülük Sözleşme'nin
+sona ermesinden itibaren bir (1) yıl süreyle devam eder.
+
+MADDE 10 - FESİH
+10.1 HİZMET SAĞLAYICI, herhangi bir sebep göstermeksizin otuz (30) gün önceden yazılı bildirimde
+bulunarak Sözleşme'yi feshedebilir.
+10.2 MARMARA YATIRIM, yalnızca HİZMET SAĞLAYICI'nin esaslı ihlali hâlinde ve doksan (90) günlük düzeltme süresi
+sonunda Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+İşbu Sözleşme'den doğan damga vergisi ve diğer tüm masraflar MARMARA YATIRIM tarafından karşılanır.
+
+MADDE 12 - ALT YÜKLENİCİ
+HİZMET SAĞLAYICI, dilediği alt yükleniciyi MARMARA YATIRIM'nın onayını almaksızın kullanabilir.
+
+MADDE 13 - HİZMET SEVİYESİ
+HİZMET SAĞLAYICI, hizmetin kesintisiz sunulması için ticari makul çaba gösterecektir. Kesinti hâlinde
+MARMARA YATIRIM'nın yegâne başvuru yolu, ilgili aya ait bedelin orantılı iadesidir.
+
+MADDE 14 - REFERANS
+HİZMET SAĞLAYICI, MARMARA YATIRIM'nın unvanını ve logosunu tanıtım materyallerinde referans olarak kullanabilir.
+
+MADDE 15 - UYGULANACAK HUKUK
+İşbu Sözleşme İngiltere hukukuna tabidir. Uyuşmazlıklar Londra Uluslararası Tahkim
+Mahkemesi (LCIA) kuralları uyarınca çözülür.
+
+MADDE 16 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.

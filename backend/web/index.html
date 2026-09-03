@@ -437,6 +437,51 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
   font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .ulegend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
 .ulegend em{font-style:normal;color:var(--muted);margin-left:4px}
+
+/* ============ PORTFÖY (dashboard) ============ */
+.pf-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.pf-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--line-soft);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;margin:20px 0 24px}
+.pf-kpi .k{background:var(--surface);padding:16px 18px}
+.pf-kpi .k b{display:block;font-size:26px;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.pf-kpi .k span{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);margin-top:6px}
+.pf-kpi .k.crit b{color:var(--crit)} .pf-kpi .k.high b{color:var(--high)} .pf-kpi .k.ok b{color:var(--ok)}
+
+.pf-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table.pf{border-collapse:collapse;width:100%;min-width:840px;font-size:13px}
+table.pf th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:11px 14px;border-bottom:1px solid var(--line);
+  white-space:nowrap;background:var(--surface-2)}
+table.pf td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+table.pf tr:last-child td{border-bottom:0}
+table.pf tr.row:hover td{background:var(--surface-2)}
+table.pf .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pf .bank{font-weight:600;letter-spacing:-.01em}
+table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
+.pf-band{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;
+  letter-spacing:.05em;font-weight:600;border:1px solid}
+.pf-band.KIRMIZI{color:var(--crit);border-color:var(--crit);background:transparent}
+.pf-band.SARI{color:var(--high);border-color:var(--high)}
+.pf-band.YESIL{color:var(--ok);border-color:var(--ok)}
+.pf-band.bek{color:var(--muted);border-color:var(--line)}
+.pf-skor{display:flex;align-items:center;gap:9px;justify-content:flex-end}
+.pf-skor i{display:block;height:5px;width:64px;background:var(--line-soft);border-radius:3px;
+  overflow:hidden;flex:0 0 auto}
+.pf-skor i>b{display:block;height:100%;border-radius:3px}
+.pf-tip{font-size:10.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.pf-two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media(max-width:760px){.pf-two{grid-template-columns:1fr}}
+.pf-list{list-style:none;margin:14px 0 0;padding:0}
+.pf-list li{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;
+  border-bottom:1px solid var(--line-soft)}
+.pf-list li:last-child{border-bottom:0}
+.pf-list .ad{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-list .cub{flex:0 0 78px;height:5px;background:var(--line-soft);border-radius:3px;overflow:hidden}
+.pf-list .cub>b{display:block;height:100%;background:var(--lamp);border-radius:3px}
+.pf-list .sy{flex:0 0 auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+.pf-bos{color:var(--muted);font-size:13.5px;padding:28px 0;text-align:center}
 </style>
 
 
@@ -666,6 +711,48 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
     </div>
 
     <div class="panel" id="result"></div>
+  </div>
+</section>
+
+
+<section id="pfsec" style="padding-top:0;display:none">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:0">
+      <div class="eyebrow">Portföy</div>
+      <h2>Tek sözleşme bir karar; portföy bir <span class="lit">eğilimdir</span>.</h2>
+      <p class="lead" style="font-size:15px">Analiz edilen tüm sözleşmeler tek tabloda.
+      Hangi banka hangi tedarikçiyle nerede duruyor, hangi madde tekrar tekrar aleyhe
+      yazılıyor — imza öncesi bakılacak yer burası.</p>
+    </div>
+
+    <div class="pf-kpi" id="pfKpi"></div>
+
+    <div class="pf-head" style="margin-bottom:12px">
+      <div class="eyebrow" style="margin:0">Sözleşmeler</div>
+      <button class="btn ghost" id="pfYenile" type="button">Yenile</button>
+    </div>
+    <div class="pf-scroll"><table class="pf"><thead><tr>
+      <th>Alıcı taraf</th><th>Karşı taraf</th><th>Tip</th>
+      <th class="num">Kritik</th><th class="num">Yüksek</th>
+      <th class="num">Eksik madde</th><th class="num">Bulgu</th>
+      <th class="num">Risk skoru</th><th>Bant</th>
+    </tr></thead><tbody id="pfGovde"></tbody></table></div>
+
+    <div class="pf-two">
+      <div class="panel">
+        <div class="eyebrow" style="margin:0">En sık aleyhe yazılan maddeler</div>
+        <p class="hint" style="margin:8px 0 0">Portföy genelinde kritik veya yüksek bulgu
+        üreten madde tipleri. Tekrar eden bir kalem, tek sözleşmenin sorunu değil —
+        standart metnin sorunudur.</p>
+        <ul class="pf-list" id="pfIhlal"></ul>
+      </div>
+      <div class="panel">
+        <div class="eyebrow" style="margin:0">Karşı taraflar · ortalama skor</div>
+        <p class="hint" style="margin:8px 0 0">Düşük skor daha riskli. Aynı tedarikçi birden
+        çok sözleşmede görünüyorsa ortalama, o tedarikçinin standart metnini anlatır.</p>
+        <ul class="pf-list" id="pfTed"></ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1031,7 +1118,73 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
       .catch(function(e){ b.disabled=false; b.textContent='Kaydet';
                           ciktiYaz(false, e.message||'Kaydedilemedi'); });
   });
-  function baslat(){ ayarYukle(); yenidenBaglan(); }
+
+  /* --- portfoy (dashboard) -------------------------------------------------
+     Tek sozlesmenin raporu ayri bir istir; portfoy toplamda nerede durdugunu
+     gosterir. Bos portfoyde bolum hic gorunmez. */
+  function kacar(t){ var d=document.createElement('div'); d.textContent=t==null?'':String(t);
+                     return d.innerHTML; }
+  function skorRengi(bant){
+    return bant==='KIRMIZI' ? 'var(--crit)' : bant==='SARI' ? 'var(--high)' : 'var(--ok)';
+  }
+  function portfoyCiz(d){
+    var o=d.ozet||{}, sec=$('pfsec');
+    if(!o.toplam){ sec.style.display='none'; return; }
+    sec.style.display='';
+
+    $('pfKpi').innerHTML =
+      '<div class="k"><b>'+o.toplam+'</b><span>Sözleşme</span></div>'+
+      '<div class="k crit"><b>'+o.kirmizi+'</b><span>Kırmızı bant</span></div>'+
+      '<div class="k high"><b>'+o.sari+'</b><span>Sarı bant</span></div>'+
+      '<div class="k ok"><b>'+o.yesil+'</b><span>Yeşil bant</span></div>'+
+      '<div class="k"><b>'+(o.ort_skor==null?'—':o.ort_skor)+'</b><span>Ortalama skor</span></div>'+
+      '<div class="k crit"><b>'+o.kritik_bulgu+'</b><span>Kritik bulgu</span></div>'+
+      '<div class="k"><b>'+o.toplam_bulgu+'</b><span>Toplam bulgu</span></div>';
+
+    var g='';
+    (d.sozlesmeler||[]).forEach(function(r){
+      var bitti = r.risk_score!=null;
+      var bant  = bitti ? r.risk_band : 'bek';
+      var etiket= bitti ? r.risk_band : (r.status==='ISLENIYOR'?'sürüyor':r.status==='HATA'?'hata':'bekliyor');
+      g += '<tr class="row">'+
+        '<td><div class="bank">'+kacar(r.alici)+'</div>'+
+            '<div class="sub">'+kacar(r.filename)+'</div></td>'+
+        '<td>'+kacar(r.counterparty)+'<div class="sub">'+kacar(r.value_text)+' · '+kacar(r.term_text)+'</div></td>'+
+        '<td><span class="pf-tip">'+kacar(r.contract_type)+'</span></td>'+
+        '<td class="num">'+(r.kritik||'—')+'</td>'+
+        '<td class="num">'+(r.yuksek||'—')+'</td>'+
+        '<td class="num">'+(r.eksik||'—')+'</td>'+
+        '<td class="num">'+(r.toplam||'—')+'</td>'+
+        '<td class="num">'+(bitti
+          ? '<span class="pf-skor"><i><b style="width:'+r.risk_score+'%;background:'+skorRengi(r.risk_band)+'"></b></i>'+r.risk_score.toFixed(1)+'</span>'
+          : '—')+'</td>'+
+        '<td><span class="pf-band '+bant+'">'+kacar(etiket)+'</span></td>'+
+      '</tr>';
+    });
+    $('pfGovde').innerHTML = g || '<tr><td colspan="9" class="pf-bos">Henüz analiz yok.</td></tr>';
+
+    var ih=d.en_sik_ihlal||[], enb=ih.length?ih[0].adet:1, l='';
+    ih.forEach(function(x){
+      l+='<li><span class="ad" title="'+kacar(x.code)+'">'+kacar(x.name)+'</span>'+
+         '<span class="cub"><b style="width:'+Math.round(100*x.adet/enb)+'%"></b></span>'+
+         '<span class="sy">'+x.adet+'</span></li>'; });
+    $('pfIhlal').innerHTML = l || '<li class="pf-bos">Kritik/yüksek bulgu yok.</li>';
+
+    var t='';
+    (d.en_riskli_tedarikciler||[]).forEach(function(x){
+      t+='<li><span class="ad">'+kacar(x.ad)+'</span>'+
+         '<span class="cub"><b style="width:'+Math.round(x.ort_skor)+'%"></b></span>'+
+         '<span class="sy">'+x.ort_skor.toFixed(1)+' · '+x.sozlesme+' sz.</span></li>'; });
+    $('pfTed').innerHTML = t || '<li class="pf-bos">Karşı taraf çözümlenmedi.</li>';
+  }
+  function portfoyYukle(){
+    fetch('/api/dashboard').then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){ if(d) portfoyCiz(d); })
+      .catch(function(){});
+  }
+  if($('pfYenile')) $('pfYenile').addEventListener('click', portfoyYukle);
+
+  function baslat(){ ayarYukle(); yenidenBaglan(); portfoyYukle(); }
 
   /* --- dosya secimi --- */
   var fileEl=$('file'), drop=$('drop'), chip=$('chip'), start=$('start'), picked=null;
@@ -1149,6 +1302,7 @@ input[type=password]{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-s
 
   function renderDone(p){
     $('runtitle').textContent='Analiz tamamlandı';
+    portfoyYukle();   // yeni sozlesme portfoy tablosuna dussun
     var docx=p.reports.filter(function(r){return r.fmt==='DOCX';})[0];
     var json=p.reports.filter(function(r){return r.fmt==='JSON';})[0];
     var d=$('downloads'); d.innerHTML='';

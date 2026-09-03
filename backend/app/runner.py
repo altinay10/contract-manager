@@ -207,6 +207,9 @@ def stage_segment(ctx: Ctx) -> str:
 def stage_meta(ctx: Ctx) -> str:
     meta = dict(ctx.contract.meta_json or {})   # EXTRACT'in yazdigi OCR bilgisi korunur
     meta.update(extract_meta(ctx.contract.normalized_text or ""))
+    alicilar, _ted = taraflari_ayir(ctx.contract.normalized_text or "")
+    if alicilar:
+        meta["alici"] = alicilar[0]
     ctx.contract.meta_json = meta
     ctx.contract.counterparty = meta.get("counterparty", "")
     ctx.contract.value_text = meta.get("value_text", "")

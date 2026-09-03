@@ -1,0 +1,48 @@
+DIŞ HİZMET ALIM SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Meriç Yatırım Bankası A.Ş. ("MERİÇ YATIRIM") ile diğer tarafta
+Nexora Bulut Hizmetleri A.Ş. ("HİZMET SAĞLAYICI") arasında 05.08.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" HİZMET SAĞLAYICI tarafından sunulan çözümü, "MERİÇ YATIRIM Verisi" MERİÇ YATIRIM'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+HİZMET SAĞLAYICI, MERİÇ YATIRIM'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 4 yıldır.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 1.250.000 TL'dir. Ödemeler fatura tarihinden itibaren otuz gün içinde yapılır.
+
+MADDE 5 - SORUMLULUK
+5.1 HİZMET SAĞLAYICI'nin toplam sorumluluğu yıllık sözleşme bedeli ile sınırlıdır.
+5.2 Kasıt ve ağır kusur hâlleri bu sınırlamanın dışındadır.
+
+MADDE 6 - DENETİM
+MERİÇ YATIRIM ve bağımsız denetçileri, HİZMET SAĞLAYICI'nin sistemlerini yılda iki kez denetleyebilir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+MERİÇ YATIRIM Verisi Türkiye'de barındırılır. Yurt dışına aktarım MERİÇ YATIRIM'nın onayına tabidir.
+
+MADDE 8 - GÜVENLİK
+8.1 HİZMET SAĞLAYICI, güvenlik ihlalini kırk sekiz (48) saat içinde MERİÇ YATIRIM'ya bildirir.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üç (3) yıl süreyle korur.
+
+MADDE 10 - FESİH
+Taraflar altmış (60) gün önceden yazılı bildirimde bulunarak Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+Damga vergisi Taraflarca eşit olarak karşılanır.
+
+MADDE 12 - HİZMET SEVİYESİ
+HİZMET SAĞLAYICI, aylık erişilebilirliğin %99 olacağını taahhüt eder.
+
+MADDE 13 - UYGULANACAK HUKUK
+İşbu Sözleşme Türk hukukuna tabidir. İstanbul mahkemeleri yetkilidir.
+
+MADDE 14 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.

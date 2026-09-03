@@ -390,6 +390,7 @@ class OpenAICompatProvider(_Guarded):
         self._format_modu: dict[str, str] = {}   # model -> "schema"|"object"|"none"
         self._token_alani: dict[str, str] = {}   # model -> "max_tokens"|"max_completion_tokens"
         self._dusunme: dict[str, bool] = {}      # model -> enable_thinking gonderilsin mi
+        self._sema_dusuruldu: dict[str, bool] = {}  # model -> sessiz sema ihlali yakalandi mi
 
     def _invoke(self, turn: Turn) -> Completion:
         model = turn.model or rt.etkin_model(self.name)
@@ -430,6 +431,11 @@ class OpenAICompatProvider(_Guarded):
             elif mod == "object":
                 govde["response_format"] = {"type": "json_object"}
 
+            # Sunucu tarafinda sema zorlanamadigi kipte (object/none) model alan
+            # adlarini bilemez ve cikti sessizce bosa duser. Semayi metin olarak
+            # promta koyariz: zorlama degil ama sekli tarif eder.
+            govde["messages"] = _semali_mesajlar(mesajlar, turn.schema, mod)
+
             try:
                 payload = self._post(govde)
                 break
@@ -464,6 +470,18 @@ class OpenAICompatProvider(_Guarded):
         if secenekler[0].get("finish_reason") == "length":
             raise LLMError("cevap max_tokens sınırında kesildi (JSON eksik)")
         data = _parse_json(ileti.get("content") or "")
+
+        # Sessiz sema ihlali: uc, json_schema'yi kabul edip yok saymis olabilir.
+        # Zorunlu ust duzey alanlar donmediyse bu modeli object kipine indir ve
+        # bir kez daha dene; sema metni zaten promtta oldugu icin ikinci deneme
+        # dogru sekli uretir.
+        gerekli = list((turn.schema or {}).get("required") or [])
+        if gerekli and not any(k in data for k in gerekli) and not self._sema_dusuruldu.get(model):
+            self._sema_dusuruldu[model] = True
+            self._format_modu[model] = "object"
+            log.warning("%s semayi yok saydi (donen alanlar: %s) - object kipinde tekrar deneniyor",
+                        model, ", ".join(list(data)[:5]) or "yok")
+            return self._invoke(turn)
 
         u = payload.get("usage") or {}
         detay = u.get("prompt_tokens_details") or {}
@@ -531,6 +549,24 @@ class _Uyumsuz(RuntimeError):
     def __init__(self, tur: str, detay: str = "") -> None:
         super().__init__(detay or tur)
         self.tur = tur
+
+
+def _semali_mesajlar(mesajlar: list[dict], schema: dict | None, mod: str) -> list[dict]:
+    """Semayi kullanici iletisinin sonuna metin olarak ekler.
+
+    Kipten bagimsiz eklenir. Bazi OpenAI-uyumlu uclar (Qwen'in maas ucu gibi)
+    `response_format: json_schema` istegini 200 ile kabul edip semayi SESSIZCE yok
+    sayar; cikti gecerli JSON'dur ama alan adlari bambaskadir ve tum bulgular bosa
+    duser. Semayi ayrica metin olarak vermek bu sessiz basarisizligi kapatir.
+    """
+    if not schema:
+        return mesajlar
+    ek = ("\n\n=== CIKTI SEMASI (bu JSON semasina birebir uy; "
+          "alan adlarini degistirme, fazladan alan ekleme) ===\n"
+          + json.dumps(schema, ensure_ascii=False))
+    out = [dict(m) for m in mesajlar]
+    out[-1]["content"] = out[-1]["content"] + ek
+    return out
 
 
 def _strict_schema(schema: dict) -> dict:
