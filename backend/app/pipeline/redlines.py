@@ -73,6 +73,41 @@ def _uygula_alici(pat: re.Pattern, alici: str | None) -> re.Pattern:
     return re.compile(pat.pattern.replace("{ALICI}", alici), pat.flags)
 
 
+# Cumlenin yonunu tersine ceviren yapilar. Kirmizi cizgi desenleri kelimeyi
+# yakalar, cumlenin YONUNU yakalamaz: "model egitiminde kullanamaz" ile
+# "kullanabilir" ayni deseni tetikliyordu ve iyi yazilmis sozlesme de kirmiziya
+# boyaniyordu.
+#
+# Guard DAR tutuldu. Genel bir olumsuzluk kurali yanlis olur: bazi kirmizi
+# cizgiler olumsuz eki zaten kendi anlaminda tasir - sorumluluk tavani "bedeli
+# ASAMAZ", sessiz kabul "itirazda BULUNULMAZ ise kabul edilmis sayilir".
+# Oralarda olumsuzluk ihlalin ta kendisidir. Bu yuzden yalnizca IZIN turu
+# fiiller (kullanma / aktarma / paylasma / isleme) olumsuzlandiginda ve bir de
+# alicinin onayina baglandiginda yon tersine donmus sayilir.
+_YASAK = re.compile(
+    r"\b(?:kullan|aktar|paylaş|işle|ver|sakla|kopyala|çoğalt|devred|ifşa\s+ed)"
+    r"\w*(?:[aeıi]m[ae]z|[ae]m[ae]z)\b"
+    r"|\byasak(?:tır|tir)\b",
+    re.IGNORECASE,
+)
+_KOSUL = re.compile(
+    r"(?:önceden\s+yazılı\s+onay"
+    r"|onayına\s+(?:tabidir|bağlıdır|bağlı)"
+    r"|onayı\s+(?:olmaksızın|olmadan)"
+    r"|yazılı\s+onayına)",
+    re.IGNORECASE,
+)
+
+
+def _yon_tersine_donmus(cumle: str) -> bool:
+    """Eslesen cumle, desenin aradigi seyi YASAKLIYOR ya da alicinin onayina BAGLIYOR mu?
+
+    Yalnizca eslesmenin gectigi CUMLEYE bakilir; maddenin baska bir cumlesindeki
+    olumsuzluk bu cumleyi aklamaz.
+    """
+    return bool(_YASAK.search(cumle) or _KOSUL.search(cumle))
+
+
 def evaluate_red_lines(
     clause_text: str,
     ct: ClauseType,
@@ -99,10 +134,16 @@ def evaluate_red_lines(
                 m = pat.search(hay)
                 if m:
                     start, end = _expand_to_sentence(clause_text, m.start(), m.end())
+                    cumle = clause_text[start:end].strip()
+                    # Desen kelimeyi yakalar, cumlenin YONUNU yakalamaz. "model
+                    # egitiminde kullanamaz" ile "kullanabilir" ayni deseni
+                    # tetikliyordu; iyi yazilmis sozlesme de kirmiziya boyaniyordu.
+                    if _yon_tersine_donmus(cumle):
+                        continue
                     hits.append(
                         RedLineHit(
                             red_line=rl,
-                            quote=clause_text[start:end].strip(),
+                            quote=cumle,
                             start=start,
                             end=end,
                             kind="PATTERN",

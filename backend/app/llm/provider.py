@@ -145,7 +145,7 @@ class _Guarded:
         model = turn.model or ""
         t0 = time.perf_counter()
         try:
-            comp = self._invoke(turn)
+            comp = self._dene(turn, budget)
         except LLMPermanentError as exc:
             # Arayuz kullaniciya "anahtarin gecersiz / kotan bitmis" diyebilsin.
             rt.hata_kaydet(rt.hata_turu(str(exc)), str(exc), model, self.name)
@@ -171,6 +171,33 @@ class _Guarded:
         if budget is not None:
             budget.record_success(comp.usage.cost_usd, comp.usage.total)
         return comp
+
+    def _dene(self, turn: Turn, budget: Budget | None) -> Completion:
+        """Gecici hatalarda sinirli yeniden deneme.
+
+        Saglayicilar yuk altinda 503/429 doner; bunlar gecicidir. Yeniden deneme
+        olmayinca tek bir 503 devre kesiciye hata yaziyordu ve ust uste ucu tum
+        analizi durduruyordu. Kalici hatalar (gecersiz anahtar, biten kota,
+        desteklenmeyen model) yeniden DENENMEZ - beklemek bir sey degistirmez.
+        """
+        son: Exception | None = None
+        for deneme in range(settings.llm_retry_attempts):
+            try:
+                return self._invoke(turn)
+            except (LLMPermanentError, BudgetExceeded):
+                raise
+            except Exception as exc:                      # gecici
+                son = exc
+                if deneme == settings.llm_retry_attempts - 1:
+                    break
+                bekle = settings.llm_retry_backoff_seconds * (2 ** deneme)
+                # Sure tavani zaten dolmak uzereyse beklemenin anlami yok.
+                if budget is not None and budget.elapsed + bekle >= budget.deadline_seconds:
+                    break
+                log.info("Gecici model hatasi (%s) - %.0f sn sonra yeniden denenecek (%d/%d)",
+                         exc, bekle, deneme + 1, settings.llm_retry_attempts)
+                time.sleep(bekle)
+        raise son if son is not None else LLMError("model cagrisi basarisiz")
 
     def _invoke(self, turn: Turn) -> Completion:  # pragma: no cover - arayuz
         raise NotImplementedError

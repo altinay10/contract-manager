@@ -624,3 +624,56 @@ def test_prompt_uydurmayi_ve_sismeyi_acikca_yasaklar():
     assert "otomatik olarak silinir" in p          # alıntı doğrulaması caydırıcı
     assert "bulgu uretme" in p or "bulgu üretme" in p
     assert "tekrarlama" in p
+
+
+def test_gecici_hata_yeniden_deneniyor(monkeypatch):
+    """503 gibi geçici hatalar yeniden denenir, kalıcı hatalar denenmez.
+
+    Yeniden deneme yokken tek bir 503 devre kesiciye hata yazıyordu; üst üste
+    üçü tüm analizi durduruyordu. Beklemek geçici hatayı çözer, kalıcı olanı
+    (geçersiz anahtar, biten kota) çözmez.
+    """
+    from app.llm.provider import Completion, LLMError, LLMPermanentError, Turn, Usage, _Guarded
+
+    monkeypatch.setattr("app.llm.provider.time.sleep", lambda _s: None)
+
+    class Titrek(_Guarded):
+        name = "titrek"
+
+        def __init__(self, hatalar):
+            self.kalan = hatalar
+            self.cagri = 0
+
+        def _invoke(self, turn):
+            self.cagri += 1
+            if self.kalan:
+                self.kalan -= 1
+                raise LLMError("HTTP 503: overloaded")
+            return Completion(data={"ok": True}, usage=Usage(model="m"))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64)
+
+    p = Titrek(2)
+    assert p.complete_json(turn).data == {"ok": True}
+    assert p.cagri == 3, "iki geçici hatadan sonra üçüncü deneme başarılı olmalı"
+
+    # Denemeler tükenirse hata yine yükselir.
+    import pytest
+    with pytest.raises(LLMError):
+        Titrek(9).complete_json(turn)
+
+    class Kalici(_Guarded):
+        name = "kalici"
+
+        def __init__(self):
+            self.cagri = 0
+
+        def _invoke(self, turn):
+            self.cagri += 1
+            raise LLMPermanentError("HTTP 403: quota exhausted")
+
+    k = Kalici()
+    with pytest.raises(LLMPermanentError):
+        k.complete_json(turn)
+    assert k.cagri == 1, "kalıcı hata yeniden denenmemeli"
