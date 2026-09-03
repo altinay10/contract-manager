@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sozlesme Feneri</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -386,7 +388,12 @@ a.btn{text-decoration:none;display:inline-block}
 .frow{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start}
 @media (max-width:640px){.frow{grid-template-columns:1fr;gap:6px}}
 .frow label{font-size:13px;color:var(--ink-2);padding-top:8px}
-.frow .fld{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.frow .fld{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}
+/* Izgara/esnek cocuklari varsayilan olarak min-content'in altina inmez; uzun
+   yer tutuculu input ve select'ler dar ekranda satiri tasiriyordu. */
+.frow>*{min-width:0}
+.frow .fld>*{min-width:0;max-width:100%}
+.frow input,.frow select{max-width:100%}
 input[type=text],input[type=password],select.wide{
   font:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line);
   border-radius:3px;background:var(--surface);color:var(--ink);min-width:0;flex:1 1 240px}
@@ -473,6 +480,9 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
 .pf-tip{font-size:10.5px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
 .pf-two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
 @media(max-width:760px){.pf-two{grid-template-columns:1fr}}
+/* Izgara sutunu min-content'in altina inmez; uzun madde adlari dar ekranda
+   paneli tasiriyordu. Ad zaten ellipsis ile kisaliyor, sutunun daralmasi yeter. */
+.pf-two>*{min-width:0}
 .pf-list{list-style:none;margin:14px 0 0;padding:0}
 .pf-list li{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;
   border-bottom:1px solid var(--line-soft)}
