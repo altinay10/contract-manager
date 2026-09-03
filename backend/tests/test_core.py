@@ -537,3 +537,19 @@ def test_karsi_taraf_adinda_bank_gecmeyen_alicida_da_dogru():
         "diğer tarafta Beykoz Donanım Sistemleri A.Ş. (\"SATICI\") arasında akdedilmiştir.\n"
     )
     assert extract_meta(metin)["counterparty"] == "Beykoz Donanım Sistemleri A.Ş"
+
+
+def test_yokluk_iddiasi_kirmizi_cizgi_sayilmaz():
+    """"Bu koruma yok" bir kırmızı çizgi ihlali değildir.
+
+    Skorlamadaki veto kuralı tek bir RED_LINE'da bandı KIRMIZI'ya çeker. Model
+    yokluk iddialarını da RED_LINE işaretleyince iyi yazılmış sözleşmeler de
+    kırmızıya boyanıyordu. Bir alıntı yokluğu kanıtlayamaz.
+    """
+    from app.pipeline.analyze import _yokluk_iddiasi
+
+    assert _yokluk_iddiasi("Banka sırrı kavramına atıf yok", "")
+    assert _yokluk_iddiasi("", "Tazminat yükümlülüğü maddesi tamamen eksik")
+    assert _yokluk_iddiasi("Bildirim süresi belirtilmemiş", "")
+    assert not _yokluk_iddiasi("Sorumluluk tavanı yıllık bedelle sınırlanmış", "")
+    assert not _yokluk_iddiasi("Tedarikçiye tek taraflı fesih hakkı tanınmış", "")

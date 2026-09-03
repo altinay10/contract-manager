@@ -229,8 +229,11 @@ def test_k2_kirmizi_cizgi_kontrol_listesi_prompta_zerk_ediliyor(monkeypatch):
     _kos(monkeypatch, sag, max_llm_clauses=8, enable_lenses=False, enable_rebuttal=False)
     birlesik = "\n".join(sag.gorulen_promptlar)
     assert "KIRMIZI CIZGI KONTROL LISTESI" in birlesik
-    assert "KARSILANDI / IHLAL / METINDE YOK" in birlesik
+    assert "KARSILANDI / IHLAL / BU MADDEDE DUZENLENMEMIS" in birlesik
     assert "<madde_metni>" in birlesik
+    # Alinti iddiayi desteklemeli: yoklugu alintiyla "kanitlayan" bulgular
+    # iyi yazilmis sozlesmeleri de kirmiziya boyuyordu.
+    assert "alinti iddiani curutuyorsa bulgu yanlistir" in birlesik
 
 
 UYDURMA_METIN = "Bu cümle sözleşmede kesinlikle geçmiyor"
