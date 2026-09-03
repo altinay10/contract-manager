@@ -498,3 +498,42 @@ def test_normal_metin_taslak_kusuru_uretmez():
     metin = ("Bu sözleşmeden doğan damga vergisi Banka tarafından ödenir. "
              "Tedarikçi, No:5 Ümraniye/İstanbul adresinde mukimdir.")
     assert not taslak_kusurlari(metin), "temiz metinde yanlış pozitif"
+
+
+# --------------------------------------------------------------------------- #
+# Karsi taraf cikarimi
+# --------------------------------------------------------------------------- #
+def test_sirket_eki_kelime_icinde_taraf_sayilmaz():
+    """'YAZILIM LİSANS' icindeki 'SA', 'S.A.' sirket eki degildir.
+
+    Noktasiz kisaltmalar (SA, BV, LTD) Turkce kelimelerin icine denk geliyordu;
+    belge basligi taraf sanilip karsi taraf alanina yaziliyordu.
+    """
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        "YAZILIM LİSANS VE BAKIM SÖZLEŞMESİ\n\n"
+        "İşbu Sözleşme, bir tarafta Marmara Yatırım Bankası A.Ş. (\"MARMARA YATIRIM\") ile "
+        "diğer tarafta Nexora Bulut Hizmetleri A.Ş. (\"HİZMET SAĞLAYICI\") arasında "
+        "16.06.2026 tarihinde akdedilmiştir.\n"
+    )
+    m = extract_meta(metin)
+    assert "YAZILIM LİSA" not in m["parties"]
+    assert "HİZMET SA" not in m["parties"]
+    assert m["counterparty"] == "Nexora Bulut Hizmetleri A.Ş"
+
+
+def test_karsi_taraf_adinda_bank_gecmeyen_alicida_da_dogru():
+    """Alici taraf 'Uludağ Finans Kurumu' ise karsi taraf o degildir.
+
+    'Icinde bank gecmeyen ilk taraf' sezgisi bu durumda bankanin kendisini
+    karsi taraf yaziyordu; tanimli terimlerden alici elenir.
+    """
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        "DONANIM TEDARİK SÖZLEŞMESİ\n\n"
+        "İşbu Sözleşme, bir tarafta Uludağ Finans Kurumu A.Ş. (\"ULUDAĞ FİNANS\") ile "
+        "diğer tarafta Beykoz Donanım Sistemleri A.Ş. (\"SATICI\") arasında akdedilmiştir.\n"
+    )
+    assert extract_meta(metin)["counterparty"] == "Beykoz Donanım Sistemleri A.Ş"
