@@ -347,6 +347,24 @@ def test_anahtarsiz_baglanti_testi_net_hata_verir(istemci):
     assert "anahtar" in d["detail"].lower()
 
 
+def test_ayar_sinamasi_kayitli_modeli_kullanir(istemci):
+    """Anahtar ve uc nokta kayitli ayara duserken model dusmuyordu: kaydedilmis
+    bir yapilandirmayi govdesiz sinamak "model adi girmelisiniz" hatasi
+    veriyordu. Arayuzdeki sinama dugmesi model alanini gondermezse ayni hata.
+    """
+    istemci.put("/api/settings", json={
+        "provider": "custom",
+        "base_url": "http://localhost:11434/v1",
+        "model": "qwen3.8-flash",
+        "api_key": "deneme-anahtari"})
+
+    d = istemci.post("/api/settings/test", json={"provider": "custom"}).json()
+    # Baglanti kurulamayabilir (yerel servis yok) ama model eksikliginden
+    # sikayet etmemeli: kayitli deger okunmali.
+    assert "model adı girmelisiniz" not in (d.get("detail") or "").lower(), \
+        "sınama ucu kayıtlı modeli okumuyor"
+
+
 def test_ayar_degisikligi_saglayiciyi_yeniden_kurar(istemci):
     """Kaydetmek, calisan surecte saglayiciyi degistirmeli (yeniden baslatma gerekmeden)."""
     istemci.delete("/api/settings/key")

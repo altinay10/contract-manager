@@ -389,6 +389,7 @@ class OpenAICompatProvider(_Guarded):
         self.name = ad
         self._format_modu: dict[str, str] = {}   # model -> "schema"|"object"|"none"
         self._token_alani: dict[str, str] = {}   # model -> "max_tokens"|"max_completion_tokens"
+        self._dusunme: dict[str, bool] = {}      # model -> enable_thinking gonderilsin mi
 
     def _invoke(self, turn: Turn) -> Completion:
         model = turn.model or rt.etkin_model(self.name)
@@ -414,6 +415,12 @@ class OpenAICompatProvider(_Guarded):
                 "temperature": 0.1,
                 alan: turn.max_tokens,
             }
+            # Qwen3 ve benzeri modellerde dusunme modu varsayilan olarak aciktir:
+            # cikti uc katina cikar, gecikme dort katina. Bu is icin akil yurutme
+            # zinciri gerekmiyor; kapatilinca 19 sn -> 5 sn, 994 -> 400 token.
+            # Desteklemeyen servis 400 doner, asagidaki geri dusus onsuz tekrar dener.
+            if self._dusunme.get(model, _dusunme_kapatilabilir(model)):
+                govde["enable_thinking"] = False
             if mod == "schema":
                 govde["response_format"] = {
                     "type": "json_schema",
@@ -431,6 +438,9 @@ class OpenAICompatProvider(_Guarded):
                     mod = "object"
                 elif exc.tur == "format" and mod == "object":
                     mod = "none"
+                elif exc.tur == "dusunme":
+                    self._dusunme[model] = False      # bu model kabul etmiyor
+                    continue
                 elif exc.tur == "token_alani" and alan == "max_tokens":
                     alan = "max_completion_tokens"
                 elif exc.tur == "sicaklik":
@@ -492,6 +502,8 @@ class OpenAICompatProvider(_Guarded):
                     raise _Uyumsuz("token_alani", detay) from exc
                 if "temperature" in d:
                     raise _Uyumsuz("sicaklik", detay) from exc
+                if "enable_thinking" in d or "thinking" in d:
+                    raise _Uyumsuz("dusunme", detay) from exc
             if exc.code in (400, 401, 403, 404):
                 raise LLMPermanentError(f"HTTP {exc.code}: {detay}") from exc
             raise LLMError(f"HTTP {exc.code}: {detay}") from exc
@@ -499,6 +511,18 @@ class OpenAICompatProvider(_Guarded):
             raise LLMError(f"ağa erişilemedi: {exc.reason}") from exc
         except TimeoutError as exc:
             raise LLMError(f"zaman aşımı ({settings.llm_timeout_seconds} sn)") from exc
+
+
+def _dusunme_kapatilabilir(model: str) -> bool:
+    """Bu model adi dusunme modunu acik varsayan bir aileden mi?
+
+    Qwen3+ modelleri enable_thinking'i varsayilan True kabul eder. Liste
+    kapsayici degil: bilinmeyen modelde bir kez denenir, servis reddederse
+    `_dusunme` sozlugune yazilip bir daha gonderilmez.
+    """
+    m = model.lower()
+    return m.startswith("qwen") and not any(
+        k in m for k in ("image", "audio", "embedding", "rerank", "ocr"))
 
 
 class _Uyumsuz(RuntimeError):

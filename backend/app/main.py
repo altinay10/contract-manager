@@ -294,6 +294,9 @@ def test_settings(
     """Girilen anahtarı tek küçük çağrıyla dener. Kaydetmez."""
     anahtar = (api_key or "").strip() or rt.etkin_anahtar(provider)
     uc = (base_url or "").strip().rstrip("/") or rt.etkin_base_url(provider)
+    # Anahtar ve uc nokta kayitli ayara duserken model dusmuyordu: kayitli bir
+    # yapilandirmayi govdesiz sinamak "model adi girmelisiniz" hatasi veriyordu.
+    model = (model or "").strip() or rt.etkin_model(provider)
     yerel = "localhost" in uc or "127.0.0.1" in uc
     if not anahtar and not yerel:
         return {"ok": False, "detail": "API anahtarı girilmedi"}
@@ -301,7 +304,7 @@ def test_settings(
         return {"ok": False, "detail": "Uç nokta adresi (base URL) girilmedi"}
     if provider in ("openai", "custom") and not (model or "").strip():
         return {"ok": False, "detail": "Bu sağlayıcı için model adı girmelisiniz"}
-    ok, detay = prov.dogrula(provider, anahtar or "yok", (model or "").strip(), uc)
+    ok, detay = prov.dogrula(provider, anahtar or "yok", model, uc)
     return {"ok": ok, "detail": detay}
 
 
