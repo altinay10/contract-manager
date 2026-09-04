@@ -198,7 +198,9 @@ def hata_turu(mesaj: str) -> str:
         return "quota"
     if "401" in m or "403" in m or "invalid" in m or "authentication" in m or "api key" in m:
         return "auth"
-    if "404" in m or "not found" in m or "no longer available" in m:
+    if ("404" in m or "not found" in m or "no longer available" in m
+            or "not supported" in m or "desteklenmiyor" in m
+            or "kabul edilmedi" in m or "model_not_found" in m):
         return "model"
     return "other"
 

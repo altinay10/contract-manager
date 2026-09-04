@@ -199,15 +199,28 @@ class _Guarded:
         """
         son: Exception | None = None
         azami = settings.llm_retry_attempts + len(self._yedekler())
+
+        # Tukenen model hatirlanmazsa her cagri once ona gidip 403 yer; sozlesme
+        # basina onlarca bosa gidis-donus demektir. Bilinen tukenmisse dogrudan
+        # ilk saglam yedekten baslanir.
+        if getattr(self, "_tukenmis", None):
+            baslangic = turn.model or rt.etkin_model(self.name) or ""
+            if baslangic in self._tukenmis:
+                saglam = next((m for m in self._yedekler() if m not in self._tukenmis), "")
+                if saglam:
+                    turn = replace(turn, model=saglam)
+
         for deneme in range(azami):
             try:
                 return self._invoke(turn)
             except BudgetExceeded:
                 raise
             except LLMPermanentError as exc:
-                # Kotasi biten model, bozuk bir kurulum degildir. Analizi kural
-                # katmanina dusurmek yerine sirdaki yedek modele gecilir.
-                if rt.hata_turu(str(exc)) != "quota":
+                # Kotasi biten ya da istegi kabul etmeyen model, bozuk bir
+                # kurulum degildir. Analizi kural katmanina dusurmek yerine
+                # siradaki yedek modele gecilir. Gecersiz anahtar ("auth")
+                # devredilmez: ayni hata listedeki her modelde tekrarlanir.
+                if rt.hata_turu(str(exc)) not in ("quota", "model"):
                     raise
                 mevcut = turn.model or rt.etkin_model(self.name) or ""
                 yeni = self._sonraki_model(mevcut)
@@ -448,6 +461,7 @@ class OpenAICompatProvider(_Guarded):
         self._format_modu: dict[str, str] = {}   # model -> "schema"|"object"|"none"
         self._token_alani: dict[str, str] = {}   # model -> "max_tokens"|"max_completion_tokens"
         self._dusunme: dict[str, bool] = {}      # model -> enable_thinking gonderilsin mi
+        self._sicaklik: dict[str, bool] = {}     # model -> temperature kabul ediyor mu
         self._sema_dusuruldu: dict[str, bool] = {}  # model -> sessiz sema ihlali yakalandi mi
 
     def _invoke(self, turn: Turn) -> Completion:
@@ -471,9 +485,13 @@ class OpenAICompatProvider(_Guarded):
             govde: dict[str, Any] = {
                 "model": model,
                 "messages": mesajlar,
-                "temperature": 0.1,
                 alan: turn.max_tokens,
             }
+            # Bazi modeller (kimi-k3) temperature kabul etmiyor. Reddedildigi
+            # ogrenilince bu model icin bir daha gonderilmez; govde her dongude
+            # bastan kuruldugu icin yalnizca sozlukten silmek yetmiyordu.
+            if self._sicaklik.get(model, True):
+                govde["temperature"] = 0.1
             # Qwen3 ve benzeri modellerde dusunme modu varsayilan olarak aciktir:
             # cikti uc katina cikar, gecikme dort katina. Bu is icin akil yurutme
             # zinciri gerekmiyor; kapatilinca 19 sn -> 5 sn, 994 -> 400 token.
@@ -508,9 +526,7 @@ class OpenAICompatProvider(_Guarded):
                 elif exc.tur == "token_alani" and alan == "max_tokens":
                     alan = "max_completion_tokens"
                 elif exc.tur == "sicaklik":
-                    mesajlar = mesajlar  # sicaklik desteklenmiyorsa kaldir
-                    govde.pop("temperature", None)
-                    self._format_modu[model] = mod
+                    self._sicaklik[model] = False     # bu model kabul etmiyor
                     continue
                 else:
                     raise LLMPermanentError(str(exc)) from exc
@@ -519,6 +535,7 @@ class OpenAICompatProvider(_Guarded):
 
         self._format_modu[model] = mod
         self._token_alani[model] = alan
+        self._sicaklik.setdefault(model, True)
         latency = int((time.perf_counter() - t0) * 1000)
 
         secenekler = payload.get("choices") or []
@@ -592,13 +609,19 @@ class OpenAICompatProvider(_Guarded):
 def _dusunme_kapatilabilir(model: str) -> bool:
     """Bu model adi dusunme modunu acik varsayan bir aileden mi?
 
-    Qwen3+ modelleri enable_thinking'i varsayilan True kabul eder. Liste
-    kapsayici degil: bilinmeyen modelde bir kez denenir, servis reddederse
-    `_dusunme` sozlugune yazilip bir daha gonderilmez.
+    Qwen3+, GLM, Kimi, DeepSeek gibi aileler dusunme modunu varsayilan ACIK
+    kabul eder. Bu is icin akil yurutme zinciri gerekmiyor ve pahali: acikken
+    glm-5.2-fast-preview cagri basina ~3.900 cikti tokeni ve 39 saniye
+    harciyordu, kapaliyken ayni is ~650 tokene iniyor.
+
+    Bu yuzden metin ureten HER modelde bir kez denenir; servis alani
+    reddederse `_dusunme` sozlugune yazilir ve bir daha gonderilmez. Yalniz
+    metin uretmeyen modellerde (gorsel, ses, gomme) hic denenmez.
     """
     m = model.lower()
-    return m.startswith("qwen") and not any(
-        k in m for k in ("image", "audio", "embedding", "rerank", "ocr"))
+    return not any(
+        k in m for k in ("image", "audio", "embedding", "rerank", "ocr",
+                         "tts", "asr", "vl-", "omni", "wan", "lyria", "banana"))
 
 
 class _Uyumsuz(RuntimeError):

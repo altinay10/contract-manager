@@ -492,20 +492,26 @@ def test_sistem_promptu_taraf_adina_sabitlenmemis():
         assert "banka" not in metin.lower(), f"{ad} merceği 'banka' diyor"
 
 
-def test_qwen_modelinde_dusunme_modu_kapatilir():
-    """Qwen3 dusunme modunu varsayilan olarak acar: cikti uc katina, gecikme
-    dort katina cikar (olculdu: 19 sn/994 token -> 5 sn/400 token). Bu is akil
-    yurutme zinciri gerektirmiyor; 90 sn'lik sinir asiliyordu."""
+def test_metin_ureten_modelde_dusunme_modu_kapatilir():
+    """Düşünme modu bu iş için pahalı ve gereksiz.
+
+    Ölçüldü: qwen3.8-flash 19 sn / 994 token -> 5 sn / 400 token;
+    glm-5.2-fast-preview 39 sn / 3.942 token -> 1,2 sn / 27 token.
+    Akıl yürütme zinciri gerekmiyor, 90 sn'lik sınır aşılıyordu.
+
+    Aile listesi tutmak yerine metin üreten HER modelde bir kez denenir;
+    desteklemeyen servis 400 döner ve parametre bir daha gönderilmez.
+    Aksi halde yalnızca Qwen tanınıyordu ve GLM/Kimi/DeepSeek boşuna
+    akıl yürütüyordu."""
     from app.llm.provider import _dusunme_kapatilabilir
 
-    for m in ("qwen3.8-flash", "qwen3.8-max", "Qwen3-27B", "qwen-plus"):
+    for m in ("qwen3.8-max", "Qwen3-27B", "glm-5.2-fast-preview", "kimi-k3",
+              "deepseek-v3.2", "gpt-4o"):
         assert _dusunme_kapatilabilir(m), f"{m} icin dusunme kapatilmiyor"
     # Metin uretmeyen modellerde parametre anlamsiz
-    for m in ("qwen-image-3.0", "qwen-audio-3.0-asr-flash", "qwen3.7-text-embedding"):
+    for m in ("qwen-image-3.0", "qwen-audio-3.0-asr-flash", "qwen3.7-text-embedding",
+              "qwen3-tts-flash", "qwen3-vl-plus", "wan2.7-image"):
         assert not _dusunme_kapatilabilir(m), f"{m} icin gereksiz gonderiliyor"
-    # Baska ailelere karisilmaz
-    for m in ("gpt-4o", "deepseek-chat", "llama-3.1-70b"):
-        assert not _dusunme_kapatilabilir(m), f"{m} Qwen degil"
 
 
 def test_dusunme_reddedilirse_onsuz_tekrar_denenir():
@@ -733,3 +739,36 @@ def test_kotasi_biten_model_yedege_devreder(monkeypatch):
     with pytest.raises(LLMPermanentError):
         y.complete_json(turn)
     assert y.denenen == ["model-a"]
+
+
+def test_tukenen_model_hatirlanir(monkeypatch):
+    """Kotası bittiği anlaşılan model bir daha denenmez.
+
+    Hatırlanmazsa her çağrı önce tükenmiş modele gidip 403 yer; sözleşme
+    başına onlarca boşa gidiş-dönüş demektir.
+    """
+    from app.llm.provider import Completion, LLMPermanentError, Turn, Usage, _Guarded
+
+    monkeypatch.setattr("app.llm.provider.settings.model_fallbacks", "model-a,model-b")
+
+    class Sayan(_Guarded):
+        name = "sayan"
+
+        def __init__(self):
+            self.denenen = []
+
+        def _invoke(self, turn):
+            m = turn.model or "model-a"
+            self.denenen.append(m)
+            if m == "model-a":
+                raise LLMPermanentError('HTTP 403: {"message":"Free quota exhausted"}')
+            return Completion(data={"ok": True}, usage=Usage(model=m))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64, model="model-a")
+
+    p = Sayan()
+    for _ in range(3):
+        assert p.complete_json(turn).data == {"ok": True}
+    # İlk çağrıda bir kez tükenmiş modele gidilir, sonrakiler doğrudan yedeğe.
+    assert p.denenen == ["model-a", "model-b", "model-b", "model-b"]
