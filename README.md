@@ -208,7 +208,7 @@ içinde uçtan uca koşuldu: 12/12 tamamlandı, sıfır çökme, sıfır 5xx.
 - Eşzamanlı analizlerde SQLite kilit çakışması yeniden denemeyle soğurulur;
   salt-okunur uçlar yazma yolundan ayrıdır.
 - Geçici sağlayıcı hatası (503/429) yeniden denenir; kotası biten model
-   listesindeki bir sonrakine devreder.
+  `MODEL_FALLBACKS` listesindeki bir sonrakine devreder.
 
 Kalan iki bloker — **kalite ölçülmedi** (altın küme yok) ve **playbook hukuk
 onayından geçmedi** — kapatılmadan çıktı toplantıda dayanak olarak
