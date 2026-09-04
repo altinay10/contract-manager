@@ -102,6 +102,23 @@ def session_scope() -> Iterator[Session]:
         s.close()
 
 
+@contextmanager
+def read_session() -> Iterator[Session]:
+    """Salt-okunur oturum: sonunda commit DEGIL rollback yapar.
+
+    Iptal denetimi madde basina calisiyor ve session_scope uzerinden gidince
+    her seferinde yazma yolunu (commit + kilit yeniden deneme) tetikliyordu.
+    Okuma icin yazma niyeti bildirmenin anlami yok; es zamanli analizlerde
+    bosuna cakisma uretiyordu.
+    """
+    s = SessionLocal()
+    try:
+        yield s
+    finally:
+        s.rollback()
+        s.close()
+
+
 def ensure_schema() -> None:
     """Alembic devreye girene kadar: eksik kolonlari sessizce ekler.
 

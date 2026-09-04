@@ -19,7 +19,7 @@ from sqlalchemy import select
 
 from . import runner
 from .config import settings
-from .db import engine, ensure_schema, session_scope
+from .db import engine, ensure_schema, read_session, session_scope
 from .llm.provider import active_model, get_provider
 from .models import AnalysisRun, Base, Contract, Finding, LLMCall, Report
 from . import audit, auth
@@ -151,7 +151,7 @@ def change_password(request: Request, new_password: str = Body(..., embed=True),
 def audit_kayitlari(limit: int = 200, kullanici: str = Depends(auth.require_user)) -> dict:
     from .models import AuditLog
 
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(s.scalars(select(AuditLog).order_by(AuditLog.at.desc()).limit(limit)))
         return {"entries": [
             {"at": r.at.isoformat() if r.at else "", "user": r.user, "action": r.action,
@@ -512,7 +512,7 @@ def cancel(contract_id: str, request: Request,
 
 @app.get("/api/contracts/{contract_id}/findings")
 def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(s.scalars(select(Finding).where(Finding.contract_id == contract_id)))
         order = {"KRITIK": 0, "YUKSEK": 1, "ORTA": 2, "DUSUK": 3, "BILGI": 4}
         rows.sort(key=lambda f: (order.get(f.severity, 9), -f.confidence))
@@ -536,7 +536,7 @@ def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 @app.get("/api/contracts/{contract_id}/usage")
 def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Bu sözleşme için harcanan token ve maliyet dökümü."""
-    with session_scope() as s:
+    with read_session() as s:
         c = s.get(Contract, contract_id)
         if c is None:
             raise HTTPException(404, "Sözleşme bulunamadı")
@@ -567,7 +567,7 @@ def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
     from .playbook.loader import load_playbook
 
     pb = load_playbook()
-    with session_scope() as s:
+    with read_session() as s:
         sozlesmeler = list(s.scalars(select(Contract).order_by(Contract.created_at.desc())))
         bulgular = list(s.scalars(select(Finding)))
 
@@ -635,7 +635,7 @@ def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
 @app.get("/api/reports/{report_id}")
 def download(report_id: str, request: Request,
              kullanici: str = Depends(auth.optional_user)) -> FileResponse:
-    with session_scope() as s:
+    with read_session() as s:
         r = s.get(Report, report_id)
         if r is None or not Path(r.path).exists():
             raise HTTPException(404, "Rapor bulunamadı")
@@ -654,7 +654,7 @@ def download(report_id: str, request: Request,
 
 @app.get("/api/contracts")
 def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)) -> dict:
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(
             s.scalars(select(Contract).order_by(Contract.created_at.desc()).limit(limit))
         )

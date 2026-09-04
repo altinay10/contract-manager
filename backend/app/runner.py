@@ -36,7 +36,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .db import commit_retry, session_scope
+from .db import commit_retry, read_session, session_scope
 from .llm.budget import Budget, BudgetExceeded
 from .llm.provider import (HeuristicProvider, LLMProvider, active_model,
                             get_provider)
@@ -1010,8 +1010,8 @@ def _iptal_isaretle(s: Session, run: AnalysisRun, contract: Contract) -> None:
 
 
 def iptal_istendi(contract_id: str) -> bool:
-    """Iptal bayragini taze bir oturumdan okur."""
-    with session_scope() as s:
+    """Iptal bayragini taze bir oturumdan okur (salt-okunur)."""
+    with read_session() as s:
         run = s.scalar(
             select(AnalysisRun)
             .where(AnalysisRun.contract_id == contract_id)
@@ -1176,7 +1176,7 @@ def progress(contract_id: str) -> dict:
     """UI icin canli durum."""
     from .models import STAGE_LABEL
 
-    with session_scope() as s:
+    with read_session() as s:
         contract = s.get(Contract, contract_id)
         if contract is None:
             return {}
