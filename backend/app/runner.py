@@ -60,6 +60,10 @@ from .playbook.loader import load_playbook, mandatory_codes
 
 log = logging.getLogger(__name__)
 
+# Ilerleme/kalp atisi yazma araligi (sn). Arayuz iki saniyede bir yokluyor;
+# madde basina yazmak dort es zamanli analizde SQLite'i kilitliyordu.
+_BEAT_ARALIGI = 1.0
+
 _active: dict[str, threading.Thread] = {}
 _lock = threading.Lock()
 
@@ -90,6 +94,7 @@ class Ctx:
     cp: StageCheckpoint
     provider: LLMProvider
     budget: Budget | None = None
+    _son_beat: float = 0.0
 
     @property
     def llm_active(self) -> bool:
@@ -106,7 +111,20 @@ class Ctx:
         if iptal_istendi(self.run.contract_id):
             raise Cancelled("kullanıcı iptal etti")
 
-    def beat(self, detail: str | None = None, done: int | None = None, total: int | None = None) -> None:
+    def beat(self, detail: str | None = None, done: int | None = None,
+             total: int | None = None, zorla: bool = False) -> None:
+        """Ilerleme ve kalp atisi yaz.
+
+        KISILIR: madde basina yazmak, dort es zamanli analizde SQLite'i
+        kilitlemeye yetiyordu (rapor asamasi uc denemesini de tuketip sozlesmeyi
+        HATA'ya dusuruyordu). Arayuz zaten iki saniyede bir yokluyor; saniyede
+        birden sik yazmanin kullaniciya faydasi yok. Asama sinirlarinda
+        `zorla=True` ile kesin yazilir.
+
+        Iptal denetimi de ayni ritme baglidir: iptal en fazla bir saniye
+        gecikmeyle gorulur, arayuz zaten "islem guvenli bir noktada duracak"
+        diyor.
+        """
         self.run.heartbeat_at = utcnow()
         if detail is not None:
             self.cp.detail = detail[:300]
@@ -114,6 +132,11 @@ class Ctx:
             self.cp.items_done = done
         if total is not None:
             self.cp.items_total = total
+
+        simdi = time.monotonic()
+        if not zorla and simdi - self._son_beat < _BEAT_ARALIGI:
+            return
+        self._son_beat = simdi
         commit_retry(self.s)
         self.check_cancel()
 
@@ -912,6 +935,7 @@ def execute(contract_id: str) -> None:
 
             ctx = Ctx(s=s, contract=contract, run=run, cp=cp,
                       provider=provider, budget=budget)
+            ctx.beat(zorla=True)      # asama basinda ilerleme kesin yazilir
             ok = False
             while cp.attempts < settings.stage_max_attempts:
                 cp.attempts += 1
