@@ -14,8 +14,13 @@ from .config import settings
 
 log = logging.getLogger(__name__)
 
-_COMMIT_DENEME = 5
-_COMMIT_BEKLEME = 0.25
+_COMMIT_DENEME = 8
+_COMMIT_BEKLEME = 0.4
+
+# Not: yazmalari surec ici bir kilitle siraya sokmak denendi ve GERI ALINDI.
+# Kilidi tutan is parcacigi SQLite'in busy_timeout'unda beklerken digerleri
+# kilidi bekliyor; iki bekleme ust uste binince analiz saatlerce takiliyor.
+# Cakismayi yeniden deneme cozuyor, beklemeyi ise SQLite'in kendisi yonetiyor.
 
 _connect_args = {}
 if settings.database_url.startswith("sqlite"):
