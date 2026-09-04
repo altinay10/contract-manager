@@ -31,6 +31,14 @@ ENV STORAGE_DIR=/data \
     OCR_ENABLED=1 \
     OCR_LANG=tur+eng
 RUN mkdir -p /data
+
+# Root olarak calismaz. Konteyner disariya acik bir uygulama tasiyor; bir kod
+# calistirma acigi root yetkisiyle degil, yalnizca /data yazma yetkisiyle
+# sinirli kalsin. UID sabit: bagli birimdeki dosyalarin sahibi degismesin.
+RUN useradd --uid 10001 --no-user-group --gid users --home /srv --shell /usr/sbin/nologin feneri \
+ && chown -R feneri:users /data /srv
+USER feneri
+
 VOLUME ["/data"]
 
 EXPOSE 8000

@@ -90,6 +90,15 @@ Yüklenen sözleşme on aşamadan geçer:
 | **Rapor** (HTML) | Aynı içerik tarayıcıda — indirmeden okunur |
 | **Analiz** (JSON) | Tam çıktı, entegrasyon ve arşiv için |
 
+### Portföy panosu
+
+Tek sözleşmenin raporu ayrı bir iş, portföyü yönetmek ayrı. Analiz edilen bütün
+sözleşmeler tek tabloda görünür: hangi alıcı hangi karşı tarafla nerede duruyor,
+kritik/yüksek/eksik madde sayıları, risk skoru ve bant. Yanında iki kırılım var —
+portföy genelinde **en sık aleyhe yazılan madde tipleri** (tekrar eden bir kalem
+tek sözleşmenin değil, standart metnin sorunudur) ve **karşı tarafların ortalama
+skoru**. Uç nokta: `GET /api/dashboard`. Portföy boşken bölüm hiç çizilmez.
+
 ### İki çalışma modu
 - **API anahtarı varsa:** seçtiğiniz model + kural katmanı. Çoklu mercek,
   karşı-görüş ve tam metin eksik madde taraması açık.
