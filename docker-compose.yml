@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: sozlesme-feneri:0.1
+    image: sozlesme-feneri:0.2
     container_name: sozlesme-feneri
     restart: unless-stopped
     ports:

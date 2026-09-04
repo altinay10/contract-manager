@@ -37,7 +37,12 @@ RUN mkdir -p /data
 # sinirli kalsin. UID sabit: bagli birimdeki dosyalarin sahibi degismesin.
 RUN useradd --uid 10001 --no-user-group --gid users --home /srv --shell /usr/sbin/nologin feneri \
  && chown -R feneri:users /data /srv
-USER feneri
+
+# Giriste bir an root kalinip bagli birim devralinir, sonra 10001'e dusulur.
+# Bkz. entrypoint.sh - USER yonergesi kullanilsaydi eski root'lu birimler
+# okunamaz kalirdi.
+COPY backend/entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 VOLUME ["/data"]
 

@@ -772,3 +772,26 @@ def test_tukenen_model_hatirlanir(monkeypatch):
         assert p.complete_json(turn).data == {"ok": True}
     # İlk çağrıda bir kez tükenmiş modele gidilir, sonrakiler doğrudan yedeğe.
     assert p.denenen == ["model-a", "model-b", "model-b", "model-b"]
+
+
+def test_kayitli_ayarin_ortami_ezdigi_gorunur(tmp_path, monkeypatch):
+    """Kaydedilmiş arayüz ayarı ortam değişkenini ezer — ve bu görünür olmalı.
+
+    Docker biriminde kalan bir settings.json sağlayıcıyı heuristic'e
+    sabitlemişti; .env'deki LLM_PROVIDER=custom yok sayılıyor, günlükte de
+    "model anahtarı yok" yazıyordu. Anahtar duruyordu; operatör anahtarını
+    boşuna değiştirirdi.
+    """
+    from app import runtime_settings as rt
+
+    monkeypatch.setattr(rt.env_settings, "storage_dir", tmp_path)
+    rt.reset_cache()
+    assert rt.saglayici_kaynagi() == "ortam"
+
+    rt.save(provider="heuristic")
+    assert rt.saglayici_kaynagi() == "ayar"
+    assert rt.etkin_saglayici() == "heuristic"
+
+    rt.save(provider="")
+    assert rt.saglayici_kaynagi() == "ortam"
+    rt.reset_cache()

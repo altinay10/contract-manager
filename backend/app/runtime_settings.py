@@ -218,6 +218,17 @@ def etkin_saglayici() -> str:
     return r.provider or env_settings.llm_provider
 
 
+def saglayici_kaynagi() -> str:
+    """Sagayici secimi NEREDEN geliyor: "ayar" mi "ortam" mi?
+
+    Kaydedilmis bir arayuz ayari ortam degiskenini sessizce eziyordu.
+    Operator .env'de LLM_PROVIDER'i degistirip yeniden baslatiyor, hicbir sey
+    degismiyor ve sebebi hicbir yerde yazmiyordu. Bu bilgi /api/health ve
+    acilis gunlugunde gosterilir.
+    """
+    return "ayar" if load().provider else "ortam"
+
+
 def etkin_anahtar(saglayici: str) -> str:
     r = load()
     if r.api_key and (not r.provider or r.provider == saglayici or r.provider == "auto"):

@@ -174,6 +174,9 @@ def health() -> dict:
     return {
         "ok": True,
         "provider": p.name,
+        # Secim nereden geliyor: kayitli arayuz ayari mi, ortam degiskeni mi.
+        # Kayitli ayar ortami sessizce eziyordu ve sebebi hicbir yerde yazmiyordu.
+        "provider_source": rt.saglayici_kaynagi(),
         "model": active_model(p),
         "playbook_size": len(load_playbook()),
         "model_error": rt.son_hata(),

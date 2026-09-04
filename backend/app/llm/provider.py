@@ -763,7 +763,17 @@ def get_provider() -> LLMProvider:
                      or HeuristicProvider())
 
     if not _provider.is_llm:
-        log.info("Model anahtari yok - kural tabanli mod")
+        # "Anahtar yok" her zaman dogru degil: kayitli bir arayuz ayari
+        # saglayiciyi heuristic'e sabitlemis olabilir ve anahtar duruyordur.
+        # Yanlis mesaj operatoru anahtari degistirmeye yonlendiriyordu.
+        if rt.saglayici_kaynagi() == "ayar" and choice == "heuristic":
+            log.warning(
+                "Kural tabanli mod AYAR EKRANINDAN secilmis (kayitli ayar ortam "
+                "degiskenini ezer). Model kullanmak icin ayar ekranindan saglayici "
+                "secin ya da kayitli ayari silin."
+            )
+        else:
+            log.info("Model anahtari yok - kural tabanli mod")
     return _provider
 
 
