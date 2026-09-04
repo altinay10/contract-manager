@@ -36,7 +36,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from .config import settings
-from .db import session_scope
+from .db import commit_retry, session_scope
 from .llm.budget import Budget, BudgetExceeded
 from .llm.provider import (HeuristicProvider, LLMProvider, active_model,
                             get_provider)
@@ -114,7 +114,7 @@ class Ctx:
             self.cp.items_done = done
         if total is not None:
             self.cp.items_total = total
-        self.s.commit()
+        commit_retry(self.s)
         self.check_cancel()
 
     def context_blocks(self) -> list[str]:
@@ -361,7 +361,7 @@ def stage_risk(ctx: Ctx) -> str:
             failed += 1
             continue
         item.attempts += 1
-        ctx.s.commit()
+        commit_retry(ctx.s)
 
         try:
             drafts: list[FindingDraft] = []
@@ -401,7 +401,7 @@ def stage_risk(ctx: Ctx) -> str:
             log.warning("RISK madde %s basarisiz: %s", cl.number, exc)
 
         processed += 1
-        ctx.s.commit()
+        commit_retry(ctx.s)
         if processed % 3 == 0 or processed == total:
             ctx.beat(detail=f"madde {processed} / {total}", done=processed)
 
@@ -440,7 +440,7 @@ def stage_verify(ctx: Ctx) -> str:
             removed += 1
         else:
             f.verified = True
-    ctx.s.commit()
+    commit_retry(ctx.s)
 
     # K7 — yalnizca kritik/yuksek bulgularda, checkpoint'li
     rebutted = 0
@@ -476,7 +476,7 @@ def stage_verify(ctx: Ctx) -> str:
             except Exception as exc:
                 item.status = "FAILED"
                 item.error = str(exc)[:500]
-            ctx.s.commit()
+            commit_retry(ctx.s)
             if i % 3 == 0:
                 ctx.beat(detail=f"bulgu {i} / {len(targets)}", done=i)
 
@@ -506,7 +506,7 @@ def stage_report(ctx: Ctx) -> str:
     _clear_findings(ctx, finding_type="MISSING", only_gaps=True)
     for d in gap_drafts:
         _add_finding(ctx, d)
-    ctx.s.commit()
+    commit_retry(ctx.s)
 
     findings = list(
         ctx.s.scalars(select(Finding).where(Finding.contract_id == ctx.contract.id))
@@ -831,7 +831,7 @@ def _get_or_create_run(s: Session, contract_id: str) -> AnalysisRun:
         run.error = ""
         run.owner_id = BOOT_ID
         run.heartbeat_at = utcnow()
-        s.commit()
+        commit_retry(s)
         return run
 
     run = AnalysisRun(contract_id=contract_id, status="RUNNING", owner_id=BOOT_ID)
@@ -839,7 +839,7 @@ def _get_or_create_run(s: Session, contract_id: str) -> AnalysisRun:
     s.flush()
     for pos, key in enumerate(STAGE_KEYS):
         s.add(StageCheckpoint(run_id=run.id, stage=key, position=pos))
-    s.commit()
+    commit_retry(s)
     return run
 
 
@@ -852,7 +852,7 @@ def _checkpoint(s: Session, run: AnalysisRun, stage: str, pos: int) -> StageChec
     if cp is None:
         cp = StageCheckpoint(run_id=run.id, stage=stage, position=pos)
         s.add(cp)
-        s.commit()
+        commit_retry(s)
     return cp
 
 
@@ -878,7 +878,7 @@ def execute(contract_id: str) -> None:
 
         run = _get_or_create_run(s, contract_id)
         contract.status = "ISLENIYOR"
-        s.commit()
+        commit_retry(s)
 
         resumed = [
             cp.stage
@@ -908,14 +908,14 @@ def execute(contract_id: str) -> None:
             cp.status = "RUNNING"
             cp.started_at = cp.started_at or utcnow()
             run.heartbeat_at = utcnow()
-            s.commit()
+            commit_retry(s)
 
             ctx = Ctx(s=s, contract=contract, run=run, cp=cp,
                       provider=provider, budget=budget)
             ok = False
             while cp.attempts < settings.stage_max_attempts:
                 cp.attempts += 1
-                s.commit()
+                commit_retry(s)
                 try:
                     detail = STAGE_FUNCS[stage](ctx)
                     cp.status = "DONE"
@@ -923,27 +923,27 @@ def execute(contract_id: str) -> None:
                     cp.error = ""
                     cp.finished_at = utcnow()
                     run.heartbeat_at = utcnow()
-                    s.commit()
+                    commit_retry(s)
                     log.info("[%s] %s — %s", contract_id[:8], stage, detail)
                     ok = True
                     break
                 except Cancelled:
                     cp.status = "PENDING"
                     cp.detail = "iptal edildi"
-                    s.commit()
+                    commit_retry(s)
                     _iptal_isaretle(s, run, contract)
                     log.info("[%s] analiz iptal edildi (%s aşamasında)", contract_id[:8], stage)
                     return
                 except FatalError as exc:
                     cp.status = "FAILED"
                     cp.error = str(exc)[:1000]
-                    s.commit()
+                    commit_retry(s)
                     log.error("[%s] %s olumcul hata: %s", contract_id[:8], stage, exc)
                     break
                 except Exception as exc:
                     cp.error = f"{type(exc).__name__}: {exc}"[:1000]
                     s.rollback()
-                    s.commit()
+                    commit_retry(s)
                     log.warning(
                         "[%s] %s deneme %d/%d basarisiz: %s",
                         contract_id[:8], stage, cp.attempts, settings.stage_max_attempts, exc,
@@ -953,21 +953,21 @@ def execute(contract_id: str) -> None:
                         time.sleep(settings.retry_base_seconds * (2 ** (cp.attempts - 1)))
                     else:
                         cp.status = "FAILED"
-                        s.commit()
+                        commit_retry(s)
 
             if not ok:
                 run.status = "FAILED"
                 run.error = cp.error
                 run.finished_at = utcnow()
                 contract.status = "HATA"
-                s.commit()
+                commit_retry(s)
                 return
 
         run.status = "DONE"
         run.current_stage = ""
         run.finished_at = utcnow()
         contract.status = "TAMAMLANDI"
-        s.commit()
+        commit_retry(s)
         if budget:
             b = budget.summary()
             log.info("[%s] analiz tamamlandi — %d model cagrisi, $%.4f, %d token%s",
@@ -982,7 +982,7 @@ def _iptal_isaretle(s: Session, run: AnalysisRun, contract: Contract) -> None:
     run.finished_at = utcnow()
     run.error = "Kullanıcı tarafından iptal edildi"
     contract.status = "IPTAL"
-    s.commit()
+    commit_retry(s)
 
 
 def iptal_istendi(contract_id: str) -> bool:
@@ -1007,7 +1007,7 @@ def cancel(contract_id: str) -> bool:
         if run is None or run.status in ("DONE", "FAILED", "IPTAL"):
             return False
         run.cancel_requested = True
-        s.commit()
+        commit_retry(s)
         return True
 
 
@@ -1100,7 +1100,7 @@ def recover_orphans(start_work: bool = True) -> int:
                 cp.status = "PENDING"
                 cp.detail = "kesinti sonrası yeniden denenecek"
             run.owner_id = BOOT_ID
-            s.commit()
+            commit_retry(s)
             resumed += 1
             oksuz_ids.append(run.contract_id)
             log.warning(

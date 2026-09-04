@@ -53,6 +53,25 @@ def _kilit_hatasi(exc: BaseException) -> bool:
     return isinstance(exc, OperationalError) and "database is locked" in str(exc).lower()
 
 
+def commit_retry(s: Session) -> None:
+    """Kilit çakışmasında üstel bekleyişle yeniden denenen commit.
+
+    Uzun süren analiz, tek bir oturumu açık tutup aşama aşama commit eder;
+    bu commit'ler session_scope'un dışındadır. Eşzamanlı analizlerde
+    SQLITE_BUSY tam burada geliyor ve analiz thread'ini öldürüyordu.
+    """
+    for deneme in range(_COMMIT_DENEME):
+        try:
+            s.commit()
+            return
+        except OperationalError as exc:
+            if not _kilit_hatasi(exc) or deneme == _COMMIT_DENEME - 1:
+                raise
+            s.rollback()
+            time.sleep(_COMMIT_BEKLEME * (2 ** deneme))
+            log.info("Veritabanı kilitli - commit yeniden deneniyor (%d)", deneme + 1)
+
+
 @contextmanager
 def session_scope() -> Iterator[Session]:
     """Commit/rollback'i garanti eden oturum bağlamı.
@@ -70,16 +89,7 @@ def session_scope() -> Iterator[Session]:
     s = SessionLocal()
     try:
         yield s
-        for deneme in range(_COMMIT_DENEME):
-            try:
-                s.commit()
-                break
-            except OperationalError as exc:
-                if not _kilit_hatasi(exc) or deneme == _COMMIT_DENEME - 1:
-                    raise
-                s.rollback()
-                time.sleep(_COMMIT_BEKLEME * (2 ** deneme))
-                log.info("Veritabanı kilitli - commit yeniden deneniyor (%d)", deneme + 1)
+        commit_retry(s)
     except Exception:
         s.rollback()
         raise
