@@ -18,7 +18,7 @@ import logging
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol
 
 from ..config import settings
@@ -138,6 +138,23 @@ class _Guarded:
     name = "base"
     is_llm = True
 
+    # Kotasi bitmis modeller. Ornek instance'ta paylasilir; ayni analiz icinde
+    # tukenen bir modele tekrar tekrar donulmez.
+    _tukenmis: set[str]
+
+    def _yedekler(self) -> list[str]:
+        return [m.strip() for m in (settings.model_fallbacks or "").split(",") if m.strip()]
+
+    def _sonraki_model(self, mevcut: str) -> str:
+        """Kotasi biten modelin yerine gecebilecek ilk yedek."""
+        if not hasattr(self, "_tukenmis"):
+            self._tukenmis = set()
+        self._tukenmis.add(mevcut)
+        for m in self._yedekler():
+            if m not in self._tukenmis:
+                return m
+        return ""
+
     def complete_json(self, turn: Turn, budget: Budget | None = None) -> Completion:
         if budget is not None:
             budget.check()  # tavan asilmissa BudgetExceeded firlatir (yeniden denenmez)
@@ -181,14 +198,28 @@ class _Guarded:
         desteklenmeyen model) yeniden DENENMEZ - beklemek bir sey degistirmez.
         """
         son: Exception | None = None
-        for deneme in range(settings.llm_retry_attempts):
+        azami = settings.llm_retry_attempts + len(self._yedekler())
+        for deneme in range(azami):
             try:
                 return self._invoke(turn)
-            except (LLMPermanentError, BudgetExceeded):
+            except BudgetExceeded:
                 raise
+            except LLMPermanentError as exc:
+                # Kotasi biten model, bozuk bir kurulum degildir. Analizi kural
+                # katmanina dusurmek yerine sirdaki yedek modele gecilir.
+                if rt.hata_turu(str(exc)) != "quota":
+                    raise
+                mevcut = turn.model or rt.etkin_model(self.name) or ""
+                yeni = self._sonraki_model(mevcut)
+                if not yeni:
+                    raise
+                log.warning("%s kotasi bitti - yedek modele geciliyor: %s", mevcut, yeni)
+                turn = replace(turn, model=yeni)
+                rt.hata_temizle()
+                continue
             except Exception as exc:                      # gecici
                 son = exc
-                if deneme == settings.llm_retry_attempts - 1:
+                if deneme >= azami - 1:
                     break
                 bekle = settings.llm_retry_backoff_seconds * (2 ** deneme)
                 # Sure tavani zaten dolmak uzereyse beklemenin anlami yok.

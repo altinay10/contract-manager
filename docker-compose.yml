@@ -20,6 +20,8 @@ services:
       MODEL_OPENAI: "${MODEL_OPENAI:-gpt-4.1}"
       CUSTOM_BASE_URL: "${CUSTOM_BASE_URL:-}"
       MODEL_CUSTOM: "${MODEL_CUSTOM:-}"
+      # Kotasi biten modelin yerine sirayla denenecek yedekler.
+      MODEL_FALLBACKS: "${MODEL_FALLBACKS:-}"
       LLM_PROVIDER: "${LLM_PROVIDER:-auto}"   # auto|anthropic|openai|gemini|custom|heuristic
       MODEL_MAIN: "claude-opus-5"
       MODEL_GEMINI: "gemini-flash-latest"

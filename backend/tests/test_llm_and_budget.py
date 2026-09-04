@@ -677,3 +677,59 @@ def test_gecici_hata_yeniden_deneniyor(monkeypatch):
     with pytest.raises(LLMPermanentError):
         k.complete_json(turn)
     assert k.cagri == 1, "kalıcı hata yeniden denenmemeli"
+
+
+def test_kotasi_biten_model_yedege_devreder(monkeypatch):
+    """Kota bitince analiz kural katmanına düşmez, sıradaki modele geçer.
+
+    Ücretsiz kotalar model başına ayrıdır; bir modelin kotası bittiğinde
+    sözleşmenin geri kalanını modelsiz analiz etmek gereksiz bir kayıptır.
+    Bozuk kurulum (geçersiz anahtar) ise devredilmez — orada beklemek ya da
+    model değiştirmek sorunu çözmez.
+    """
+    from app.llm.provider import (Completion, LLMPermanentError, Turn, Usage, _Guarded)
+
+    monkeypatch.setattr("app.llm.provider.settings.model_fallbacks", "model-b, model-c")
+
+    class Kotali(_Guarded):
+        name = "kotali"
+
+        def __init__(self, calisan):
+            self.calisan = calisan
+            self.denenen = []
+
+        def _invoke(self, turn):
+            m = turn.model or "model-a"
+            self.denenen.append(m)
+            if m != self.calisan:
+                raise LLMPermanentError('HTTP 403: {"message":"Free quota exhausted"}')
+            return Completion(data={"ok": True}, usage=Usage(model=m))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64, model="model-a")
+
+    p = Kotali("model-c")
+    assert p.complete_json(turn).data == {"ok": True}
+    assert p.denenen == ["model-a", "model-b", "model-c"]
+
+    # Yedekler de tükenirse hata yükselir.
+    import pytest
+    t2 = Kotali("hicbiri")
+    with pytest.raises(LLMPermanentError):
+        t2.complete_json(turn)
+
+    # Geçersiz anahtar devredilmez: ilk modelde durur.
+    class Yetkisiz(_Guarded):
+        name = "yetkisiz"
+
+        def __init__(self):
+            self.denenen = []
+
+        def _invoke(self, turn):
+            self.denenen.append(turn.model or "model-a")
+            raise LLMPermanentError("HTTP 401: invalid api key")
+
+    y = Yetkisiz()
+    with pytest.raises(LLMPermanentError):
+        y.complete_json(turn)
+    assert y.denenen == ["model-a"]
