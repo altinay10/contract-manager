@@ -90,6 +90,15 @@ Yüklenen sözleşme on aşamadan geçer:
 | **Rapor** (HTML) | Aynı içerik tarayıcıda — indirmeden okunur |
 | **Analiz** (JSON) | Tam çıktı, entegrasyon ve arşiv için |
 
+### Portföy panosu
+
+Tek sözleşmenin raporu ayrı bir iş, portföyü yönetmek ayrı. Analiz edilen bütün
+sözleşmeler tek tabloda görünür: hangi alıcı hangi karşı tarafla nerede duruyor,
+kritik/yüksek/eksik madde sayıları, risk skoru ve bant. Yanında iki kırılım var —
+portföy genelinde **en sık aleyhe yazılan madde tipleri** (tekrar eden bir kalem
+tek sözleşmenin değil, standart metnin sorunudur) ve **karşı tarafların ortalama
+skoru**. Uç nokta: `GET /api/dashboard`. Portföy boşken bölüm hiç çizilmez.
+
 ### İki çalışma modu
 - **API anahtarı varsa:** seçtiğiniz model + kural katmanı. Çoklu mercek,
   karşı-görüş ve tam metin eksik madde taraması açık.
@@ -191,10 +200,19 @@ giriş, yükleme, rapor indirme, ayar değişikliği, iptal. API anahtarı denet
 
 ## Üretim durumu
 
-**Kapalı ağda sınırlı pilot için hazır.** Kimlik doğrulama ve denetim izi tamamlandı.
-Kalan iki bloker — **kalite ölçülmedi** ve **playbook hukuk onayından geçmedi** —
-kapatılmadan çıktı toplantıda dayanak olarak kullanılmamalıdır.
-Ayrıntı: [doc 10](docs/10-uretim-hazirlik-degerlendirmesi.md).
+**Kapalı ağda sınırlı pilot için hazır.** Kimlik doğrulama, denetim izi ve
+konteyner dayanıklılığı tamamlandı. On iki sözleşmelik bir portföy, konteyner
+içinde uçtan uca koşuldu: 12/12 tamamlandı, sıfır çökme, sıfır 5xx.
+
+- Konteyner root olarak çalışmaz (uid 10001); bağlı birim girişte devralınır.
+- Eşzamanlı analizlerde SQLite kilit çakışması yeniden denemeyle soğurulur;
+  salt-okunur uçlar yazma yolundan ayrıdır.
+- Geçici sağlayıcı hatası (503/429) yeniden denenir; kotası biten model
+  `MODEL_FALLBACKS` listesindeki bir sonrakine devreder.
+
+Kalan iki bloker — **kalite ölçülmedi** (altın küme yok) ve **playbook hukuk
+onayından geçmedi** — kapatılmadan çıktı toplantıda dayanak olarak
+kullanılmamalıdır. Ayrıntı: [doc 10](docs/10-uretim-hazirlik-degerlendirmesi.md).
 
 ## Uyarı
 

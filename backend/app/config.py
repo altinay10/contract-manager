@@ -60,6 +60,14 @@ class Settings:
     llm_deadline_seconds: int = _env_int("LLM_DEADLINE_SECONDS", 900)
     max_consecutive_failures: int = _env_int("MAX_CONSECUTIVE_FAILURES", 3)
     llm_timeout_seconds: int = _env_int("LLM_TIMEOUT_SECONDS", 90)
+    # Gecici saglayici hatalari (503/429) icin sinirli yeniden deneme. Yeniden
+    # deneme olmayinca tek bir 503 devre kesiciye hata yaziyor, ust uste ucu tum
+    # analizi durduruyordu.
+    # Kotasi biten model yerine sirayla denenecek yedekler (virgulle ayrilir).
+    # Bos birakilirsa devir yok: kota bitince analiz kural katmaniyla surer.
+    model_fallbacks: str = _env("MODEL_FALLBACKS", "")
+    llm_retry_attempts: int = _env_int("LLM_RETRY_ATTEMPTS", 3)
+    llm_retry_backoff_seconds: float = float(_env("LLM_RETRY_BACKOFF_SECONDS", "2"))
     # Modele gonderilecek azami madde sayisi (agirliga gore secilir). 0 = sinirsiz.
     max_llm_clauses: int = _env_int("MAX_LLM_CLAUSES", 40)
     # Coklu mercek ve karsi-gorus pahalidir; kapatilabilir.

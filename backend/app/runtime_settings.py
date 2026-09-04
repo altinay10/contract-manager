@@ -190,11 +190,17 @@ def hata_temizle() -> None:
 
 def hata_turu(mesaj: str) -> str:
     m = (mesaj or "").lower()
+    # Kota once bakilir: bazi saglayicilar (Qwen'in maas ucu) biten kotayi 403
+    # ile dondurur. Once 401/403'e bakilirsa kullaniciya "anahtarin gecersiz"
+    # denir ve anahtarini bosuna degistirir.
+    if ("quota" in m or "exhausted" in m or "429" in m or "rate limit" in m
+            or "kota" in m or "insufficient" in m or "billing" in m):
+        return "quota"
     if "401" in m or "403" in m or "invalid" in m or "authentication" in m or "api key" in m:
         return "auth"
-    if "429" in m or "quota" in m or "rate limit" in m or "kota" in m:
-        return "quota"
-    if "404" in m or "not found" in m or "no longer available" in m:
+    if ("404" in m or "not found" in m or "no longer available" in m
+            or "not supported" in m or "desteklenmiyor" in m
+            or "kabul edilmedi" in m or "model_not_found" in m):
         return "model"
     return "other"
 
@@ -210,6 +216,17 @@ def etkin_saglayici() -> str:
     """Arayuz ayari > ortam degiskeni."""
     r = load()
     return r.provider or env_settings.llm_provider
+
+
+def saglayici_kaynagi() -> str:
+    """Sagayici secimi NEREDEN geliyor: "ayar" mi "ortam" mi?
+
+    Kaydedilmis bir arayuz ayari ortam degiskenini sessizce eziyordu.
+    Operator .env'de LLM_PROVIDER'i degistirip yeniden baslatiyor, hicbir sey
+    degismiyor ve sebebi hicbir yerde yazmiyordu. Bu bilgi /api/health ve
+    acilis gunlugunde gosterilir.
+    """
+    return "ayar" if load().provider else "ortam"
 
 
 def etkin_anahtar(saglayici: str) -> str:

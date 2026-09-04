@@ -18,7 +18,7 @@ import logging
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol
 
 from ..config import settings
@@ -138,6 +138,23 @@ class _Guarded:
     name = "base"
     is_llm = True
 
+    # Kotasi bitmis modeller. Ornek instance'ta paylasilir; ayni analiz icinde
+    # tukenen bir modele tekrar tekrar donulmez.
+    _tukenmis: set[str]
+
+    def _yedekler(self) -> list[str]:
+        return [m.strip() for m in (settings.model_fallbacks or "").split(",") if m.strip()]
+
+    def _sonraki_model(self, mevcut: str) -> str:
+        """Kotasi biten modelin yerine gecebilecek ilk yedek."""
+        if not hasattr(self, "_tukenmis"):
+            self._tukenmis = set()
+        self._tukenmis.add(mevcut)
+        for m in self._yedekler():
+            if m not in self._tukenmis:
+                return m
+        return ""
+
     def complete_json(self, turn: Turn, budget: Budget | None = None) -> Completion:
         if budget is not None:
             budget.check()  # tavan asilmissa BudgetExceeded firlatir (yeniden denenmez)
@@ -145,7 +162,7 @@ class _Guarded:
         model = turn.model or ""
         t0 = time.perf_counter()
         try:
-            comp = self._invoke(turn)
+            comp = self._dene(turn, budget)
         except LLMPermanentError as exc:
             # Arayuz kullaniciya "anahtarin gecersiz / kotan bitmis" diyebilsin.
             rt.hata_kaydet(rt.hata_turu(str(exc)), str(exc), model, self.name)
@@ -171,6 +188,60 @@ class _Guarded:
         if budget is not None:
             budget.record_success(comp.usage.cost_usd, comp.usage.total)
         return comp
+
+    def _dene(self, turn: Turn, budget: Budget | None) -> Completion:
+        """Gecici hatalarda sinirli yeniden deneme.
+
+        Saglayicilar yuk altinda 503/429 doner; bunlar gecicidir. Yeniden deneme
+        olmayinca tek bir 503 devre kesiciye hata yaziyordu ve ust uste ucu tum
+        analizi durduruyordu. Kalici hatalar (gecersiz anahtar, biten kota,
+        desteklenmeyen model) yeniden DENENMEZ - beklemek bir sey degistirmez.
+        """
+        son: Exception | None = None
+        azami = settings.llm_retry_attempts + len(self._yedekler())
+
+        # Tukenen model hatirlanmazsa her cagri once ona gidip 403 yer; sozlesme
+        # basina onlarca bosa gidis-donus demektir. Bilinen tukenmisse dogrudan
+        # ilk saglam yedekten baslanir.
+        if getattr(self, "_tukenmis", None):
+            baslangic = turn.model or rt.etkin_model(self.name) or ""
+            if baslangic in self._tukenmis:
+                saglam = next((m for m in self._yedekler() if m not in self._tukenmis), "")
+                if saglam:
+                    turn = replace(turn, model=saglam)
+
+        for deneme in range(azami):
+            try:
+                return self._invoke(turn)
+            except BudgetExceeded:
+                raise
+            except LLMPermanentError as exc:
+                # Kotasi biten ya da istegi kabul etmeyen model, bozuk bir
+                # kurulum degildir. Analizi kural katmanina dusurmek yerine
+                # siradaki yedek modele gecilir. Gecersiz anahtar ("auth")
+                # devredilmez: ayni hata listedeki her modelde tekrarlanir.
+                if rt.hata_turu(str(exc)) not in ("quota", "model"):
+                    raise
+                mevcut = turn.model or rt.etkin_model(self.name) or ""
+                yeni = self._sonraki_model(mevcut)
+                if not yeni:
+                    raise
+                log.warning("%s kotasi bitti - yedek modele geciliyor: %s", mevcut, yeni)
+                turn = replace(turn, model=yeni)
+                rt.hata_temizle()
+                continue
+            except Exception as exc:                      # gecici
+                son = exc
+                if deneme >= azami - 1:
+                    break
+                bekle = settings.llm_retry_backoff_seconds * (2 ** deneme)
+                # Sure tavani zaten dolmak uzereyse beklemenin anlami yok.
+                if budget is not None and budget.elapsed + bekle >= budget.deadline_seconds:
+                    break
+                log.info("Gecici model hatasi (%s) - %.0f sn sonra yeniden denenecek (%d/%d)",
+                         exc, bekle, deneme + 1, settings.llm_retry_attempts)
+                time.sleep(bekle)
+        raise son if son is not None else LLMError("model cagrisi basarisiz")
 
     def _invoke(self, turn: Turn) -> Completion:  # pragma: no cover - arayuz
         raise NotImplementedError
@@ -390,6 +461,8 @@ class OpenAICompatProvider(_Guarded):
         self._format_modu: dict[str, str] = {}   # model -> "schema"|"object"|"none"
         self._token_alani: dict[str, str] = {}   # model -> "max_tokens"|"max_completion_tokens"
         self._dusunme: dict[str, bool] = {}      # model -> enable_thinking gonderilsin mi
+        self._sicaklik: dict[str, bool] = {}     # model -> temperature kabul ediyor mu
+        self._sema_dusuruldu: dict[str, bool] = {}  # model -> sessiz sema ihlali yakalandi mi
 
     def _invoke(self, turn: Turn) -> Completion:
         model = turn.model or rt.etkin_model(self.name)
@@ -412,9 +485,13 @@ class OpenAICompatProvider(_Guarded):
             govde: dict[str, Any] = {
                 "model": model,
                 "messages": mesajlar,
-                "temperature": 0.1,
                 alan: turn.max_tokens,
             }
+            # Bazi modeller (kimi-k3) temperature kabul etmiyor. Reddedildigi
+            # ogrenilince bu model icin bir daha gonderilmez; govde her dongude
+            # bastan kuruldugu icin yalnizca sozlukten silmek yetmiyordu.
+            if self._sicaklik.get(model, True):
+                govde["temperature"] = 0.1
             # Qwen3 ve benzeri modellerde dusunme modu varsayilan olarak aciktir:
             # cikti uc katina cikar, gecikme dort katina. Bu is icin akil yurutme
             # zinciri gerekmiyor; kapatilinca 19 sn -> 5 sn, 994 -> 400 token.
@@ -430,6 +507,11 @@ class OpenAICompatProvider(_Guarded):
             elif mod == "object":
                 govde["response_format"] = {"type": "json_object"}
 
+            # Sunucu tarafinda sema zorlanamadigi kipte (object/none) model alan
+            # adlarini bilemez ve cikti sessizce bosa duser. Semayi metin olarak
+            # promta koyariz: zorlama degil ama sekli tarif eder.
+            govde["messages"] = _semali_mesajlar(mesajlar, turn.schema, mod)
+
             try:
                 payload = self._post(govde)
                 break
@@ -444,9 +526,7 @@ class OpenAICompatProvider(_Guarded):
                 elif exc.tur == "token_alani" and alan == "max_tokens":
                     alan = "max_completion_tokens"
                 elif exc.tur == "sicaklik":
-                    mesajlar = mesajlar  # sicaklik desteklenmiyorsa kaldir
-                    govde.pop("temperature", None)
-                    self._format_modu[model] = mod
+                    self._sicaklik[model] = False     # bu model kabul etmiyor
                     continue
                 else:
                     raise LLMPermanentError(str(exc)) from exc
@@ -455,6 +535,7 @@ class OpenAICompatProvider(_Guarded):
 
         self._format_modu[model] = mod
         self._token_alani[model] = alan
+        self._sicaklik.setdefault(model, True)
         latency = int((time.perf_counter() - t0) * 1000)
 
         secenekler = payload.get("choices") or []
@@ -464,6 +545,18 @@ class OpenAICompatProvider(_Guarded):
         if secenekler[0].get("finish_reason") == "length":
             raise LLMError("cevap max_tokens sınırında kesildi (JSON eksik)")
         data = _parse_json(ileti.get("content") or "")
+
+        # Sessiz sema ihlali: uc, json_schema'yi kabul edip yok saymis olabilir.
+        # Zorunlu ust duzey alanlar donmediyse bu modeli object kipine indir ve
+        # bir kez daha dene; sema metni zaten promtta oldugu icin ikinci deneme
+        # dogru sekli uretir.
+        gerekli = list((turn.schema or {}).get("required") or [])
+        if gerekli and not any(k in data for k in gerekli) and not self._sema_dusuruldu.get(model):
+            self._sema_dusuruldu[model] = True
+            self._format_modu[model] = "object"
+            log.warning("%s semayi yok saydi (donen alanlar: %s) - object kipinde tekrar deneniyor",
+                        model, ", ".join(list(data)[:5]) or "yok")
+            return self._invoke(turn)
 
         u = payload.get("usage") or {}
         detay = u.get("prompt_tokens_details") or {}
@@ -516,13 +609,19 @@ class OpenAICompatProvider(_Guarded):
 def _dusunme_kapatilabilir(model: str) -> bool:
     """Bu model adi dusunme modunu acik varsayan bir aileden mi?
 
-    Qwen3+ modelleri enable_thinking'i varsayilan True kabul eder. Liste
-    kapsayici degil: bilinmeyen modelde bir kez denenir, servis reddederse
-    `_dusunme` sozlugune yazilip bir daha gonderilmez.
+    Qwen3+, GLM, Kimi, DeepSeek gibi aileler dusunme modunu varsayilan ACIK
+    kabul eder. Bu is icin akil yurutme zinciri gerekmiyor ve pahali: acikken
+    glm-5.2-fast-preview cagri basina ~3.900 cikti tokeni ve 39 saniye
+    harciyordu, kapaliyken ayni is ~650 tokene iniyor.
+
+    Bu yuzden metin ureten HER modelde bir kez denenir; servis alani
+    reddederse `_dusunme` sozlugune yazilir ve bir daha gonderilmez. Yalniz
+    metin uretmeyen modellerde (gorsel, ses, gomme) hic denenmez.
     """
     m = model.lower()
-    return m.startswith("qwen") and not any(
-        k in m for k in ("image", "audio", "embedding", "rerank", "ocr"))
+    return not any(
+        k in m for k in ("image", "audio", "embedding", "rerank", "ocr",
+                         "tts", "asr", "vl-", "omni", "wan", "lyria", "banana"))
 
 
 class _Uyumsuz(RuntimeError):
@@ -531,6 +630,24 @@ class _Uyumsuz(RuntimeError):
     def __init__(self, tur: str, detay: str = "") -> None:
         super().__init__(detay or tur)
         self.tur = tur
+
+
+def _semali_mesajlar(mesajlar: list[dict], schema: dict | None, mod: str) -> list[dict]:
+    """Semayi kullanici iletisinin sonuna metin olarak ekler.
+
+    Kipten bagimsiz eklenir. Bazi OpenAI-uyumlu uclar (Qwen'in maas ucu gibi)
+    `response_format: json_schema` istegini 200 ile kabul edip semayi SESSIZCE yok
+    sayar; cikti gecerli JSON'dur ama alan adlari bambaskadir ve tum bulgular bosa
+    duser. Semayi ayrica metin olarak vermek bu sessiz basarisizligi kapatir.
+    """
+    if not schema:
+        return mesajlar
+    ek = ("\n\n=== CIKTI SEMASI (bu JSON semasina birebir uy; "
+          "alan adlarini degistirme, fazladan alan ekleme) ===\n"
+          + json.dumps(schema, ensure_ascii=False))
+    out = [dict(m) for m in mesajlar]
+    out[-1]["content"] = out[-1]["content"] + ek
+    return out
 
 
 def _strict_schema(schema: dict) -> dict:
@@ -646,7 +763,17 @@ def get_provider() -> LLMProvider:
                      or HeuristicProvider())
 
     if not _provider.is_llm:
-        log.info("Model anahtari yok - kural tabanli mod")
+        # "Anahtar yok" her zaman dogru degil: kayitli bir arayuz ayari
+        # saglayiciyi heuristic'e sabitlemis olabilir ve anahtar duruyordur.
+        # Yanlis mesaj operatoru anahtari degistirmeye yonlendiriyordu.
+        if rt.saglayici_kaynagi() == "ayar" and choice == "heuristic":
+            log.warning(
+                "Kural tabanli mod AYAR EKRANINDAN secilmis (kayitli ayar ortam "
+                "degiskenini ezer). Model kullanmak icin ayar ekranindan saglayici "
+                "secin ya da kayitli ayari silin."
+            )
+        else:
+            log.info("Model anahtari yok - kural tabanli mod")
     return _provider
 
 

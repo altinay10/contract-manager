@@ -1,0 +1,65 @@
+DONANIM TEDARİK SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Karadeniz Halk Bankası A.Ş. ("KARADENİZ HALK") ile diğer tarafta
+Aurora Ödeme Teknolojileri A.Ş. ("SAĞLAYICI") arasında 22.07.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" SAĞLAYICI tarafından sunulan çözümü, "KARADENİZ HALK Verisi" KARADENİZ HALK'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+SAĞLAYICI, KARADENİZ HALK'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 3 yıldır.
+Sözleşme, en az doksan (90) gün önce feshedilmediği takdirde kendiliğinden birer yıl uzar.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 760.000 TL'dir. Bedelin tamamı her sözleşme yılının başında peşin olarak
+ödenir. SAĞLAYICI, ücretleri her yıl tek taraflı olarak güncelleyebilir.
+
+MADDE 5 - SORUMLULUK
+5.1 SAĞLAYICI hiçbir hâlde dolaylı zararlardan, kâr kaybından veya veri kaybından sorumlu değildir.
+5.2 SAĞLAYICI'nin toplam sorumluluğu, talebin doğduğu tarihten önceki üç (3) ayda ödenen bedeli aşamaz.
+
+MADDE 6 - DENETİM
+KARADENİZ HALK, yılda bir (1) kez ve en az otuz (30) gün önceden yazılı bildirimde bulunmak kaydıyla,
+mesai saatleri içinde denetim yapabilir. Denetim masrafları KARADENİZ HALK'ya aittir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+KARADENİZ HALK Verisi, SAĞLAYICI'nin global altyapısında ve uygun göreceği veri merkezlerinde işlenebilir.
+SAĞLAYICI, KARADENİZ HALK Verisi'ni hizmetlerini geliştirmek amacıyla anonimleştirerek kullanabilir.
+
+MADDE 8 - GÜVENLİK
+8.1 SAĞLAYICI, güvenlik ihlalini öğrenmesini müteakip makul bir süre içinde KARADENİZ HALK'ya bildirimde bulunur.
+8.2 KARADENİZ HALK'nın SAĞLAYICI sistemleri üzerinde sızma testi yapması yasaktır.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üçüncü kişilerle paylaşmayacaktır. Bu yükümlülük Sözleşme'nin
+sona ermesinden itibaren bir (1) yıl süreyle devam eder.
+
+MADDE 10 - FESİH
+10.1 SAĞLAYICI, herhangi bir sebep göstermeksizin otuz (30) gün önceden yazılı bildirimde
+bulunarak Sözleşme'yi feshedebilir.
+10.2 KARADENİZ HALK, yalnızca SAĞLAYICI'nin esaslı ihlali hâlinde ve doksan (90) günlük düzeltme süresi
+sonunda Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+İşbu Sözleşme'den doğan damga vergisi ve diğer tüm masraflar KARADENİZ HALK tarafından karşılanır.
+
+MADDE 12 - ALT YÜKLENİCİ
+SAĞLAYICI, dilediği alt yükleniciyi KARADENİZ HALK'nın onayını almaksızın kullanabilir.
+
+MADDE 13 - HİZMET SEVİYESİ
+SAĞLAYICI, hizmetin kesintisiz sunulması için ticari makul çaba gösterecektir. Kesinti hâlinde
+KARADENİZ HALK'nın yegâne başvuru yolu, ilgili aya ait bedelin orantılı iadesidir.
+
+MADDE 14 - REFERANS
+SAĞLAYICI, KARADENİZ HALK'nın unvanını ve logosunu tanıtım materyallerinde referans olarak kullanabilir.
+
+MADDE 15 - UYGULANACAK HUKUK
+İşbu Sözleşme İngiltere hukukuna tabidir. Uyuşmazlıklar Londra Uluslararası Tahkim
+Mahkemesi (LCIA) kuralları uyarınca çözülür.
+
+MADDE 16 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.

@@ -1,0 +1,84 @@
+DANIŞMANLIK HİZMETİ SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Selçuk Katılım Bankası A.Ş. ("SELÇUK KATILIM") ile diğer tarafta
+Kartaltepe Yazılım ve Danışmanlık A.Ş. ("YÜKLENİCİ") arasında 11.03.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" YÜKLENİCİ tarafından sunulan çözümü, "SELÇUK KATILIM Verisi" SELÇUK KATILIM'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+YÜKLENİCİ, SELÇUK KATILIM'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 2 yıldır.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 1.900.000 TL'dir. Ödemeler SELÇUK KATILIM'nın yazılı kabulünü müteakip otuz (30) gün
+içinde yapılır. Bedeller sözleşme süresince sabittir; yıllık güncelleme TÜFE oranını
+aşamaz ve SELÇUK KATILIM kabul etmezse cezasız fesih hakkı doğar.
+
+MADDE 5 - SORUMLULUK
+5.1 YÜKLENİCİ'nin toplam sorumluluğu yıllık sözleşme bedelinin bir katını aşamaz.
+5.2 Gizlilik ihlali, kişisel veri ihlali, fikri mülkiyet ihlali ile kasıt ve ağır kusur
+hâllerinde sorumluluk sınırlaması uygulanmaz. Sınırlama Taraflar bakımından mütekabildir.
+
+MADDE 6 - DENETİM
+SELÇUK KATILIM, bağımsız denetçileri ve yetkili düzenleyici otoriteler (BDDK dâhil), YÜKLENİCİ'nin işbu
+Sözleşme kapsamındaki faaliyetlerini yerinde veya uzaktan denetleme hakkına sahiptir.
+Güvenlik ihlali şüphesi hâlinde denetim önceden bildirim şartına tabi değildir.
+Uygunsuzlukların giderilme maliyeti YÜKLENİCİ'ye aittir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+SELÇUK KATILIM'ya ait veriler ile birincil ve ikincil sistemler Türkiye Cumhuriyeti sınırları içinde
+bulundurulur ve işlenir. Yurt dışına aktarım SELÇUK KATILIM'nın önceden yazılı onayına ve 6698 sayılı
+Kanun'un 9. maddesindeki şartların sağlanmasına bağlıdır. YÜKLENİCİ, SELÇUK KATILIM verisini model
+eğitiminde anonimleştirilmiş biçimde dahi olsa kullanamaz.
+
+MADDE 8 - GÜVENLİK
+8.1 YÜKLENİCİ, SELÇUK KATILIM'ya ait verileri etkileyen her türlü güvenlik ihlalini, öğrendiği andan
+itibaren en geç yirmi dört (24) saat içinde SELÇUK KATILIM'ya yazılı olarak bildirir. Kök neden
+analizi raporu beş (5) iş günü içinde sunulur.
+8.2 SELÇUK KATILIM, yılda en az bir kez sızma testi yaptırma hakkına sahiptir.
+
+MADDE 9 - GİZLİLİK
+YÜKLENİCİ, SELÇUK KATILIM'ya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı niteliğindeki
+bilgilere ilişkin gizlilik yükümlülüğü süresizdir ve 5411 sayılı Bankacılık Kanunu'nun
+73. maddesi hükümlerine tabidir.
+
+MADDE 10 - FESİH
+10.1 SELÇUK KATILIM, altmış (60) gün önceden yazılı bildirimde bulunmak kaydıyla Sözleşme'yi sebep
+göstermeksizin feshedebilir. Mevzuat değişikliği veya düzenleyici otorite talebi hâlinde
+SELÇUK KATILIM Sözleşme'yi derhal ve tazminatsız feshedebilir.
+10.2 YÜKLENİCİ'nin sebepsiz fesih hakkı bulunmamaktadır.
+
+MADDE 11 - MASRAFLAR
+İşbu Sözleşme'den doğan damga vergisi Taraflarca eşit oranda karşılanır. Sözleşme tek
+nüsha olarak düzenlenir.
+
+MADDE 12 - ALT YÜKLENİCİ
+YÜKLENİCİ, SELÇUK KATILIM'nın önceden yazılı onayı olmaksızın alt yüklenici kullanamaz; alt yüklenicilerinin
+fiillerinden kendi fiili gibi sorumludur.
+
+MADDE 13 - HİZMET SEVİYESİ
+YÜKLENİCİ, aylık erişilebilirliğin en az %99,9 olacağını taahhüt eder. Kritik arızalarda yanıt
+süresi otuz (30) dakikadır. Hizmet kredileri SELÇUK KATILIM'nın zarar talep etme ve fesih hakkını
+ortadan kaldırmaz.
+
+MADDE 14 - KAYNAK KODU EMANETİ
+YÜKLENİCİ, kaynak kodunu bağımsız bir emanet kuruluşuna tevdi eder. YÜKLENİCİ'nin iflası, tasfiyesi
+veya desteği sona erdirmesi hâlinde kod SELÇUK KATILIM'ya teslim edilir.
+
+MADDE 15 - SÖZLEŞMENİN SONA ERMESİ
+Sona ermede YÜKLENİCİ, SELÇUK KATILIM'nın talebi üzerine en az altı (6) ay geçiş desteği sağlar ve verileri
+makine-okunabilir standart formatta teslim eder; ardından kopyaları imha eder.
+
+MADDE 16 - REFERANS
+YÜKLENİCİ, SELÇUK KATILIM'nın önceden yazılı onayı olmaksızın unvan ve logosunu kullanamaz.
+
+MADDE 17 - UYGULANACAK HUKUK
+İşbu Sözleşme Türk hukukuna tabidir. İstanbul (Çağlayan) Mahkemeleri ve İcra Daireleri
+yetkilidir. Türkçe metin esas alınır.
+
+MADDE 18 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.
