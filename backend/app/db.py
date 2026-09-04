@@ -1,18 +1,29 @@
 """SQLAlchemy oturum yönetimi."""
 from __future__ import annotations
 
+import logging
+import time
 from contextlib import contextmanager
 from typing import Iterator
 
 from sqlalchemy import create_engine, event
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
 from .config import settings
 
+log = logging.getLogger(__name__)
+
+_COMMIT_DENEME = 5
+_COMMIT_BEKLEME = 0.25
+
 _connect_args = {}
 if settings.database_url.startswith("sqlite"):
     # Arka plan iş parçacığı aynı bağlantıyı kullanabilsin.
-    _connect_args = {"check_same_thread": False, "timeout": 30}
+    _connect_args = {
+        "check_same_thread": False,   # arka plan is parcaciklari icin
+        "timeout": 30,                # SQLITE_BUSY beklemesi
+    }
 
 engine = create_engine(
     settings.database_url,
@@ -30,19 +41,45 @@ if settings.database_url.startswith("sqlite"):
         cur.execute("PRAGMA journal_mode=WAL")
         cur.execute("PRAGMA synchronous=NORMAL")
         cur.execute("PRAGMA foreign_keys=ON")
+        # Kilit bekleme suresi baglanti basina burada da kurulur.
+        cur.execute("PRAGMA busy_timeout=30000")
         cur.close()
 
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, future=True)
 
 
+def _kilit_hatasi(exc: BaseException) -> bool:
+    return isinstance(exc, OperationalError) and "database is locked" in str(exc).lower()
+
+
 @contextmanager
 def session_scope() -> Iterator[Session]:
-    """Commit/rollback'i garanti eden oturum bağlamı."""
+    """Commit/rollback'i garanti eden oturum bağlamı.
+
+    Commit, kilit çakışmasında sınırlı sayıda yeniden denenir. WAL ve
+    busy_timeout tek başına yetmiyor: pysqlite işlemi ilk yazmaya kadar
+    geciktirdiği için, önce okuyup sonra yazmaya yükselen bir işlem eşzamanlı
+    bir yazar varken ANINDA SQLITE_BUSY alır — busy_timeout orada devreye
+    girmez. Eşzamanlı iki analiz bu yüzden "database is locked" ile çöküyordu.
+
+    İşlemin tamamını BEGIN IMMEDIATE ile açmak da çözüm değil: okuma
+    işlemlerini de sıraya sokar ve iptal denetimi gibi ayrı oturum kullanan
+    yerlerde kilitlenmeye yol açar. Bu yüzden yalnızca commit yeniden denenir.
+    """
     s = SessionLocal()
     try:
         yield s
-        s.commit()
+        for deneme in range(_COMMIT_DENEME):
+            try:
+                s.commit()
+                break
+            except OperationalError as exc:
+                if not _kilit_hatasi(exc) or deneme == _COMMIT_DENEME - 1:
+                    raise
+                s.rollback()
+                time.sleep(_COMMIT_BEKLEME * (2 ** deneme))
+                log.info("Veritabanı kilitli - commit yeniden deneniyor (%d)", deneme + 1)
     except Exception:
         s.rollback()
         raise

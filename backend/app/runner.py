@@ -1021,8 +1021,13 @@ def start(contract_id: str) -> bool:
         def _target():
             try:
                 execute(contract_id)
-            except Exception:
+            except Exception as exc:
                 log.exception("Analiz thread'i beklenmedik sekilde sonlandi")
+                # Isaretlenmezse sozlesme sonsuza dek "surüyor" kalir: arayuz
+                # ilerleme cubugunda donar, kullanici devam da edemez. Hata
+                # yazilirsa asama kontrol noktalari korunur ve "kaldigi yerden
+                # devam et" calisir.
+                _hata_isaretle(contract_id, exc)
             finally:
                 with _lock:
                     _active.pop(contract_id, None)
@@ -1031,6 +1036,24 @@ def start(contract_id: str) -> bool:
         _active[contract_id] = th
         th.start()
         return True
+
+
+def _hata_isaretle(contract_id: str, exc: BaseException) -> None:
+    """Beklenmedik cokme sonrasi sozlesmeyi HATA'ya cek (en iyi cabayla)."""
+    try:
+        with session_scope() as s:
+            c = s.get(Contract, contract_id)
+            if c is not None and c.status == "ISLENIYOR":
+                c.status = "HATA"
+            run = s.scalars(
+                select(AnalysisRun).where(AnalysisRun.contract_id == contract_id)
+                .order_by(AnalysisRun.started_at.desc())
+            ).first()
+            if run is not None and run.status == "RUNNING":
+                run.status = "FAILED"
+                run.error = f"beklenmedik hata: {exc}"[:1000]
+    except Exception:            # veritabani da erisilemiyorsa yapacak bir sey yok
+        log.exception("Cokme sonrasi durum yazilamadi")
 
 
 def is_running(contract_id: str) -> bool:
