@@ -875,6 +875,12 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
   fetch('/api/health').then(function(r){return r.json();}).then(function(h){
     $('pbsize').textContent = h.playbook_size + ' madde tipi';
     if(h.ocr && !h.ocr.ready){ $('pbsize').textContent += ' · OCR yok'; }
+    // MOTOR alanı yalnızca /api/settings'ten dolduruluyordu; o uç girişe
+    // kapalı olduğu için parolasız kullanıcıda sonsuza dek "yükleniyor…"
+    // kalıyordu. /api/health bu bilgiyi zaten korumasız veriyor.
+    $('engine').textContent = h.provider === 'heuristic'
+      ? 'kural tabanlı mod'
+      : (h.provider + (h.model ? ' · ' + h.model : ''));
   }).catch(function(){ $('engine').textContent = 'bağlanılamadı'; });
 
   /* --- ayarlar --- */
