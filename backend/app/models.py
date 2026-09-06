@@ -275,9 +275,122 @@ class Report(Base):
     __tablename__ = "reports"
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
-    contract_id: Mapped[str] = mapped_column(String(32), index=True)
+    contract_id: Mapped[str] = mapped_column(String(32), index=True, default="")
+    # Karşılaştırma raporları için doldurulur; risk raporlarında boş kalır.
+    # İndirme ucu rapor kimliğine bakar, bu alana değil — o yüzden
+    # /api/reports/{id} iki tür için de değişmeden çalışır.
+    comparison_id: Mapped[str] = mapped_column(String(32), index=True, default="")
     fmt: Mapped[str] = mapped_column(String(20), default="DOCX")
     path: Mapped[str] = mapped_column(String(1000), default="")
     filename: Mapped[str] = mapped_column(String(300), default="")
     size_bytes: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+# --------------------------------------------------------------------------- #
+# SÜRÜM KARŞILAŞTIRMA
+#
+# Risk analizinden bağımsız ikinci bir akış: sözleşmenin eski ve yeni hâli
+# karşılaştırılır. Contract/Clause/Finding tabloları bu akışta hiç kullanılmaz;
+# ortak olan yalnızca metin çıkarma ve madde ayrıştırma fonksiyonlarıdır.
+# --------------------------------------------------------------------------- #
+COMPARE_STAGES: list[tuple[str, str, str]] = [
+    ("INGEST",   "Alım",             "İki dosya doğrulanır, SHA-256 özeti alınır"),
+    ("EXTRACT",  "Metin Çıkarma",    "Her iki sürümün metni ve sayfa sınırları"),
+    ("SEGMENT",  "Birim Ayrıştırma", "Maddeler ve kapsanmayan aralıklar birimlere bölünür"),
+    ("ALIGN",    "Eşleştirme",       "Eski ve yeni birimler eşleştirilir"),
+    ("DIFF",     "Fark Çıkarma",     "Eşleşen birimlerde kelime bazında fark"),
+    ("EXPLAIN",  "Açıklama",         "Her önemli değişiklik yorumlanır"),
+    ("REPORT",   "Rapor",            "Değişiklik raporu belgesi"),
+]
+COMPARE_STAGE_KEYS = [s[0] for s in COMPARE_STAGES]
+COMPARE_STAGE_LABEL = {k: (lbl, desc) for k, lbl, desc in COMPARE_STAGES}
+
+# Değişiklik türleri
+CHANGE_TYPES = ("EKLENDI", "SILINDI", "DEGISTI", "TASINDI", "AYNI")
+
+# Taraf etkisi — modelin doldurduğu alan. Model yoksa BELIRSIZ kalır.
+IMPACTS = ("BANKA_LEHINE", "TEDARIKCI_LEHINE", "NOTR", "BELIRSIZ")
+
+
+class Comparison(Base):
+    """Bir karşılaştırma işi: iki dosya, durumu ve özeti."""
+    __tablename__ = "comparisons"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    title: Mapped[str] = mapped_column(String(500), default="")
+
+    old_filename: Mapped[str] = mapped_column(String(500), default="")
+    old_storage_path: Mapped[str] = mapped_column(String(1000), default="")
+    old_sha256: Mapped[str] = mapped_column(String(64), default="")
+    old_size_bytes: Mapped[int] = mapped_column(Integer, default=0)
+
+    new_filename: Mapped[str] = mapped_column(String(500), default="")
+    new_storage_path: Mapped[str] = mapped_column(String(1000), default="")
+    new_sha256: Mapped[str] = mapped_column(String(64), default="")
+    new_size_bytes: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Sunucunun LLM anahtarı yalnızca giriş yapmış kullanıcılara ayrılır —
+    # Contract.model_izinli ile birebir aynı kural (bkz. compare_runner.execute).
+    model_izinli: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    status: Mapped[str] = mapped_column(String(30), default="YUKLENDI", index=True)
+    stage: Mapped[str] = mapped_column(String(30), default="")
+    stage_detail: Mapped[str] = mapped_column(String(300), default="")
+    error: Mapped[str] = mapped_column(Text, default="")
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Bu işi yürüten sürecin açılış kimliği; yeniden başlatmada değişir.
+    owner_id: Mapped[str] = mapped_column(String(32), default="", index=True)
+
+    summary: Mapped[str] = mapped_column(Text, default="")
+    stats_json: Mapped[dict | None] = mapped_column(JSON, default=dict)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, onupdate=utcnow)
+    heartbeat_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    changes: Mapped[list["ClauseChange"]] = relationship(
+        back_populates="comparison", cascade="all, delete-orphan",
+        order_by="ClauseChange.order_index",
+    )
+
+
+class ClauseChange(Base):
+    """Tek bir değişiklik.
+
+    `explanation` alanı boş olan satır 'henüz açıklanmadı' demektir; süreç
+    yarıda kesilirse devam ederken yalnız bu satırlar işlenir. Ayrı bir
+    checkpoint tablosuna gerek yok — verinin kendisi checkpoint.
+    """
+    __tablename__ = "clause_changes"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
+    comparison_id: Mapped[str] = mapped_column(
+        ForeignKey("comparisons.id", ondelete="CASCADE"), index=True
+    )
+
+    change_type: Mapped[str] = mapped_column(String(20), default="DEGISTI", index=True)
+    order_index: Mapped[int] = mapped_column(Integer, default=0, index=True)
+
+    old_number: Mapped[str] = mapped_column(String(40), default="")
+    old_heading: Mapped[str] = mapped_column(String(400), default="")
+    old_text: Mapped[str] = mapped_column(Text, default="")
+    new_number: Mapped[str] = mapped_column(String(40), default="")
+    new_heading: Mapped[str] = mapped_column(String(400), default="")
+    new_text: Mapped[str] = mapped_column(Text, default="")
+
+    similarity: Mapped[float] = mapped_column(Float, default=0.0)
+    # [{op: "equal"|"insert"|"delete", text: "..."}] — kelime bazlı fark
+    word_diff: Mapped[list | None] = mapped_column(JSON, default=list)
+    # Madde mi, kapsanmayan aralıktan türeyen birim mi?
+    is_gap_unit: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Modele gönderilecek kadar önemli mi? (yalnız boşluk/noktalama ise değil)
+    significant: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    explanation: Mapped[str] = mapped_column(Text, default="")
+    impact: Mapped[str] = mapped_column(String(20), default="BELIRSIZ")
+    impact_note: Mapped[str] = mapped_column(Text, default="")
+    explained_by: Mapped[str] = mapped_column(String(20), default="")
+
+    comparison: Mapped[Comparison] = relationship(back_populates="changes")
