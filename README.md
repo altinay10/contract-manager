@@ -49,6 +49,44 @@ Yapılandırılmış çıktı desteği sağlayıcıdan sağlayıcıya değişti�
 imajı Pi'de derlemeniz gerekir (`--build`), 64-bit OS zorunludur ve OCR ayarları
 düşürülmelidir.
 
+### Port ve ağ erişimi
+
+Uygulama konteyner içinde daima 8000'i dinler. Dışarıya hangi adres ve portla
+çıkacağı `.env` dosyasından belirlenir; `docker-compose.yml` değiştirilmez.
+
+| Değişken | Varsayılan | Ne işe yarar |
+|---|---|---|
+| `HOST_PORT` | `8099` | Ana makinede yayınlanacak port |
+| `HOST_BIND` | `127.0.0.1` | Hangi arayüze bağlanacağı |
+
+**Portu değiştirmek:**
+
+```bash
+echo "HOST_PORT=8083" >> .env
+docker compose up -d
+```
+
+`HOST_BIND=127.0.0.1` (varsayılan) uygulamayı yalnızca ana makineye açar;
+dışarıdan erişim ters vekil (nginx) üzerinden olur. Aynı ağdaki cihazlardan
+doğrudan `http://<ip>:<port>` ile erişilsin isteniyorsa:
+
+```bash
+echo "HOST_BIND=0.0.0.0" >> .env
+docker compose up -d
+```
+
+Bunu yapmadan önce **Güvenlik** bölümünü okuyun: uygulama herkese açıktır,
+parola yalnızca sunucunun LLM anahtarını ve ayar ekranını korur.
+
+**Port çakışması.** Seçtiğiniz portun boş olduğunu önce doğrulayın:
+
+```bash
+ss -tlnp | awk 'NR>1{print $4}' | sed 's/.*://' | sort -un | tr '\n' ' '
+```
+
+Liste çıktısında olmayan bir port seçin. Raspberry Pi kurulumunda 80, 3000,
+8080–8082, 8099 ve 9090 bandı başka servisler tarafından kullanılıyor.
+
 ### Yerel geliştirme
 ```bash
 make setup

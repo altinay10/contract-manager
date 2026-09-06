@@ -7,8 +7,11 @@ services:
     container_name: sozlesme-feneri
     restart: unless-stopped
     ports:
-      # Yalniz localhost: uygulamaya ters vekil (nginx) uzerinden erisilir.
-      - "127.0.0.1:${HOST_PORT:-8099}:8000"
+      # HOST_BIND varsayilani 127.0.0.1: uygulamaya ters vekil (nginx) uzerinden
+      # erisilir. Ayni agdaki cihazlardan dogrudan IP:PORT ile erisim isteniyorsa
+      # .env icinde HOST_BIND=0.0.0.0 verilir. Port cakismasi olursa HOST_PORT
+      # degistirilir; ikisi de yalnizca .env'den okunur, bu dosya degismez.
+      - "${HOST_BIND:-127.0.0.1}:${HOST_PORT:-8099}:8000"
     # Not: docker compose, proje dizinindeki .env dosyasını aşağıdaki ${...}
     # ifadeleri için otomatik okur; ayrıca env_file tanımlamaya gerek yoktur.
     environment:
