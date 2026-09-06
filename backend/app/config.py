@@ -74,6 +74,17 @@ class Settings:
     enable_lenses: bool = _env("ENABLE_LENSES", "1") not in ("0", "false", "False")
     enable_rebuttal: bool = _env("ENABLE_REBUTTAL", "1") not in ("0", "false", "False")
 
+    # --- surum karsilastirma ---
+    # Modele gonderilecek azami degisiklik sayisi. Fazlasi sablon aciklamayla
+    # kalir; deterministik fark yine tam gosterilir. 0 = sinirsiz.
+    max_compare_explain: int = _env_int("MAX_COMPARE_EXPLAIN", 30)
+    # Gri bant: benzerligi bu araliktaki ciftler modele "ayni madde mi?" diye
+    # sorulur. Ust sinir compare.SIM_THRESHOLD ile ayni olmali.
+    compare_gray_low: float = float(_env("COMPARE_GRAY_LOW", "0.45"))
+    # Ablasyon anahtarlari (docs/08 §7): her kaldirac tek tek olculebilsin.
+    enable_compare_adjudicate: bool = _env("ENABLE_COMPARE_ADJUDICATE", "1") not in ("0", "false", "False")
+    enable_compare_rebuttal: bool = _env("ENABLE_COMPARE_REBUTTAL", "1") not in ("0", "false", "False")
+
     # --- OCR (taranmış belgeler) ---
     ocr_enabled: bool = _env("OCR_ENABLED", "1") not in ("0", "false", "False")
     ocr_lang: str = _env("OCR_LANG", "tur+eng")

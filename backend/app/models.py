@@ -294,14 +294,18 @@ class Report(Base):
 # karşılaştırılır. Contract/Clause/Finding tabloları bu akışta hiç kullanılmaz;
 # ortak olan yalnızca metin çıkarma ve madde ayrıştırma fonksiyonlarıdır.
 # --------------------------------------------------------------------------- #
+# LLM kaldıraçları ayrı aşamalardır; böylece tek tek açılıp kapatılabilir ve
+# katkıları ölçülebilir (docs/08 §7 ablasyon tablosu).
 COMPARE_STAGES: list[tuple[str, str, str]] = [
-    ("INGEST",   "Alım",             "İki dosya doğrulanır, SHA-256 özeti alınır"),
-    ("EXTRACT",  "Metin Çıkarma",    "Her iki sürümün metni ve sayfa sınırları"),
-    ("SEGMENT",  "Birim Ayrıştırma", "Maddeler ve kapsanmayan aralıklar birimlere bölünür"),
-    ("ALIGN",    "Eşleştirme",       "Eski ve yeni birimler eşleştirilir"),
-    ("DIFF",     "Fark Çıkarma",     "Eşleşen birimlerde kelime bazında fark"),
-    ("EXPLAIN",  "Açıklama",         "Her önemli değişiklik yorumlanır"),
-    ("REPORT",   "Rapor",            "Değişiklik raporu belgesi"),
+    ("INGEST",     "Alım",                 "İki dosya doğrulanır, SHA-256 özeti alınır"),
+    ("EXTRACT",    "Metin Çıkarma",        "Her iki sürümün metni ve sayfa sınırları"),
+    ("SEGMENT",    "Birim Ayrıştırma",     "Maddeler ve kapsanmayan aralıklar birimlere bölünür"),
+    ("ALIGN",      "Eşleştirme",           "Eski ve yeni birimler eşleştirilir"),
+    ("ADJUDICATE", "Belirsiz Eşleştirme",  "Kararsız çiftler modele sorulur; model yoksa atlanır"),
+    ("DIFF",       "Fark Çıkarma",         "Eşleşen birimlerde kelime bazında fark"),
+    ("EXPLAIN",    "Açıklama",             "Her esaslı değişiklik yorumlanır"),
+    ("VERIFY",     "Doğrulama",            "Açıklamanın çapaları gerçek farka karşı denetlenir"),
+    ("REPORT",     "Rapor",                "Değişiklik raporu belgesi"),
 ]
 COMPARE_STAGE_KEYS = [s[0] for s in COMPARE_STAGES]
 COMPARE_STAGE_LABEL = {k: (lbl, desc) for k, lbl, desc in COMPARE_STAGES}
@@ -310,7 +314,11 @@ COMPARE_STAGE_LABEL = {k: (lbl, desc) for k, lbl, desc in COMPARE_STAGES}
 CHANGE_TYPES = ("EKLENDI", "SILINDI", "DEGISTI", "TASINDI", "AYNI")
 
 # Taraf etkisi — modelin doldurduğu alan. Model yoksa BELIRSIZ kalır.
-IMPACTS = ("BANKA_LEHINE", "TEDARIKCI_LEHINE", "NOTR", "BELIRSIZ")
+IMPACTS = ("ALICI_LEHINE", "TEDARIKCI_LEHINE", "NOTR", "BELIRSIZ")
+
+# Değişikliğin ağırlığı. Triyaj geçişinde model belirler; model yoksa
+# deterministik yedek karar verir (farkta sayı/süre/tutar var mı).
+MATERIALITY = ("ESASLI", "KUCUK", "BICIMSEL")
 
 
 class Comparison(Base):
@@ -392,5 +400,18 @@ class ClauseChange(Base):
     impact: Mapped[str] = mapped_column(String(20), default="BELIRSIZ")
     impact_note: Mapped[str] = mapped_column(Text, default="")
     explained_by: Mapped[str] = mapped_column(String(20), default="")
+    # Triyaj geçişinin kararı; yalnız ESASLI olanlar ayrı çağrıyla yorumlanır.
+    materiality: Mapped[str] = mapped_column(String(20), default="")
+    # Modelin açıklamayı desteklemek için verdiği birebir alıntı.
+    quote: Mapped[str] = mapped_column(Text, default="")
+
+    # Çapa doğrulaması: açıklamadaki sayılar ve alıntı gerçek metinde var mı?
+    # Başarısızlık açıklamayı SİLMEZ — kartta deterministik fark zaten duruyor.
+    explanation_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_note: Mapped[str] = mapped_column(Text, default="")
+    # K7 karşı-görüş gerekçesi; yalnız tedarikçi lehine sayılan değişikliklerde.
+    rebuttal: Mapped[str] = mapped_column(Text, default="")
+    # Bu eşleşmeyi hakem geçişi mi kurdu? (gri banttan kurtarılmış çift)
+    adjudicated: Mapped[bool] = mapped_column(Boolean, default=False)
 
     comparison: Mapped[Comparison] = relationship(back_populates="changes")

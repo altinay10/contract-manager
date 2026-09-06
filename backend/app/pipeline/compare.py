@@ -30,6 +30,12 @@ SIM_THRESHOLD = 0.72
 NUMBER_MATCH_MIN_SIM = 0.35
 # Bunun üstünde ve numara değişmişse: taşınmış/yeniden numaralanmış sayılır.
 MOVED_MIN_SIM = 0.95
+# Gri bant alt sınırı. Bu aralıktaki çiftler algoritmaya göre "kararsız"dır:
+# eşleştirmeye yetecek kadar benzer değil, ama yok saymaya da fazla benzer.
+# Hakem verilmezse eşleştirilmezler — yani bugünkü davranış korunur.
+GRAY_LOW = 0.45
+# Hakeme sorulacak azami çift sayısı; maliyet tavanı.
+MAX_ADJUDICATE = 12
 
 _WORD = re.compile(r"\S+\s*")
 _ANLAMLI = re.compile(r"[0-9A-Za-zÇĞİÖŞÜçğıöşü]+")
@@ -44,6 +50,8 @@ class Change:
     word_diff: list[dict] = field(default_factory=list)
     significant: bool = True
     order_index: int = 0
+    # Bu eşleşmeyi hakem geçişi mi kurdu? (gri banttan kurtarılmış çift)
+    adjudicated: bool = False
 
     @property
     def is_gap_unit(self) -> bool:
@@ -166,7 +174,43 @@ def _benzerlik_eslesmeleri(old: list[Unit], new: list[Unit],
     return ciftler
 
 
-def align(old: list[Unit], new: list[Unit]) -> list[Change]:
+def _hakem_eslesmeleri(old: list[Unit], new: list[Unit],
+                       eski_bos: set[int], yeni_bos: set[int],
+                       adjudicator) -> list[tuple[int, int]]:
+    """Gri banttaki çiftleri hakeme sorar.
+
+    Hakem ne derse desin KAPSAMA BOZULMAZ: eşleşme kurulmazsa iki birim de
+    "silindi" ve "eklendi" olarak ayrı ayrı görünür. Hakem yalnızca iki kartı
+    tek karta birleştirebilir; bir birimi ortadan kaldıramaz.
+    """
+    adaylar = []
+    for i in sorted(eski_bos):
+        en_iyi = None
+        for j in sorted(yeni_bos):
+            s = similarity(old[i].text, new[j].text)
+            if GRAY_LOW <= s < SIM_THRESHOLD and (en_iyi is None or s > en_iyi[0]):
+                en_iyi = (s, j)
+        if en_iyi is not None:
+            adaylar.append((en_iyi[0], i, en_iyi[1]))
+    adaylar.sort(key=lambda t: (-t[0], t[1], t[2]))
+
+    ciftler, kullanilan_i, kullanilan_j = [], set(), set()
+    for s, i, j in adaylar[:MAX_ADJUDICATE]:
+        if i in kullanilan_i or j in kullanilan_j:
+            continue
+        try:
+            ayni = adjudicator(old[i], new[j], s)
+        except Exception:
+            # Hakem çökerse eşleştirme yapılmaz — güvenli yön budur.
+            continue
+        if ayni:
+            ciftler.append((i, j))
+            kullanilan_i.add(i)
+            kullanilan_j.add(j)
+    return ciftler
+
+
+def align(old: list[Unit], new: list[Unit], adjudicator=None) -> list[Change]:
     """İki sürümün birimlerini eşleştirip değişiklik listesi üretir.
 
     Her eski birim ve her yeni birim çıktıda TAM OLARAK BİR kez görünür.
@@ -176,6 +220,16 @@ def align(old: list[Unit], new: list[Unit]) -> list[Change]:
     eski_bos = set(range(len(old))) - {i for i, _ in ciftler}
     yeni_bos = set(range(len(new))) - {j for _, j in ciftler}
     ciftler += _benzerlik_eslesmeleri(old, new, eski_bos, yeni_bos)
+
+    # Hakem geçişi: kalan gri bant çiftleri modele sorulur. Hakem verilmezse
+    # bu adım atlanır ve algoritma tamamen deterministik kalır.
+    hakem_ciftleri: set[tuple[int, int]] = set()
+    if adjudicator is not None:
+        eski_bos = set(range(len(old))) - {i for i, _ in ciftler}
+        yeni_bos = set(range(len(new))) - {j for _, j in ciftler}
+        yeni_ciftler = _hakem_eslesmeleri(old, new, eski_bos, yeni_bos, adjudicator)
+        hakem_ciftleri = set(yeni_ciftler)
+        ciftler += yeni_ciftler
 
     eslesen_i = {i for i, _ in ciftler}
     eslesen_j = {j for _, j in ciftler}
@@ -197,6 +251,7 @@ def align(old: list[Unit], new: list[Unit]) -> list[Change]:
         degisiklikler.append((float(j), Change(
             change_type=tur, old=eu, new=nu, similarity=s,
             word_diff=d if tur != "AYNI" else [], significant=anlamli,
+            adjudicated=(i, j) in hakem_ciftleri,
         )))
 
     # Eşleşmeyen yeni birimler: eklendi
