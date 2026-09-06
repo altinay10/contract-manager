@@ -143,7 +143,7 @@ DOM kimlikleri ayrı (`cmp*`); mevcut `poll()` ve ilerleme kodu değişmez.
 ## Uygulama çizelgesi
 
 - [x] **1. Veri modeli** — `Comparison`, `ClauseChange`, `Report.comparison_id`, `ensure_schema`
-- [ ] **2. Kapsama katmanı** — `pipeline/coverage.py` + %100 kapsam testleri
+- [x] **2. Kapsama katmanı** — `pipeline/coverage.py` + %100 kapsam testleri
 - [ ] **3. Eşleştirme ve fark** — `pipeline/compare.py` + testler
 - [ ] **4. Açıklama katmanı** — `pipeline/compare_explain.py` (LLM + kural fallback)
 - [ ] **5. Koşucu** — `compare_runner.py` (aşamalar, iş parçacığı, ilerleme, iptal)
