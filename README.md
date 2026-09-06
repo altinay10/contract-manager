@@ -78,6 +78,21 @@ docker compose up -d
 Bunu yapmadan önce **Güvenlik** bölümünü okuyun: uygulama herkese açıktır,
 parola yalnızca sunucunun LLM anahtarını ve ayar ekranını korur.
 
+**Raspberry Pi kurulumunda yayın adresleri:**
+
+| Adres | Nasıl çalışır |
+|---|---|
+| `http://contract.raspberrypi5.local` | mDNS (avahi) → nginx → 8083 |
+| `http://contract.rasp.local` | aynısı, kısa ad |
+| `http://192.168.1.100:8083` | doğrudan konteyner, aynı ağdaki her cihazdan |
+
+Yeni bir `.local` adı eklemek için bu kurulumda `avahi-publish`'i saran systemd
+şablonu kullanılır (`/etc/avahi/hosts` değil):
+
+```bash
+systemctl enable --now mdns-alias@yeniad.raspberrypi5.local.service
+```
+
 **Port çakışması.** Seçtiğiniz portun boş olduğunu önce doğrulayın:
 
 ```bash
