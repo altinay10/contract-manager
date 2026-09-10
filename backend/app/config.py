@@ -80,6 +80,11 @@ class Settings:
     session_secret: str = _env("SESSION_SECRET", "")
     session_hours: int = _env_int("SESSION_HOURS", 12)
     cookie_secure: bool = _env("COOKIE_SECURE", "0") not in ("0", "false", "False")
+    # Swagger arayüzü ve OpenAPI şeması. Varsayılan KAPALI: uygulama açık ağa
+    # konulduğunda tüm uç listesini ve gövde şemalarını dışarı verirler.
+    # Geliştirirken EXPOSE_DOCS=1 ile açılır. AUTH_ENABLED'a bağlanmaz — o,
+    # "üretimdeyim" göstergesi değil, yerel geliştirme anahtarıdır.
+    expose_docs: bool = _env("EXPOSE_DOCS", "0") not in ("0", "false", "False")
 
     # --- limitler ---
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 40)

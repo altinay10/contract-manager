@@ -78,7 +78,15 @@ async def lifespan(_: FastAPI):
         runner.stop_sweeper()
 
 
-app = FastAPI(title="Sozlesme Feneri", version="1.0.0", lifespan=lifespan)
+app = FastAPI(
+    title="Sözleşme Feneri",
+    version="1.0.0",
+    lifespan=lifespan,
+    # Belgeler varsayılan olarak kapalıdır; bkz. Settings.expose_docs.
+    docs_url="/docs" if settings.expose_docs else None,
+    redoc_url="/redoc" if settings.expose_docs else None,
+    openapi_url="/openapi.json" if settings.expose_docs else None,
+)
 
 
 def _safe_name(name: str) -> str:
@@ -462,22 +470,36 @@ def progress(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 
 
 @app.post("/api/contracts/{contract_id}/resume")
-def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(auth.optional_user)) -> dict:
+def resume(contract_id: str, request: Request, reanalyze: bool = False,
+           kullanici: str = Depends(auth.optional_user)) -> dict:
     """Yarım kalan analizi kaldığı yerden devam ettirir.
 
     Tamamlanmış bir analiz için varsayılan olarak HİÇBİR ŞEY YAPMAZ: baştan
     çalıştırmak mevcut rapor bağlantılarını geçersiz kılar ve boşuna model
     maliyeti doğurur. Yeniden analiz isteniyorsa `?reanalyze=true` gerekir.
+
+    Model izni İSTEĞİ YAPANA bakılarak verilir. Bu uç `runner.execute`'u
+    tetikler, o da sağlayıcıyı satırdaki `model_izinli` bayrağından seçer —
+    yani korumasız bırakılırsa parolasız bir istek, giriş yapmış birinin
+    yüklediği sözleşmeyi sunucunun anahtarıyla yeniden koşturabilir. Bütçe her
+    koşuda sıfırlandığı için bu sınırsız tekrarlanabilir.
     """
     with session_scope() as s:
-        if s.get(Contract, contract_id) is None:
+        sozlesme = s.get(Contract, contract_id)
+        if sozlesme is None:
             raise HTTPException(404, "Sözleşme bulunamadı")
+        model_izinli = sozlesme.model_izinli
         run = s.scalar(
             select(AnalysisRun)
             .where(AnalysisRun.contract_id == contract_id)
             .order_by(AnalysisRun.started_at.desc())
         )
         durum = run.status if run else ""
+
+    if model_izinli and not kullanici:
+        audit.kaydet(request, "", "RESUME_BLOCKED", "contract", contract_id,
+                     "oturumsuz istek, sözleşme model izinli")
+        raise HTTPException(401, "Bu analizi yeniden çalıştırmak için giriş yapmanız gerekiyor")
 
     if runner.is_running(contract_id):
         return {"started": False, "reason": "Analiz zaten çalışıyor"}
@@ -486,6 +508,8 @@ def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(a
                 "reason": "Analiz zaten tamamlanmış. Yeniden çalıştırmak için "
                           "reanalyze=true gönderin."}
 
+    audit.kaydet(request, kullanici, "ANALYSIS_RESUMED", "contract", contract_id,
+                 "yeniden analiz" if durum == "DONE" else f"devam ({durum or 'yeni'})")
     runner.start(contract_id)
     return {"started": True, "reanalyzed": durum == "DONE"}
 

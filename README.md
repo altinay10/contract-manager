@@ -175,7 +175,17 @@ Konteyner üzerinde ayrıca uçtan uca kabul testi yapılmıştır (22/22).
 
 ## Güvenlik
 
-Tüm API uçları **parola ile korunur**; yalnızca giriş ve `/api/health` açıktır.
+Uygulama **herkese açıktır**; parola sunucunun LLM anahtarını ve ayar ekranını
+korur. Yükleme, listeleme, ilerleme, bulgular ve rapor indirme parolasız
+çalışır; `/api/settings` uçları, `/api/audit` ve `/api/password` korumalıdır.
+
+Sözleşmeler `model_izinli` bayrağı taşır: parolasız yüklenenler kural katmanıyla,
+giriş yapılarak yüklenenler LLM ile analiz edilir. Bu bayrak analizi **başlatan
+her yolda** uygulanır — `POST /api/contracts/{id}/resume` de dâhil. O uç
+korumasız bırakılırsa, sağlayıcıyı isteği yapandan değil satırdaki bayraktan
+seçtiği için parolasız bir istek başkasının anahtarıyla analizi sınırsız kez
+yeniden koşturabilir; bütçe her koşuda sıfırlanır.
+
 Parola `scrypt` ile karmalanır, oturum çerezi HMAC ile imzalanır, giriş denemeleri
 sınırlanır. Parola tanımlı değilse uygulama açık kalmaz — rastgele parola üretilip
 loga yazılır.
@@ -184,7 +194,12 @@ loga yazılır.
 APP_PASSWORD=güçlü-bir-parola
 SESSION_SECRET=rastgele-uzun-dize
 COOKIE_SECURE=1        # HTTPS arkasındaysanız
+EXPOSE_DOCS=0          # /docs ve /openapi.json kapalı (varsayılan)
 ```
+
+**Kapsam dışı:** sözleşme başına sahiplik denetimi yok; parolasız kullanıcılar
+geçmiş analizleri görebilir. Tehdit modeli güvenilir LAN — uygulama açık ağa
+konulacaksa önüne kimlik doğrulayan bir katman (ör. Cloudflare Access) gerekir.
 
 Her önemli işlem **denetim izine** yazılır (`GET /api/audit`): giriş/çıkış, başarısız
 giriş, yükleme, rapor indirme, ayar değişikliği, iptal. API anahtarı denetim izine yazılmaz.

@@ -112,6 +112,81 @@ def test_parolali_yukleme_sunucu_anahtarini_kullanabilir(korumali_istemci):
         assert c.model_izinli is True, "giris yapmis kullanici modele erisemiyor"
 
 
+def test_parolasiz_yeniden_analiz_sunucu_anahtarini_yakamaz(korumali_istemci):
+    """Parolasiz istek, giris yapilarak yuklenmis bir sozlesmeyi yeniden kosturamaz.
+
+    Gercek acik: /api/contracts tum kimlikleri herkese veriyor, resume ucu ise
+    saglayiciyi istegi yapandan degil satirdaki `model_izinli` bayragindan
+    seciyordu. Ikisi birlesince disaridan biri, sunucunun LLM anahtariyla
+    analizi sinirsiz kez yeniden baslatabiliyordu (butce her kosuda sifirlanir).
+    """
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="gizli", filename="gizli.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()          # oturumsuz istemci
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume", params={"reanalyze": "true"})
+    assert r.status_code == 401, (
+        f"parolasiz yeniden analiz kabul edildi ({r.status_code}) - "
+        "sunucunun anahtari disaridan harcanabilir"
+    )
+
+    # Ayni koruma, tamamlanmamis analizin parolasiz devam ettirilmesinde de gecerli:
+    # o kosu da sunucunun anahtarini kullanir.
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume")
+    assert r.status_code == 401, "parolasiz devam ettirme sunucu anahtarina erisiyor"
+
+
+def test_giris_yapan_kullanici_yeniden_analiz_edebilir(korumali_istemci):
+    """Koruma sahibini disarida birakmamali."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="sahibinin", filename="sahibinin.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume", params={"reanalyze": "true"})
+    assert r.status_code != 401, "giris yapmis kullanici kendi analizini yeniden calistiramiyor"
+
+
+def test_parolasiz_yuklenen_sozlesme_parolasiz_devam_edebilir(korumali_istemci):
+    """Uygulama herkese acik kalir: kural katmaniyla kosan analiz kilitlenmez."""
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("z.txt", b"deneme metni " * 40)})
+    assert r.status_code < 400
+    cid = r.json()["contract_id"]
+
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume")
+    assert r.status_code != 401, (
+        "model_izinli olmayan sozlesme parola istiyor - acik kullanim kirildi"
+    )
+
+
+def test_belgeler_varsayilan_olarak_kapali():
+    """Swagger ve OpenAPI semasi acik agda ucm listesini disari verir.
+
+    EXPOSE_DOCS bilincli olarak AUTH_ENABLED'a baglanmaz: o, "uretimdeyim"
+    gostergesi degil yerel gelistirme anahtaridir.
+    """
+    from app.config import settings as ayar
+
+    assert ayar.expose_docs is False, "EXPOSE_DOCS varsayilani acik"
+    assert app.docs_url is None, "/docs acik"
+    assert app.redoc_url is None, "/redoc acik"
+    assert app.openapi_url is None, "/openapi.json acik"
+
+
 def test_model_listesi_anahtari_sorgu_dizesinde_kabul_etmez(korumali_istemci):
     """API anahtari GET sorgu dizesinde gitmemeli.
 
