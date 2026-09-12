@@ -62,7 +62,8 @@ def ensure_schema() -> None:
         "analysis_runs": {"owner_id": "VARCHAR(32) DEFAULT ''",
                           "cancel_requested": "BOOLEAN DEFAULT 0"},
         "findings": {"quote_is_evidence": "BOOLEAN DEFAULT 1"},
-        "contracts": {"model_izinli": "BOOLEAN DEFAULT 0"},
+        "contracts": {"model_izinli": "BOOLEAN DEFAULT 0",
+                      "silindi_at": "DATETIME"},
     }
     insp = inspect(engine)
     with engine.begin() as conn:
