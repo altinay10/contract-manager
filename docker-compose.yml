@@ -57,6 +57,8 @@ services:
       ITEM_MAX_ATTEMPTS: "${ITEM_MAX_ATTEMPTS:-2}"
       ORPHAN_AFTER_SECONDS: "${ORPHAN_AFTER_SECONDS:-90}"
       MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-40}"
+      # Parolasız yükleme hızı (IP/saat). 0 = sınırsız.
+      UPLOAD_LIMIT_PER_HOUR: "${UPLOAD_LIMIT_PER_HOUR:-20}"
       # Saklama süresi. 0 = KAPALI. Pozitifse eski sözleşmeler silinmiş
       # olarak İŞARETLENİR; veri düşürülmez, geri alınabilir.
       RETENTION_DAYS: "${RETENTION_DAYS:-0}"
