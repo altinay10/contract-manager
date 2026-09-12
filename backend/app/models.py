@@ -83,6 +83,14 @@ class Contract(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, onupdate=utcnow)
 
+    # Silme YUMUSAKTIR: damga konur, satir durur. Listeler ve bulgu/rapor
+    # uclari silinmis sozlesmeyi gostermez ama hicbir veri kaybolmaz ve islem
+    # /api/contracts/{id}/restore ile geri alinabilir. Kalici silme bilincli
+    # olarak uygulanmadi: buradaki reports/llm_calls/work_items tablolarinin
+    # contract_id'si yabanci anahtar DEGIL, yani satirin dusurulmesi onlari
+    # sessizce oksuz birakir.
+    silindi_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
+
     clauses: Mapped[list["Clause"]] = relationship(back_populates="contract", cascade="all, delete-orphan")
     findings: Mapped[list["Finding"]] = relationship(back_populates="contract", cascade="all, delete-orphan")
     runs: Mapped[list["AnalysisRun"]] = relationship(back_populates="contract", cascade="all, delete-orphan")

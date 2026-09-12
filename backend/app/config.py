@@ -99,10 +99,27 @@ class Settings:
     session_secret: str = _env("SESSION_SECRET", "")
     session_hours: int = _env_int("SESSION_HOURS", 12)
     cookie_secure: bool = _env("COOKIE_SECURE", "0") not in ("0", "false", "False")
+    # Swagger arayüzü ve OpenAPI şeması. Varsayılan KAPALI: uygulama açık ağa
+    # konulduğunda tüm uç listesini ve gövde şemalarını dışarı verirler.
+    # Geliştirirken EXPOSE_DOCS=1 ile açılır. AUTH_ENABLED'a bağlanmaz — o,
+    # "üretimdeyim" göstergesi değil, yerel geliştirme anahtarıdır.
+    expose_docs: bool = _env("EXPOSE_DOCS", "0") not in ("0", "false", "False")
 
     # --- limitler ---
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 40)
     llm_concurrency: int = _env_int("LLM_CONCURRENCY", 4)
+    # Parolasiz yukleme hizi (IP basina / saat). Uygulama herkese acik oldugu
+    # icin yukleme ucu da aciktir; Raspberry Pi'de OCR pahalidir ve sinirsiz
+    # yukleme diski doldurup islemciyi kilitler. 0 = sinirsiz.
+    # Giris yapmis kullanici bu sinira takilmaz.
+    upload_limit_per_hour: int = _env_int("UPLOAD_LIMIT_PER_HOUR", 20)
+
+    # --- saklama suresi ---
+    # 0 = KAPALI (varsayilan). Pozitif verilirse, bu yastan eski sozlesmeler
+    # periyodik tarayici tarafindan SILINMIS OLARAK ISARETLENIR. Hicbir satir
+    # veritabanindan dusulmez, hicbir dosya diskten kaldirilmaz; islem
+    # /api/contracts/{id}/restore ile geri alinabilir.
+    retention_days: int = _env_int("RETENTION_DAYS", 0)
 
     def ensure_dirs(self) -> None:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
