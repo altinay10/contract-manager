@@ -562,7 +562,15 @@ def cancel(contract_id: str, request: Request,
     """Analizi iptal eder. İşlem bir sonraki güvenli noktada durur;
     o ana kadar tamamlanmış aşamalar korunur ve devam ettirilebilir."""
     with session_scope() as s:
-        _silinmemis(s, contract_id)
+        model_izinli = _silinmemis(s, contract_id).model_izinli
+
+    # Sunucunun anahtariyla kosan analizi yalnizca giris yapmis kullanici
+    # durdurabilir; aksi halde disaridan biri baskasinin analizini kesebilir.
+    if model_izinli and not kullanici:
+        audit.kaydet(request, "", "CANCEL_BLOCKED", "contract", contract_id,
+                     "oturumsuz istek, sözleşme model izinli")
+        raise HTTPException(401, "Bu analizi durdurmak için giriş yapmanız gerekiyor")
+
     ok = runner.cancel(contract_id)
     audit.kaydet(request, kullanici, "ANALYSIS_CANCELLED", "contract", contract_id)
     return {"cancelled": ok,

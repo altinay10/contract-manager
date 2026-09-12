@@ -194,6 +194,23 @@ def test_silme_ve_geri_alma_parola_ister(korumali_istemci):
         assert s.get(Contract, cid).silindi_at is None, "parolasiz istek sozlesmeyi sildi"
 
 
+def test_parolasiz_iptal_sunucu_analizini_kesemez(korumali_istemci):
+    """Model izinli bir analizi disaridan biri durduramamali."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="model izinli", filename="mi.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()
+    r = korumali_istemci.post(f"/api/contracts/{cid}/cancel")
+    assert r.status_code == 401, f"parolasiz iptal kabul edildi ({r.status_code})"
+
+
 def test_parolasiz_yukleme_frenlenir(korumali_istemci, monkeypatch):
     """Acik agda sinirsiz yukleme diski doldurur ve islemciyi kilitler."""
     from app import ratelimit
