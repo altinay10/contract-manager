@@ -22,7 +22,7 @@ from .config import settings
 from .db import engine, ensure_schema, session_scope
 from .llm.provider import active_model, get_provider
 from .models import AnalysisRun, Base, Contract, Finding, LLMCall, Report, utcnow
-from . import audit, auth
+from . import audit, auth, ratelimit
 from . import runtime_settings as rt
 from .llm import provider as prov
 from .pipeline import ocr as ocr_mod
@@ -110,6 +110,29 @@ def _silinmemis(s, contract_id: str) -> Contract:
     if c is None or c.silindi_at is not None:
         raise HTTPException(404, "Sözleşme bulunamadı")
     return c
+
+
+def _yukleme_freni(request: Request, kullanici: str) -> None:
+    """Parolasız yüklemeyi IP başına frenler.
+
+    Uygulama herkese açık olduğu için yükleme ucu da açıktır. Açık ağa konulan
+    bir Raspberry Pi'de sınırsız yükleme diski doldurur ve 300 dpi OCR
+    işlemciyi kilitler. Giriş yapmış kullanıcı frene takılmaz.
+    """
+    if kullanici:
+        return
+    ip = (request.client.host if request.client else "?")
+    if not ratelimit.izin_var(f"upload:{ip}", settings.upload_limit_per_hour):
+        # Denetim izine IP basina pencerede YALNIZCA BIR KEZ yazilir. Her
+        # reddedilen istek bir satir yazarsa, fren bu kez denetim tablosunu
+        # sisiren bir yol olur — engellediginin aynisi.
+        if ratelimit.izin_var(f"upload-denetim:{ip}", 1):
+            audit.kaydet(request, "", "UPLOAD_THROTTLED",
+                         detay=f"saatlik yükleme sınırı aşıldı ({ip})")
+        else:
+            log.warning("Yükleme freni: %s", ip)
+        raise HTTPException(429, "Saatlik yükleme sınırına ulaştınız. "
+                                 "Daha sonra deneyin veya giriş yapın.")
 
 
 # --------------------------------------------------------------------------- #
@@ -400,6 +423,8 @@ async def upload(
     is_outsourcing: bool = Form(False),
     kullanici: str = Depends(auth.optional_user),
 ) -> JSONResponse:
+    _yukleme_freni(request, kullanici)
+
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_SUFFIX:
         raise HTTPException(400, f"Desteklenmeyen dosya türü: {suffix or '(yok)'}. PDF, DOCX veya TXT yükleyin.")
@@ -447,6 +472,8 @@ def demo(request: Request,
     Elinde sozlesme olmayan bir kullanicinin sistemi denemesi icin; ayrica
     kurulum sonrasi duman testi olarak da kullanilir.
     """
+    _yukleme_freni(request, kullanici)
+
     src = SAMPLE_DIR / "ornek-saas-sozlesmesi.txt"
     if not src.exists():
         raise HTTPException(404, "Örnek sözleşme bulunamadı")

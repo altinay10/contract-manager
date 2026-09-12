@@ -194,6 +194,64 @@ def test_silme_ve_geri_alma_parola_ister(korumali_istemci):
         assert s.get(Contract, cid).silindi_at is None, "parolasiz istek sozlesmeyi sildi"
 
 
+def test_parolasiz_yukleme_frenlenir(korumali_istemci, monkeypatch):
+    """Acik agda sinirsiz yukleme diski doldurur ve islemciyi kilitler."""
+    from app import ratelimit
+
+    monkeypatch.setattr(cfg, "upload_limit_per_hour", 2)
+    ratelimit.sifirla()
+    korumali_istemci.cookies.clear()
+
+    for i in range(2):
+        r = korumali_istemci.post("/api/contracts",
+                                  files={"file": (f"f{i}.txt", b"deneme metni " * 40)})
+        assert r.status_code < 400, f"{i}. yukleme reddedildi ({r.status_code})"
+
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("f3.txt", b"deneme metni " * 40)})
+    assert r.status_code == 429, f"yukleme freni calismadi ({r.status_code})"
+
+    # Giris yapan kullanici frene takilmaz.
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("f4.txt", b"deneme metni " * 40)})
+    assert r.status_code < 400, "giris yapmis kullanici frene takildi"
+    ratelimit.sifirla()
+
+
+def test_fren_denetim_izini_sismez(korumali_istemci, monkeypatch):
+    """Reddedilen her istek denetim satiri yazarsa, fren yeni bir kacak olur."""
+    from app import ratelimit
+
+    def fren_satiri_sayisi() -> int:
+        # Denetim izi modul boyunca birikir; bu testten ONCE yazilmis satirlari
+        # saymamak icin fark alinir.
+        kayitlar = korumali_istemci.get("/api/audit",
+                                        params={"limit": 1000}).json()["entries"]
+        return sum(1 for e in kayitlar if e["action"] == "UPLOAD_THROTTLED")
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    once = fren_satiri_sayisi()
+
+    monkeypatch.setattr(cfg, "upload_limit_per_hour", 1)
+    ratelimit.sifirla()
+    korumali_istemci.cookies.clear()
+
+    korumali_istemci.post("/api/contracts", files={"file": ("g0.txt", b"metin " * 40)})
+    for i in range(6):
+        r = korumali_istemci.post("/api/contracts",
+                                  files={"file": (f"g{i+1}.txt", b"metin " * 40)})
+        assert r.status_code == 429, f"{i}. istek frene takilmadi"
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    yeni_satir = fren_satiri_sayisi() - once
+    assert yeni_satir == 1, (
+        f"alti reddedilen istek {yeni_satir} denetim satiri yazdi; "
+        "pencere basina bir tane olmali"
+    )
+    ratelimit.sifirla()
+
+
 def test_belgeler_varsayilan_olarak_kapali():
     """Swagger ve OpenAPI semasi acik agda ucm listesini disari verir.
 

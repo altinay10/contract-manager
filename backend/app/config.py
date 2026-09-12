@@ -89,6 +89,12 @@ class Settings:
     # --- limitler ---
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 40)
     llm_concurrency: int = _env_int("LLM_CONCURRENCY", 4)
+    # Parolasiz yukleme hizi (IP basina / saat). Uygulama herkese acik oldugu
+    # icin yukleme ucu da aciktir; Raspberry Pi'de OCR pahalidir ve sinirsiz
+    # yukleme diski doldurup islemciyi kilitler. 0 = sinirsiz.
+    # Giris yapmis kullanici bu sinira takilmaz.
+    upload_limit_per_hour: int = _env_int("UPLOAD_LIMIT_PER_HOUR", 20)
+
     # --- saklama suresi ---
     # 0 = KAPALI (varsayilan). Pozitif verilirse, bu yastan eski sozlesmeler
     # periyodik tarayici tarafindan SILINMIS OLARAK ISARETLENIR. Hicbir satir
