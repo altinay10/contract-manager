@@ -57,6 +57,9 @@ services:
       ITEM_MAX_ATTEMPTS: "${ITEM_MAX_ATTEMPTS:-2}"
       ORPHAN_AFTER_SECONDS: "${ORPHAN_AFTER_SECONDS:-90}"
       MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-40}"
+      # Saklama süresi. 0 = KAPALI. Pozitifse eski sözleşmeler silinmiş
+      # olarak İŞARETLENİR; veri düşürülmez, geri alınabilir.
+      RETENTION_DAYS: "${RETENTION_DAYS:-0}"
     # Küçük donanımda (Raspberry Pi) konteynerin belleği tüketmesini engeller.
     mem_limit: ${MEM_LIMIT:-1500m}
     logging:

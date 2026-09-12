@@ -173,6 +173,27 @@ def test_parolasiz_yuklenen_sozlesme_parolasiz_devam_edebilir(korumali_istemci):
     )
 
 
+def test_silme_ve_geri_alma_parola_ister(korumali_istemci):
+    """Silme ve geri alma korumali olmali; parolasiz istek veriye dokunamaz."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="silinecek", filename="silinecek.txt", contract_type="SAAS")
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()
+    assert korumali_istemci.delete(f"/api/contracts/{cid}").status_code == 401
+    assert korumali_istemci.post(f"/api/contracts/{cid}/restore").status_code == 401
+    assert korumali_istemci.get("/api/contracts/silinmisler").status_code == 401
+
+    # Damga konmamis olmali: parolasiz istek hicbir sey degistirmedi.
+    with session_scope() as s:
+        assert s.get(Contract, cid).silindi_at is None, "parolasiz istek sozlesmeyi sildi"
+
+
 def test_belgeler_varsayilan_olarak_kapali():
     """Swagger ve OpenAPI semasi acik agda ucm listesini disari verir.
 

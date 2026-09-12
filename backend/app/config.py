@@ -89,6 +89,12 @@ class Settings:
     # --- limitler ---
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 40)
     llm_concurrency: int = _env_int("LLM_CONCURRENCY", 4)
+    # --- saklama suresi ---
+    # 0 = KAPALI (varsayilan). Pozitif verilirse, bu yastan eski sozlesmeler
+    # periyodik tarayici tarafindan SILINMIS OLARAK ISARETLENIR. Hicbir satir
+    # veritabanindan dusulmez, hicbir dosya diskten kaldirilmaz; islem
+    # /api/contracts/{id}/restore ile geri alinabilir.
+    retention_days: int = _env_int("RETENTION_DAYS", 0)
 
     def ensure_dirs(self) -> None:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
