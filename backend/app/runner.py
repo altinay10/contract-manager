@@ -1139,6 +1139,50 @@ def recover_orphans(start_work: bool = True) -> int:
     return resumed
 
 
+def apply_retention() -> int:
+    """Saklama suresi gecen sozlesmeleri SILINMIS olarak isaretler.
+
+    RETENTION_DAYS=0 (varsayilan) ise hicbir sey yapmaz.
+
+    Isaretleme YUMUSAKTIR ve bilincli olarak oyledir: hicbir satir
+    veritabanindan dusurulmez, hicbir dosya diskten kaldirilmaz. Yalnizca
+    `silindi_at` damgasi konur; sozlesme listelerden ve bulgu/rapor uclarindan
+    kaybolur, ama `POST /api/contracts/{id}/restore` ile geri alinabilir.
+    Otomatik bir islemin geri donusu olmayan silme yapmasi istenmez.
+
+    Karsilastirma Python tarafinda yapilir: `created_at` SQLite'ta saat dilimsiz
+    saklanir, tz-farkindali bir siniri dogrudan SQL'e bindirmek sessiz yanlis
+    sonuc verir (bkz. recover_orphans'taki ayni normalizasyon).
+    """
+    gun = settings.retention_days
+    if gun <= 0:
+        return 0
+    simdi = datetime.now(timezone.utc)
+    cutoff = simdi - timedelta(days=gun)
+    isaretlenen = 0
+    with session_scope() as s:
+        rows = list(s.scalars(select(Contract).where(Contract.silindi_at.is_(None))))
+        for c in rows:
+            olusma = c.created_at
+            if olusma is None:
+                continue
+            if olusma.tzinfo is None:
+                olusma = olusma.replace(tzinfo=timezone.utc)
+            if olusma > cutoff:
+                continue
+            if is_running(c.id):
+                continue            # suren analiz yarida kesilmesin
+            c.silindi_at = simdi
+            isaretlenen += 1
+        if isaretlenen:
+            s.commit()
+            log.info(
+                "Saklama suresi (%d gun): %d sozlesme silinmis olarak isaretlendi "
+                "(veri silinmedi, geri alinabilir)", gun, isaretlenen,
+            )
+    return isaretlenen
+
+
 def start_sweeper() -> None:
     """Periyodik oksuz tarayici.
 
@@ -1162,6 +1206,10 @@ def start_sweeper() -> None:
                 recover_orphans()
             except Exception:
                 log.exception("Öksüz tarayıcı hatası")
+            try:
+                apply_retention()
+            except Exception:
+                log.exception("Saklama süresi taraması hatası")
 
     _sweeper = threading.Thread(target=_dongu, name="oksuz-tarayici", daemon=True)
     _sweeper.start()
@@ -1178,7 +1226,10 @@ def progress(contract_id: str) -> dict:
 
     with read_session() as s:
         contract = s.get(Contract, contract_id)
-        if contract is None:
+        # Silinmis sozlesme yok gibi davranir. Denetim BURADA yapilir: bu uc
+        # arayuz tarafindan saniyede bir yoklanir, main.py'de ayri bir oturum
+        # acmak ayni SQLite dosyasinda bosuna kilit cakismasi uretirdi.
+        if contract is None or contract.silindi_at is not None:
             return {}
         run = s.scalar(
             select(AnalysisRun)
