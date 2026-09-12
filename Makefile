@@ -1,7 +1,7 @@
 VENV := .venv/bin
 PORT ?= 8099
 
-.PHONY: help setup dev test demo demo-model sample-pdf docker-build docker-up docker-down clean
+.PHONY: help setup dev test demo demo-model sample-pdf docker-build docker-test docker-up docker-down clean
 
 help:
 	@echo "make setup        - sanal ortam + bağımlılıklar"
@@ -11,6 +11,7 @@ help:
 	@echo "make demo-model   - modelli deneme, sıkı bütçeyle"
 	@echo "make sample-pdf   - örnek PDF'i yeniden üret"
 	@echo "make docker-build - konteyner imajını üret"
+	@echo "make docker-test  - testleri konteynerde çalıştır (host'ta venv gerekmez)"
 	@echo "make docker-up    - konteyneri başlat"
 	@echo "make docker-down  - konteyneri durdur"
 	@echo "make clean        - veritabanı ve üretilen dosyaları sil"
@@ -42,6 +43,13 @@ demo-model:
 
 docker-build:
 	docker compose build
+
+# Testleri konteynerde koşturur. Raspberry Pi'de host'ta Python sanal ortamı
+# yok; `make test` orada çalışmaz. Bu hedef Dockerfile'ın `test` aşamasını
+# hedefler — pytest ve test paketleri üretim imajına girmez.
+docker-test:
+	docker build -f backend/Dockerfile --target test -t sozlesme-feneri:test .
+	docker run --rm sozlesme-feneri:test
 
 docker-up:
 	docker compose up -d

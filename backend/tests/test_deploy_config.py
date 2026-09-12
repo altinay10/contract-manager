@@ -13,6 +13,7 @@ from pathlib import Path
 KOK = Path(__file__).resolve().parent.parent.parent
 COMPOSE = KOK / "docker-compose.yml"
 ORNEK_ENV = KOK / ".env.example"
+DOCKERFILE = KOK / "backend" / "Dockerfile"
 
 
 def _compose_ortam_degiskenleri() -> dict[str, str]:
@@ -67,3 +68,30 @@ def test_swagger_bayragi_dagitimda_kapali():
     assert ortam["EXPOSE_DOCS"] == "${EXPOSE_DOCS:-0}", (
         f"EXPOSE_DOCS varsayilani kapali degil: {ortam['EXPOSE_DOCS']}"
     )
+
+
+def test_compose_uretim_asamasini_hedefler():
+    """Dockerfile cok asamali: hedef verilmezse Docker EN SON asamayi uretir.
+
+    Son asama `test` — pytest ve test paketlerini kurar. `target: runtime`
+    dusurulurse uretim imajina test bagimliliklari girer ve imaj buyur.
+    """
+    metin = COMPOSE.read_text(encoding="utf-8")
+    assert "target: runtime" in metin, (
+        "compose build hedefi yok; uretim imajina test asamasi girer"
+    )
+
+
+def test_dockerfile_test_asamasi_uretimden_ayri():
+    """pytest yalnizca test asamasinda kurulmali."""
+    if not DOCKERFILE.exists():          # test konteynerinde Dockerfile yok
+        import pytest
+        pytest.skip("Dockerfile bu baglamda yok")
+    metin = DOCKERFILE.read_text(encoding="utf-8")
+    assert "AS runtime" in metin, "uretim asamasi adlandirilmamis"
+    assert "FROM runtime AS test" in metin, "ayri test asamasi yok"
+    uretim, _, test_asamasi = metin.partition("FROM runtime AS test")
+    assert "requirements-dev" not in uretim, (
+        "test bagimliliklari uretim asamasinda kuruluyor"
+    )
+    assert "requirements-dev" in test_asamasi

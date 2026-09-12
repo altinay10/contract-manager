@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      # Zorunlu: hedef verilmezse Docker en son aşamayı (test) üretir ve
+      # üretim imajına pytest ile test paketleri girer.
+      target: runtime
     image: sozlesme-feneri:0.1
     container_name: sozlesme-feneri
     restart: unless-stopped

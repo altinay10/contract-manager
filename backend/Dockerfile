@@ -1,5 +1,5 @@
 # --- Sözleşme Feneri — tek konteyner ---
-FROM python:3.12-slim
+FROM python:3.12-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -39,3 +39,32 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status==200 else 1)"
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+# --- test aşaması -----------------------------------------------------------
+# Üretim imajı küçük kalsın diye pytest ve test paketleri YALNIZCA burada
+# kurulur. `make docker-test` bu aşamayı hedefler; `runtime` etkilenmez.
+#
+# DİKKAT: hedef verilmezse Docker en SON aşamayı üretir. docker-compose.yml bu
+# yüzden `target: runtime` der — kaldırılırsa üretim imajına test paketleri girer.
+#
+# Yerleşim, uygulamanın konteynerdeki düzenini birebir taklit eder: uygulama
+# /srv/app, testler /srv/tests, örnekler /samples. Testler kök dizini
+# `tests/../..` diye çözdüğü için depo kökündeki iki dosya / altına konur.
+FROM runtime AS test
+
+COPY backend/requirements-dev.txt /srv/requirements-dev.txt
+RUN pip install --no-cache-dir -r /srv/requirements-dev.txt
+
+COPY backend/tests       /srv/tests
+COPY docker-compose.yml  /docker-compose.yml
+COPY .env.example        /.env.example
+
+# Testler iş mantığına odaklanır: model çağrısı yapılmaz, tarayıcı kapalı.
+ENV LLM_PROVIDER=heuristic \
+    SWEEPER_ENABLED=0 \
+    AUTH_ENABLED=0 \
+    STORAGE_DIR=/tmp/feneri-test \
+    DATABASE_URL=sqlite:////tmp/feneri-test/test.db
+
+CMD ["python", "-m", "pytest", "tests", "-q"]
