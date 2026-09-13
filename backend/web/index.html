@@ -696,6 +696,7 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
         </label>
         <label class="opt"><input type="checkbox" id="pdata" checked> Kişisel veri işlenecek</label>
         <label class="opt"><input type="checkbox" id="outs"> Dış hizmet / kritik sistem</label>
+        <label class="opt" title="İşaretlerseniz bu sözleşme aşağıdaki portföy tablosunda görünmez. Analiz normal çalışır; sonucu bu sayfada görür ve raporu indirirsiniz."><input type="checkbox" id="gizli"> Sözleşme sonucunu yayımlama</label>
       </div>
 
       <div class="filebar">
@@ -1518,6 +1519,9 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
     fd.append('contract_type', $('ctype').value);
     fd.append('involves_personal_data', $('pdata').checked ? 'true':'false');
     fd.append('is_outsourcing', $('outs').checked ? 'true':'false');
+    // Yalnizca yayimlamayi etkiler: sozlesme portfoy tablosuna dusmez. Analiz,
+    // rapor ve veritabani kaydi degismez.
+    fd.append('listede_gizli', $('gizli').checked ? 'true':'false');
 
     fetch('/api/contracts',{method:'POST',body:fd}).then(function(r){
       if(!r.ok) return r.json().then(function(e){ throw new Error(e.detail||'Yükleme başarısız'); });
