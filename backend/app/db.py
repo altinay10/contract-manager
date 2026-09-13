@@ -129,11 +129,22 @@ def ensure_schema() -> None:
 
     beklenen = {
         "analysis_runs": {"owner_id": "VARCHAR(32) DEFAULT ''",
-                          "cancel_requested": "BOOLEAN DEFAULT 0"},
+                          "cancel_requested": "BOOLEAN DEFAULT 0",
+                          "saglayici": "VARCHAR(40) DEFAULT ''",
+                          "model": "VARCHAR(80) DEFAULT ''",
+                          "uc_nokta": "VARCHAR(300) DEFAULT ''",
+                          "anahtar_kaynagi": "VARCHAR(20) DEFAULT ''",
+                          "fiyat_in": "FLOAT DEFAULT 0",
+                          "fiyat_out": "FLOAT DEFAULT 0"},
         "findings": {"quote_is_evidence": "BOOLEAN DEFAULT 1"},
         "contracts": {"model_izinli": "BOOLEAN DEFAULT 0",
                       "silindi_at": "DATETIME",
-                      "listede_gizli": "BOOLEAN DEFAULT 0"},
+                      "listede_gizli": "BOOLEAN DEFAULT 0",
+                      "yukleyen": "VARCHAR(80) DEFAULT ''",
+                      "yukleyen_ip": "VARCHAR(64) DEFAULT ''",
+                      "yukleyen_ua": "VARCHAR(300) DEFAULT ''"},
+        "audit_log": {"user_agent": "VARCHAR(300) DEFAULT ''",
+                      "detail_json": "JSON"},
         "reports": {"comparison_id": "VARCHAR(32) DEFAULT ''"},
         "clause_changes": {
             "materiality": "VARCHAR(20) DEFAULT ''",
@@ -153,3 +164,62 @@ def ensure_schema() -> None:
             for ad, tanim in kolonlar.items():
                 if ad not in mevcut:
                     conn.execute(text(f"ALTER TABLE {tablo} ADD COLUMN {ad} {tanim}"))
+
+    geri_doldur()
+
+
+def geri_doldur() -> None:
+    """Yeni kolonlari GECMIS kayitlardan doldurur.
+
+    Kolon sonradan eklendiginde SQLite onu tum satirlara bos deger ile yazar:
+    uygulama o bilgiyi o gun kaydetmedigi icin geriye donuk kendiliginden
+    dolmaz. Ama bilgi kaybolmus degil, baska tablolara dagilmis durumda:
+
+      * kim yukledi, hangi IP   -> audit_log'daki UPLOAD kaydi
+      * hangi model kullanildi  -> llm_calls satirlari
+      * anahtar kimin           -> contracts.model_izinli
+
+    Bu islev o dagilmis olgulari ait olduklari tabloya tasir. YALNIZCA BOS
+    alanlari yazar; dolu hicbir degere dokunmaz, hicbir satir silmez. Idempotent
+    oldugu icin her acilista guvenle calisir.
+
+    Doldurulamayan alan bos birakilir. Gecmis kosularin saglayici adi ve uc
+    noktasi hicbir yerde tutulmamis; uydurmak yerine bos kalir ve kunye ekrani
+    "—" gosterir.
+    """
+    from sqlalchemy import text
+
+    with engine.begin() as conn:
+        # 1) Sozlesmenin kokeni: denetim izindeki UPLOAD kaydindan.
+        conn.execute(text("""
+            UPDATE contracts SET
+              yukleyen = COALESCE((SELECT a.user FROM audit_log a
+                                   WHERE a.entity_id = contracts.id
+                                     AND a.action = 'UPLOAD' LIMIT 1), ''),
+              yukleyen_ip = COALESCE((SELECT a.ip FROM audit_log a
+                                      WHERE a.entity_id = contracts.id
+                                        AND a.action = 'UPLOAD' LIMIT 1), '')
+            WHERE COALESCE(yukleyen, '') = '' AND COALESCE(yukleyen_ip, '') = ''
+        """))
+
+        # 2) Kosunun motoru: o sozlesmenin LLM cagrilarinda en cok gecen model.
+        conn.execute(text("""
+            UPDATE analysis_runs SET
+              model = COALESCE((SELECT l.model FROM llm_calls l
+                                WHERE l.contract_id = analysis_runs.contract_id
+                                  AND COALESCE(l.model, '') <> ''
+                                GROUP BY l.model ORDER BY COUNT(*) DESC LIMIT 1), '')
+            WHERE COALESCE(model, '') = ''
+        """))
+
+        # 3) Anahtarin kaynagi: model cagrisi varsa sunucunun anahtari
+        #    kullanilmistir (gecmiste kullanici anahtari kosu basina tutulmuyordu);
+        #    hic cagri yoksa analiz kural katmaniyla kosmus demektir.
+        conn.execute(text("""
+            UPDATE analysis_runs SET
+              anahtar_kaynagi = CASE
+                WHEN EXISTS (SELECT 1 FROM llm_calls l
+                             WHERE l.contract_id = analysis_runs.contract_id)
+                THEN 'sunucu' ELSE 'yok' END
+            WHERE COALESCE(anahtar_kaynagi, '') = ''
+        """))

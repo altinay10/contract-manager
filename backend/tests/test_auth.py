@@ -269,6 +269,24 @@ def test_fren_denetim_izini_sismez(korumali_istemci, monkeypatch):
     ratelimit.sifirla()
 
 
+def test_kunye_parola_ister(korumali_istemci):
+    """Kim ne yükledi bilgisi parolasız görünmemeli."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="kunye", filename="kunye.txt", contract_type="SAAS")
+        s.add(c); s.flush(); cid = c.id
+
+    korumali_istemci.cookies.clear()
+    assert korumali_istemci.get(f"/api/contracts/{cid}/kunye").status_code == 401
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    r = korumali_istemci.get(f"/api/contracts/{cid}/kunye")
+    assert r.status_code == 200, r.text
+    assert "koken" in r.json() and "kosular" in r.json()
+
+
 def test_belgeler_varsayilan_olarak_kapali():
     """Swagger ve OpenAPI semasi acik agda ucm listesini disari verir.
 

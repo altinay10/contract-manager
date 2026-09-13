@@ -787,6 +787,31 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
   </div>
 </section>
 
+<!-- Kayitlar: kim, ne zaman, nereden, ne yapti. Parolayla korunur — kimin ne
+     yukledigi parolasiz gorunmemeli. Veriler ayri tablolarda durur; burasi
+     yalnizca okuma yuzeyi. -->
+<section id="kysec" style="padding-top:0;display:none">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:0">
+      <div class="eyebrow">Kayıtlar</div>
+      <h2>Kim, ne zaman, <span class="lit">nereden</span>.</h2>
+      <p class="lead" style="font-size:15px">Her yükleme, her rapor indirme ve her ayar
+      değişikliği kaydedilir: kullanıcı, IP adresi, tarayıcı ve işlemin ayrıntısı.
+      Bu bölüm yalnızca giriş yapıldığında görünür.</p>
+    </div>
+
+    <div class="pf-head" style="margin-bottom:12px">
+      <div class="eyebrow" style="margin:0">Son işlemler</div>
+      <button class="btn ghost" id="kyYenile" type="button">Yenile</button>
+    </div>
+    <div class="pf-scroll"><table class="pf"><thead><tr>
+      <th>Zaman</th><th>Kullanıcı</th><th>İşlem</th><th>IP</th><th>Ayrıntı</th>
+    </tr></thead><tbody id="kyGovde"></tbody></table></div>
+    <p class="hint" id="kyBos" style="display:none">Henüz kayıt yok.</p>
+  </div>
+</section>
+
+
 <footer>
   <div class="wrap">
     <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:14px">
@@ -821,6 +846,8 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
 
   function girisDurumunuYansit(){
     var g = girisYapildi;
+    // Kim ne yukledi bilgisi parolasiz gorunmemeli.
+    if($('kysec')) $('kysec').style.display = g ? '' : 'none';
     if($('cikis'))    $('cikis').style.display    = g ? '' : 'none';
     if($('girisAc'))  $('girisAc').style.display  = g ? 'none' : '';
     if($('modNot'))   $('modNot').style.display   = g ? 'none' : '';
@@ -871,7 +898,7 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
       .then(function(){
         $('sPass').value=''; b.disabled=false; b.textContent='Giriş yap';
         girisYapildi = true;
-        girisDurumunuYansit(); ayarYukle(); alanlariGuncelle();
+        girisDurumunuYansit(); ayarYukle(); alanlariGuncelle(); kayitlariYukle();
         ciktiYaz(true,'Giriş yapıldı — sunucunun anahtarı artık kullanılabilir.');
       })
       .catch(function(e){
@@ -1277,14 +1304,64 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
          '<span class="sy">'+x.ort_skor.toFixed(1)+' · '+x.sozlesme+' sz.</span></li>'; });
     $('pfTed').innerHTML = t || '<li class="pf-bos">Karşı taraf çözümlenmedi.</li>';
   }
+  /* --- kayitlar ------------------------------------------------------------
+     Veriler ayri tablolarda durur (sozlesme / kosu / olay / kullanim); burasi
+     yalnizca okuma yuzeyi. Uc korumalidir, parolasizken hic cagrilmaz. */
+  var EYLEM_ADI = {
+    UPLOAD:'Yükleme', REPORT_DOWNLOAD:'Rapor indirme', LOGIN:'Giriş',
+    LOGIN_FAILED:'Başarısız giriş', LOGIN_BLOCKED:'Giriş engellendi',
+    LOGOUT:'Çıkış', PASSWORD_CHANGED:'Parola değişti',
+    SETTINGS_CHANGED:'Ayar değişti', ANALYSIS_CANCELLED:'Analiz iptal',
+    ANALYSIS_RESUMED:'Analiz devam', CONTRACT_DELETED:'Sözleşme silindi',
+    CONTRACT_RESTORED:'Sözleşme geri alındı', UPLOAD_THROTTLED:'Yükleme frenlendi',
+    RESUME_BLOCKED:'Devam engellendi', CANCEL_BLOCKED:'İptal engellendi'
+  };
+
+  function zamanKisalt(iso){
+    if(!iso) return '—';
+    var t = iso.replace('T',' ').split('.')[0];
+    return t.length > 16 ? t.slice(0,16) : t;
+  }
+
+  function kayitlariCiz(kayitlar){
+    var g = $('kyGovde');
+    g.innerHTML = '';
+    if(!kayitlar || !kayitlar.length){ $('kyBos').style.display=''; return; }
+    $('kyBos').style.display='none';
+    kayitlar.forEach(function(e){
+      var tr = document.createElement('tr');
+      var ayrinti = e.detail || '';
+      // Yapisal detay varsa onu goster: serbest metinden daha kesin.
+      if(e.detail_json && Object.keys(e.detail_json).length){
+        ayrinti = Object.keys(e.detail_json).map(function(k){
+          return k+'='+e.detail_json[k]; }).join(' · ');
+      }
+      [zamanKisalt(e.at), e.user||'—', EYLEM_ADI[e.action]||e.action,
+       e.ip||'—', ayrinti||'—'].forEach(function(v){
+        var td = document.createElement('td');
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      g.appendChild(tr);
+    });
+  }
+
+  function kayitlariYukle(){
+    if(!girisYapildi) return;     // uc korumali; parolasizken gitme
+    fetch('/api/audit?limit=100').then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){ if(d) kayitlariCiz(d.entries); })
+      .catch(function(){});
+  }
+
   function portfoyYukle(){
     fetch('/api/dashboard').then(function(r){ return r.ok?r.json():null; })
       .then(function(d){ if(d) portfoyCiz(d); })
       .catch(function(){});
   }
   if($('pfYenile')) $('pfYenile').addEventListener('click', portfoyYukle);
+  if($('kyYenile')) $('kyYenile').addEventListener('click', kayitlariYukle);
 
-  function baslat(){ ayarYukle(); yenidenBaglan(); portfoyYukle(); }
+  function baslat(){ ayarYukle(); yenidenBaglan(); portfoyYukle(); kayitlariYukle(); }
 
   /* --- dosya secimi --- */
   var fileEl=$('file'), drop=$('drop'), chip=$('chip'), start=$('start'), picked=null;
@@ -1403,6 +1480,7 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
   function renderDone(p){
     $('runtitle').textContent='Analiz tamamlandı';
     portfoyYukle();   // yeni sozlesme portfoy tablosuna dussun
+    kayitlariYukle(); // yukleme kaydi da hemen gorunsun
     var docx=p.reports.filter(function(r){return r.fmt==='DOCX';})[0];
     var json=p.reports.filter(function(r){return r.fmt==='JSON';})[0];
     var d=$('downloads'); d.innerHTML='';
