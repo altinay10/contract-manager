@@ -41,6 +41,12 @@ class Settings:
     model_custom: str = _env("MODEL_CUSTOM", "")
     # auto | anthropic | openai | gemini | custom | heuristic
     llm_provider: str = _env("LLM_PROVIDER", "auto")
+    # Sunucunun kendi modelinin 1M token basina USD fiyati. Yerlesik fiyat
+    # tablosu yalnizca taninan model adlarini bilir; sunucuda ozel bir uc
+    # (Qwen, DeepSeek, yerel vLLM...) kullanildiginda maliyet 0 gorunuyordu.
+    # 0 birakilirsa davranis eskisi gibi: fiyat bilinmiyorsa rapor "—" yazar.
+    default_price_in: float = float(_env("DEFAULT_PRICE_IN", "0"))
+    default_price_out: float = float(_env("DEFAULT_PRICE_OUT", "0"))
 
     # --- dayanıklılık (failsafe) ---
     stage_max_attempts: int = _env_int("STAGE_MAX_ATTEMPTS", 3)
