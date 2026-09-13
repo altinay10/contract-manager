@@ -132,7 +132,8 @@ def ensure_schema() -> None:
                           "cancel_requested": "BOOLEAN DEFAULT 0"},
         "findings": {"quote_is_evidence": "BOOLEAN DEFAULT 1"},
         "contracts": {"model_izinli": "BOOLEAN DEFAULT 0",
-                      "silindi_at": "DATETIME"},
+                      "silindi_at": "DATETIME",
+                      "listede_gizli": "BOOLEAN DEFAULT 0"},
         "reports": {"comparison_id": "VARCHAR(32) DEFAULT ''"},
         "clause_changes": {
             "materiality": "VARCHAR(20) DEFAULT ''",

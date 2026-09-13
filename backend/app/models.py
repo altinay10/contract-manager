@@ -83,6 +83,13 @@ class Contract(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, onupdate=utcnow)
 
+    # Yukleyen "sonucu yayimlama" dediginde isaretlenir. YALNIZCA yayimlamayi
+    # etkiler: sozlesme asagidaki listeye ve portfoy paneline dusmez. Analiz
+    # normal kosar, hicbir satir eksilmez, denetim izi yazilmaya devam eder ve
+    # kimligi bilen sonucu gormeye devam eder — yayimlanmamak erisilmez olmak
+    # degildir. Tehdit modeli guvenilir LAN (bkz. CLAUDE.md).
+    listede_gizli: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+
     # Silme YUMUSAKTIR: damga konur, satir durur. Listeler ve bulgu/rapor
     # uclari silinmis sozlesmeyi gostermez ama hicbir veri kaybolmaz ve islem
     # /api/contracts/{id}/restore ile geri alinabilir. Kalici silme bilincli

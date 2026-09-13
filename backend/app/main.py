@@ -427,6 +427,7 @@ async def upload(
     contract_type: str = Form("SAAS"),
     involves_personal_data: bool = Form(True),
     is_outsourcing: bool = Form(False),
+    listede_gizli: bool = Form(False),
     kullanici: str = Depends(auth.optional_user),
 ) -> JSONResponse:
     _yukleme_freni(request, kullanici)
@@ -452,6 +453,7 @@ async def upload(
             model_izinli=bool(kullanici),
             involves_personal_data=involves_personal_data,
             is_outsourcing=is_outsourcing,
+            listede_gizli=listede_gizli,
             size_bytes=len(data),
         )
         s.add(c)
@@ -640,12 +642,14 @@ def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
 
     pb = load_playbook()
     with read_session() as s:
-        # Silinmis sozlesmeler portfoyden de dusmeli. Bulgular ayrica suzulur:
-        # aksi halde silinen sozlesmenin bulgulari ozet sayilarinda ve "en sik
-        # ihlal" siralamasinda gorunmeye devam eder.
+        # Silinmis ve "yayimlama" denmis sozlesmeler portfoyden duser. Bulgular
+        # ayrica suzulur: aksi halde o sozlesmelerin bulgulari ozet sayilarinda
+        # ve "en sik ihlal" siralamasinda gorunmeye devam eder — satir gorunmese
+        # de icerik disari sizar.
         sozlesmeler = list(s.scalars(
             select(Contract)
-            .where(Contract.silindi_at.is_(None))
+            .where(Contract.silindi_at.is_(None),
+                   Contract.listede_gizli.is_(False))
             .order_by(Contract.created_at.desc())
         ))
         canli = {c.id for c in sozlesmeler}
@@ -747,7 +751,8 @@ def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)
         rows = list(
             s.scalars(
                 select(Contract)
-                .where(Contract.silindi_at.is_(None))
+                .where(Contract.silindi_at.is_(None),
+                       Contract.listede_gizli.is_(False))
                 .order_by(Contract.created_at.desc())
                 .limit(limit)
             )
