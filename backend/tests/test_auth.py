@@ -112,6 +112,177 @@ def test_parolali_yukleme_sunucu_anahtarini_kullanabilir(korumali_istemci):
         assert c.model_izinli is True, "giris yapmis kullanici modele erisemiyor"
 
 
+def test_parolasiz_yeniden_analiz_sunucu_anahtarini_yakamaz(korumali_istemci):
+    """Parolasiz istek, giris yapilarak yuklenmis bir sozlesmeyi yeniden kosturamaz.
+
+    Gercek acik: /api/contracts tum kimlikleri herkese veriyor, resume ucu ise
+    saglayiciyi istegi yapandan degil satirdaki `model_izinli` bayragindan
+    seciyordu. Ikisi birlesince disaridan biri, sunucunun LLM anahtariyla
+    analizi sinirsiz kez yeniden baslatabiliyordu (butce her kosuda sifirlanir).
+    """
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="gizli", filename="gizli.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()          # oturumsuz istemci
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume", params={"reanalyze": "true"})
+    assert r.status_code == 401, (
+        f"parolasiz yeniden analiz kabul edildi ({r.status_code}) - "
+        "sunucunun anahtari disaridan harcanabilir"
+    )
+
+    # Ayni koruma, tamamlanmamis analizin parolasiz devam ettirilmesinde de gecerli:
+    # o kosu da sunucunun anahtarini kullanir.
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume")
+    assert r.status_code == 401, "parolasiz devam ettirme sunucu anahtarina erisiyor"
+
+
+def test_giris_yapan_kullanici_yeniden_analiz_edebilir(korumali_istemci):
+    """Koruma sahibini disarida birakmamali."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="sahibinin", filename="sahibinin.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume", params={"reanalyze": "true"})
+    assert r.status_code != 401, "giris yapmis kullanici kendi analizini yeniden calistiramiyor"
+
+
+def test_parolasiz_yuklenen_sozlesme_parolasiz_devam_edebilir(korumali_istemci):
+    """Uygulama herkese acik kalir: kural katmaniyla kosan analiz kilitlenmez."""
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("z.txt", b"deneme metni " * 40)})
+    assert r.status_code < 400
+    cid = r.json()["contract_id"]
+
+    r = korumali_istemci.post(f"/api/contracts/{cid}/resume")
+    assert r.status_code != 401, (
+        "model_izinli olmayan sozlesme parola istiyor - acik kullanim kirildi"
+    )
+
+
+def test_silme_ve_geri_alma_parola_ister(korumali_istemci):
+    """Silme ve geri alma korumali olmali; parolasiz istek veriye dokunamaz."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="silinecek", filename="silinecek.txt", contract_type="SAAS")
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()
+    assert korumali_istemci.delete(f"/api/contracts/{cid}").status_code == 401
+    assert korumali_istemci.post(f"/api/contracts/{cid}/restore").status_code == 401
+    assert korumali_istemci.get("/api/contracts/silinmisler").status_code == 401
+
+    # Damga konmamis olmali: parolasiz istek hicbir sey degistirmedi.
+    with session_scope() as s:
+        assert s.get(Contract, cid).silindi_at is None, "parolasiz istek sozlesmeyi sildi"
+
+
+def test_parolasiz_iptal_sunucu_analizini_kesemez(korumali_istemci):
+    """Model izinli bir analizi disaridan biri durduramamali."""
+    from app.db import session_scope
+    from app.models import Contract
+
+    with session_scope() as s:
+        c = Contract(title="model izinli", filename="mi.txt", contract_type="SAAS",
+                     model_izinli=True)
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    korumali_istemci.cookies.clear()
+    r = korumali_istemci.post(f"/api/contracts/{cid}/cancel")
+    assert r.status_code == 401, f"parolasiz iptal kabul edildi ({r.status_code})"
+
+
+def test_parolasiz_yukleme_frenlenir(korumali_istemci, monkeypatch):
+    """Acik agda sinirsiz yukleme diski doldurur ve islemciyi kilitler."""
+    from app import ratelimit
+
+    monkeypatch.setattr(cfg, "upload_limit_per_hour", 2)
+    ratelimit.sifirla()
+    korumali_istemci.cookies.clear()
+
+    for i in range(2):
+        r = korumali_istemci.post("/api/contracts",
+                                  files={"file": (f"f{i}.txt", b"deneme metni " * 40)})
+        assert r.status_code < 400, f"{i}. yukleme reddedildi ({r.status_code})"
+
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("f3.txt", b"deneme metni " * 40)})
+    assert r.status_code == 429, f"yukleme freni calismadi ({r.status_code})"
+
+    # Giris yapan kullanici frene takilmaz.
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    r = korumali_istemci.post("/api/contracts",
+                              files={"file": ("f4.txt", b"deneme metni " * 40)})
+    assert r.status_code < 400, "giris yapmis kullanici frene takildi"
+    ratelimit.sifirla()
+
+
+def test_fren_denetim_izini_sismez(korumali_istemci, monkeypatch):
+    """Reddedilen her istek denetim satiri yazarsa, fren yeni bir kacak olur."""
+    from app import ratelimit
+
+    def fren_satiri_sayisi() -> int:
+        # Denetim izi modul boyunca birikir; bu testten ONCE yazilmis satirlari
+        # saymamak icin fark alinir.
+        kayitlar = korumali_istemci.get("/api/audit",
+                                        params={"limit": 1000}).json()["entries"]
+        return sum(1 for e in kayitlar if e["action"] == "UPLOAD_THROTTLED")
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    once = fren_satiri_sayisi()
+
+    monkeypatch.setattr(cfg, "upload_limit_per_hour", 1)
+    ratelimit.sifirla()
+    korumali_istemci.cookies.clear()
+
+    korumali_istemci.post("/api/contracts", files={"file": ("g0.txt", b"metin " * 40)})
+    for i in range(6):
+        r = korumali_istemci.post("/api/contracts",
+                                  files={"file": (f"g{i+1}.txt", b"metin " * 40)})
+        assert r.status_code == 429, f"{i}. istek frene takilmadi"
+
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    yeni_satir = fren_satiri_sayisi() - once
+    assert yeni_satir == 1, (
+        f"alti reddedilen istek {yeni_satir} denetim satiri yazdi; "
+        "pencere basina bir tane olmali"
+    )
+    ratelimit.sifirla()
+
+
+def test_belgeler_varsayilan_olarak_kapali():
+    """Swagger ve OpenAPI semasi acik agda ucm listesini disari verir.
+
+    EXPOSE_DOCS bilincli olarak AUTH_ENABLED'a baglanmaz: o, "uretimdeyim"
+    gostergesi degil yerel gelistirme anahtaridir.
+    """
+    from app.config import settings as ayar
+
+    assert ayar.expose_docs is False, "EXPOSE_DOCS varsayilani acik"
+    assert app.docs_url is None, "/docs acik"
+    assert app.redoc_url is None, "/redoc acik"
+    assert app.openapi_url is None, "/openapi.json acik"
+
+
 def test_model_listesi_anahtari_sorgu_dizesinde_kabul_etmez(korumali_istemci):
     """API anahtari GET sorgu dizesinde gitmemeli.
 

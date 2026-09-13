@@ -21,8 +21,8 @@ from . import runner
 from .config import settings
 from .db import engine, ensure_schema, read_session, session_scope
 from .llm.provider import active_model, get_provider
-from .models import AnalysisRun, Base, Contract, Finding, LLMCall, Report
-from . import audit, auth
+from .models import AnalysisRun, Base, Contract, Finding, LLMCall, Report, utcnow
+from . import audit, auth, ratelimit
 from . import runtime_settings as rt
 from .llm import provider as prov
 from .pipeline import ocr as ocr_mod
@@ -78,13 +78,61 @@ async def lifespan(_: FastAPI):
         runner.stop_sweeper()
 
 
-app = FastAPI(title="Sozlesme Feneri", version="1.0.0", lifespan=lifespan)
+app = FastAPI(
+    title="Sözleşme Feneri",
+    version="1.0.0",
+    lifespan=lifespan,
+    # Belgeler varsayılan olarak kapalıdır; bkz. Settings.expose_docs.
+    docs_url="/docs" if settings.expose_docs else None,
+    redoc_url="/redoc" if settings.expose_docs else None,
+    openapi_url="/openapi.json" if settings.expose_docs else None,
+)
 
 
 def _safe_name(name: str) -> str:
     name = Path(name or "belge").name
     name = re.sub(r"[^\w.\-]+", "_", name, flags=re.UNICODE)
     return name[:120] or "belge"
+
+
+def _silinmemis(s, contract_id: str) -> Contract:
+    """Sözleşmeyi getirir; yoksa ya da silinmişse 404.
+
+    Silme YUMUŞAKTIR: satır yerinde kalır, yalnızca `silindi_at` damgası konur.
+    Dışarıya karşı silinmiş sözleşme yok gibi davranır — bulguları, raporu ve
+    ilerlemesi görünmez. Geri alma `POST /api/contracts/{id}/restore` ile
+    yapılır; hiçbir veri kaybolmaz.
+
+    Sözleşme satırı okuyan YENİ bir uç eklerken bu yardımcıyı kullanın, yoksa
+    silinmiş sözleşme o uçtan sızar.
+    """
+    c = s.get(Contract, contract_id)
+    if c is None or c.silindi_at is not None:
+        raise HTTPException(404, "Sözleşme bulunamadı")
+    return c
+
+
+def _yukleme_freni(request: Request, kullanici: str) -> None:
+    """Parolasız yüklemeyi IP başına frenler.
+
+    Uygulama herkese açık olduğu için yükleme ucu da açıktır. Açık ağa konulan
+    bir Raspberry Pi'de sınırsız yükleme diski doldurur ve 300 dpi OCR
+    işlemciyi kilitler. Giriş yapmış kullanıcı frene takılmaz.
+    """
+    if kullanici:
+        return
+    ip = (request.client.host if request.client else "?")
+    if not ratelimit.izin_var(f"upload:{ip}", settings.upload_limit_per_hour):
+        # Denetim izine IP basina pencerede YALNIZCA BIR KEZ yazilir. Her
+        # reddedilen istek bir satir yazarsa, fren bu kez denetim tablosunu
+        # sisiren bir yol olur — engellediginin aynisi.
+        if ratelimit.izin_var(f"upload-denetim:{ip}", 1):
+            audit.kaydet(request, "", "UPLOAD_THROTTLED",
+                         detay=f"saatlik yükleme sınırı aşıldı ({ip})")
+        else:
+            log.warning("Yükleme freni: %s", ip)
+        raise HTTPException(429, "Saatlik yükleme sınırına ulaştınız. "
+                                 "Daha sonra deneyin veya giriş yapın.")
 
 
 # --------------------------------------------------------------------------- #
@@ -381,6 +429,8 @@ async def upload(
     is_outsourcing: bool = Form(False),
     kullanici: str = Depends(auth.optional_user),
 ) -> JSONResponse:
+    _yukleme_freni(request, kullanici)
+
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_SUFFIX:
         raise HTTPException(400, f"Desteklenmeyen dosya türü: {suffix or '(yok)'}. PDF, DOCX veya TXT yükleyin.")
@@ -428,6 +478,8 @@ def demo(request: Request,
     Elinde sozlesme olmayan bir kullanicinin sistemi denemesi icin; ayrica
     kurulum sonrasi duman testi olarak da kullanilir.
     """
+    _yukleme_freni(request, kullanici)
+
     src = SAMPLE_DIR / "ornek-saas-sozlesmesi.txt"
     if not src.exists():
         raise HTTPException(404, "Örnek sözleşme bulunamadı")
@@ -461,6 +513,7 @@ def demo(request: Request,
 
 @app.get("/api/contracts/{contract_id}/progress")
 def progress(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
+    # Silinmislik denetimi runner.progress icinde; bkz. oradaki not.
     data = runner.progress(contract_id)
     if not data:
         raise HTTPException(404, "Sözleşme bulunamadı")
@@ -468,22 +521,33 @@ def progress(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 
 
 @app.post("/api/contracts/{contract_id}/resume")
-def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(auth.optional_user)) -> dict:
+def resume(contract_id: str, request: Request, reanalyze: bool = False,
+           kullanici: str = Depends(auth.optional_user)) -> dict:
     """Yarım kalan analizi kaldığı yerden devam ettirir.
 
     Tamamlanmış bir analiz için varsayılan olarak HİÇBİR ŞEY YAPMAZ: baştan
     çalıştırmak mevcut rapor bağlantılarını geçersiz kılar ve boşuna model
     maliyeti doğurur. Yeniden analiz isteniyorsa `?reanalyze=true` gerekir.
+
+    Model izni İSTEĞİ YAPANA bakılarak verilir. Bu uç `runner.execute`'u
+    tetikler, o da sağlayıcıyı satırdaki `model_izinli` bayrağından seçer —
+    yani korumasız bırakılırsa parolasız bir istek, giriş yapmış birinin
+    yüklediği sözleşmeyi sunucunun anahtarıyla yeniden koşturabilir. Bütçe her
+    koşuda sıfırlandığı için bu sınırsız tekrarlanabilir.
     """
     with session_scope() as s:
-        if s.get(Contract, contract_id) is None:
-            raise HTTPException(404, "Sözleşme bulunamadı")
+        model_izinli = _silinmemis(s, contract_id).model_izinli
         run = s.scalar(
             select(AnalysisRun)
             .where(AnalysisRun.contract_id == contract_id)
             .order_by(AnalysisRun.started_at.desc())
         )
         durum = run.status if run else ""
+
+    if model_izinli and not kullanici:
+        audit.kaydet(request, "", "RESUME_BLOCKED", "contract", contract_id,
+                     "oturumsuz istek, sözleşme model izinli")
+        raise HTTPException(401, "Bu analizi yeniden çalıştırmak için giriş yapmanız gerekiyor")
 
     if runner.is_running(contract_id):
         return {"started": False, "reason": "Analiz zaten çalışıyor"}
@@ -492,6 +556,8 @@ def resume(contract_id: str, reanalyze: bool = False, kullanici: str = Depends(a
                 "reason": "Analiz zaten tamamlanmış. Yeniden çalıştırmak için "
                           "reanalyze=true gönderin."}
 
+    audit.kaydet(request, kullanici, "ANALYSIS_RESUMED", "contract", contract_id,
+                 "yeniden analiz" if durum == "DONE" else f"devam ({durum or 'yeni'})")
     runner.start(contract_id)
     return {"started": True, "reanalyzed": durum == "DONE"}
 
@@ -502,8 +568,15 @@ def cancel(contract_id: str, request: Request,
     """Analizi iptal eder. İşlem bir sonraki güvenli noktada durur;
     o ana kadar tamamlanmış aşamalar korunur ve devam ettirilebilir."""
     with session_scope() as s:
-        if s.get(Contract, contract_id) is None:
-            raise HTTPException(404, "Sözleşme bulunamadı")
+        model_izinli = _silinmemis(s, contract_id).model_izinli
+
+    # Sunucunun anahtariyla kosan analizi yalnizca giris yapmis kullanici
+    # durdurabilir; aksi halde disaridan biri baskasinin analizini kesebilir.
+    if model_izinli and not kullanici:
+        audit.kaydet(request, "", "CANCEL_BLOCKED", "contract", contract_id,
+                     "oturumsuz istek, sözleşme model izinli")
+        raise HTTPException(401, "Bu analizi durdurmak için giriş yapmanız gerekiyor")
+
     ok = runner.cancel(contract_id)
     audit.kaydet(request, kullanici, "ANALYSIS_CANCELLED", "contract", contract_id)
     return {"cancelled": ok,
@@ -513,6 +586,7 @@ def cancel(contract_id: str, request: Request,
 @app.get("/api/contracts/{contract_id}/findings")
 def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     with read_session() as s:
+        _silinmemis(s, contract_id)
         rows = list(s.scalars(select(Finding).where(Finding.contract_id == contract_id)))
         order = {"KRITIK": 0, "YUKSEK": 1, "ORTA": 2, "DUSUK": 3, "BILGI": 4}
         rows.sort(key=lambda f: (order.get(f.severity, 9), -f.confidence))
@@ -537,9 +611,7 @@ def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Bu sözleşme için harcanan token ve maliyet dökümü."""
     with read_session() as s:
-        c = s.get(Contract, contract_id)
-        if c is None:
-            raise HTTPException(404, "Sözleşme bulunamadı")
+        c = _silinmemis(s, contract_id)
         calls = list(s.scalars(select(LLMCall).where(LLMCall.contract_id == contract_id)))
         ozet = runner.usage_summary(calls)
         # O anki yapilandirmayi degil, BU analizin gercekte kullandigini bildir:
@@ -568,8 +640,16 @@ def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
 
     pb = load_playbook()
     with read_session() as s:
-        sozlesmeler = list(s.scalars(select(Contract).order_by(Contract.created_at.desc())))
-        bulgular = list(s.scalars(select(Finding)))
+        # Silinmis sozlesmeler portfoyden de dusmeli. Bulgular ayrica suzulur:
+        # aksi halde silinen sozlesmenin bulgulari ozet sayilarinda ve "en sik
+        # ihlal" siralamasinda gorunmeye devam eder.
+        sozlesmeler = list(s.scalars(
+            select(Contract)
+            .where(Contract.silindi_at.is_(None))
+            .order_by(Contract.created_at.desc())
+        ))
+        canli = {c.id for c in sozlesmeler}
+        bulgular = [f for f in s.scalars(select(Finding)) if f.contract_id in canli]
 
         bulgu_ix: dict[str, list] = {}
         for f in bulgular:
@@ -639,6 +719,15 @@ def download(report_id: str, request: Request,
         r = s.get(Report, report_id)
         if r is None or not Path(r.path).exists():
             raise HTTPException(404, "Rapor bulunamadı")
+        # Silinmis sozlesmenin raporu da gorunmez olmali; rapor kimligi
+        # tahmin edilemez ama bir kez paylasildiktan sonra kalicidir.
+        # comparison_id tasiyan raporlarda contract_id bos kalabilir — o
+        # durumda bagli bir sozlesme yoktur ve denetim atlanir, yoksa surum
+        # karsilastirma raporlari 404 olur.
+        if r.contract_id:
+            ust = s.get(Contract, r.contract_id)
+            if ust is None or ust.silindi_at is not None:
+                raise HTTPException(404, "Rapor bulunamadı")
         audit.kaydet(request, kullanici, "REPORT_DOWNLOAD", "report", report_id,
                      f"{r.fmt} · {r.filename}")
         if r.fmt == "HTML":
@@ -656,7 +745,12 @@ def download(report_id: str, request: Request,
 def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)) -> dict:
     with read_session() as s:
         rows = list(
-            s.scalars(select(Contract).order_by(Contract.created_at.desc()).limit(limit))
+            s.scalars(
+                select(Contract)
+                .where(Contract.silindi_at.is_(None))
+                .order_by(Contract.created_at.desc())
+                .limit(limit)
+            )
         )
         return {
             "contracts": [
@@ -665,6 +759,83 @@ def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)
                     "risk_score": c.risk_score, "risk_band": c.risk_band,
                     "counterparty": c.counterparty,
                     "created_at": c.created_at.isoformat() if c.created_at else "",
+                }
+                for c in rows
+            ]
+        }
+
+
+# --------------------------------------------------------------------------- #
+# Silme — KVKK saklama süresi ve "bunu kaldır" isteği için.
+#
+# Silme YUMUŞAKTIR ve bilinçli olarak öyledir:
+#   * `silindi_at` damgası konur; satır, maddeler, bulgular, raporlar ve yüklenen
+#     dosya yerinde kalır. Hiçbir veri kaybolmaz.
+#   * Dışarıya karşı sözleşme yok gibi davranır (liste, bulgular, rapor, ilerleme).
+#   * `restore` ile geri alınır.
+#
+# Kalıcı silme UYGULANMADI. Sebep teknik: `reports`, `llm_calls`, `work_items` ve
+# `dropped_findings` tablolarının `contract_id` alanı yabancı anahtar DEĞİL, yani
+# sözleşme satırını düşürmek onları sessizce öksüz bırakır — geri dönüşü olmayan
+# bir tutarsızlık. Gerçek imha gerektiğinde bu tablolar da kapsanmalı ve işlem
+# yedek alınarak elle yapılmalıdır.
+# --------------------------------------------------------------------------- #
+@app.delete("/api/contracts/{contract_id}")
+def delete_contract(contract_id: str, request: Request,
+                    kullanici: str = Depends(auth.require_user)) -> dict:
+    """Sözleşmeyi silinmiş olarak işaretler. Geri alınabilir."""
+    with session_scope() as s:
+        c = _silinmemis(s, contract_id)
+        c.silindi_at = utcnow()
+        ad = c.filename
+
+    runner.cancel(contract_id)      # sürüyorsa durdur; yarım analiz boşa dönmesin
+    audit.kaydet(request, kullanici, "CONTRACT_DELETED", "contract", contract_id,
+                 f"{ad} · yumuşak silme (geri alınabilir)")
+    return {"ok": True, "silindi": True, "geri_alinabilir": True}
+
+
+@app.post("/api/contracts/{contract_id}/restore")
+def restore_contract(contract_id: str, request: Request,
+                     kullanici: str = Depends(auth.require_user)) -> dict:
+    """Silme damgasını kaldırır."""
+    with session_scope() as s:
+        c = s.get(Contract, contract_id)
+        if c is None:
+            raise HTTPException(404, "Sözleşme bulunamadı")
+        if c.silindi_at is None:
+            return {"ok": True, "silindi": False, "not": "Sözleşme zaten silinmemiş"}
+        c.silindi_at = None
+        ad = c.filename
+
+    audit.kaydet(request, kullanici, "CONTRACT_RESTORED", "contract", contract_id, ad)
+    return {"ok": True, "silindi": False}
+
+
+@app.get("/api/contracts/silinmisler")
+def list_deleted(limit: int = 100, kullanici: str = Depends(auth.require_user)) -> dict:
+    """Silinmiş sözleşmeler — geri alınabilmesi için görünür olmalı.
+
+    Bu uç olmadan yumuşak silme tek yönlü olurdu: damga konan sözleşme hiçbir
+    listede görünmediği için kimliği bilinmeden geri alınamazdı.
+    """
+    with read_session() as s:
+        rows = list(
+            s.scalars(
+                select(Contract)
+                .where(Contract.silindi_at.is_not(None))
+                .order_by(Contract.silindi_at.desc())
+                .limit(limit)
+            )
+        )
+        return {
+            "contracts": [
+                {
+                    "id": c.id, "filename": c.filename, "status": c.status,
+                    "risk_score": c.risk_score, "risk_band": c.risk_band,
+                    "counterparty": c.counterparty,
+                    "created_at": c.created_at.isoformat() if c.created_at else "",
+                    "silindi_at": c.silindi_at.isoformat() if c.silindi_at else "",
                 }
                 for c in rows
             ]

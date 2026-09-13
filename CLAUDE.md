@@ -43,12 +43,24 @@ Bir değişiklik hazır olduğunda Raspberry Pi'ye dağıt ve canlıda doğrula:
 
 ```
 ssh root@192.168.1.100
-cd /opt/contractmanager && git fetch -q github-contract:altinay10/contract-manager.git <dal>
-git checkout -q FETCH_HEAD && docker compose up -d --build
+cd /opt/contractmanager
+git fetch -q github-contract:altinay10/contract-manager.git <dal>
+git checkout -q -B <dal> FETCH_HEAD
+docker compose up -d --build
 ```
+
+`-B <dal>`: dizini adı olan yerel bir dala bağlar. Düz `git checkout FETCH_HEAD`
+kullanılırsa depo detached HEAD'de kalır; `git status` hangi dalda olduğunu
+söylemez ve neyin dağıtıldığı ancak commit karmasından anlaşılır.
 
 Uygulama: `http://contractmanager.raspberrypi5.local`
 (Çıplak IP Grafana'ya gider — ana bilgisayar adını kullan.)
+
+Pi'de host tarafında Python sanal ortamı yoktur; testleri konteynerde koştur:
+
+```
+make docker-test
+```
 
 ## 5. Doğrulama
 
