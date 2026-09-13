@@ -592,6 +592,26 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
           </div>
         </div>
 
+        <!-- Sunucunun kendi anahtari secildiginde sorulacak tek sey parola:
+             anahtar, model ve fiyat .env'den gelir. Giris kapisi burada duruyor
+             cunku hata da burada cikiyor; footer'daki dugme uc ekran asagida
+             kaliyor ve pratikte bulunamiyordu. -->
+        <div class="frow" id="rowParola" style="display:none">
+          <label for="sPass">Parola</label>
+          <div class="fld">
+            <input type="password" id="sPass" placeholder="uygulama parolası" autocomplete="current-password">
+            <button class="btn" id="sGiris" type="button">Giriş yap</button>
+          </div>
+        </div>
+
+        <div class="frow" id="rowSunucuDurum" style="display:none">
+          <label>Durum</label>
+          <div class="fld">
+            <span class="hint" id="sSunucuNot" style="margin:0;flex:1 1 auto"></span>
+            <button class="btn ghost" id="sCikis" type="button">Çıkış yap</button>
+          </div>
+        </div>
+
         <div class="frow" id="rowBase" style="display:none">
           <label for="sBase">Uç nokta (base URL)</label>
           <div class="fld">
@@ -835,8 +855,39 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
                             String(e.message).replace(/[<>]/g,'')+'</div>'; });
   }
 
+  /* Ayar panelindeki parola alani. Ayni /api/login ucunu kullanir — yeni uc
+     yok. Modal kapiyi acmak yerine yerinde giris yaptirir: kullanici zaten
+     "Model ayarlari"ni acmis ve hata orada cikiyor. */
+  function panelGiris(){
+    var b=$('sGiris'), p=$('sPass').value;
+    if(!p) return;
+    b.disabled=true; b.textContent='kontrol ediliyor…';
+    fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:p})})
+      .then(function(r){
+        if(r.ok) return r.json();
+        return r.json().then(function(e){ throw new Error(e.detail||'Giriş başarısız'); });
+      })
+      .then(function(){
+        $('sPass').value=''; b.disabled=false; b.textContent='Giriş yap';
+        girisYapildi = true;
+        girisDurumunuYansit(); ayarYukle(); alanlariGuncelle();
+        ciktiYaz(true,'Giriş yapıldı — sunucunun anahtarı artık kullanılabilir.');
+      })
+      .catch(function(e){
+        b.disabled=false; b.textContent='Giriş yap';
+        ciktiYaz(false, String(e.message).replace(/[<>]/g,''));
+      });
+  }
+
   function kapiyiKur(){
     $('gBtn').addEventListener('click', girisDene);
+    if($('sGiris')) $('sGiris').addEventListener('click', panelGiris);
+    if($('sPass'))  $('sPass').addEventListener('keydown', function(e){
+      if(e.key==='Enter') panelGiris(); });
+    if($('sCikis')) $('sCikis').addEventListener('click', function(){
+      fetch('/api/logout',{method:'POST'}).then(function(){ location.reload(); });
+    });
     $('gPass').addEventListener('keydown', function(e){ if(e.key==='Enter') girisDene(); });
     $('cikis').addEventListener('click', function(){
       fetch('/api/logout',{method:'POST'}).then(function(){ location.reload(); });
@@ -847,6 +898,7 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
     fetch('/api/session').then(function(r){return r.json();}).then(function(d){
       girisYapildi = !!d.authenticated;
       uygulamayiAc();
+      alanlariGuncelle();   // panel oturum durumuna gore sekillensin
     }).catch(function(){
       girisYapildi = false;
       uygulamayiAc();   // sunucuya ulaşılamasa da kilitleme; alt bileşenler hatayı gösterir
@@ -1047,14 +1099,45 @@ table.pf .sub{color:var(--muted);font-size:11.5px;margin-top:2px}
       (modelli && ($('sModel').value==='__diger__' || sag==='custom'))?'':'none';
     $('rowPrice').style.display = modelli?'':'none';
 
+    /* Sunucunun kendi anahtari: anahtar, model ve fiyat .env'den gelir, yani
+       kullanicinin girecegi hicbir sey yok. Sorulan tek sey parola. Bu alanlari
+       acik birakmak kullaniciyi olmayan bir isi yapmaya cagiriyordu. */
+    var sunucuVarsayilan = ($('sProv').value === '');
+    $('rowParola').style.display      = (sunucuVarsayilan && !girisYapildi) ? '' : 'none';
+    $('rowSunucuDurum').style.display = (sunucuVarsayilan &&  girisYapildi) ? '' : 'none';
+    if(sunucuVarsayilan){
+      $('rowKey').style.display    = 'none';
+      $('rowModel').style.display  = 'none';
+      $('rowBase').style.display   = 'none';
+      $('rowCustom').style.display = 'none';
+      $('rowPrice').style.display  = 'none';
+      $('sFetch').style.display    = 'none';
+      // Parolasizken kaydedecek bir sey yok; Kaydet 401 doner ve kullaniciyi
+      // cozumu olmayan bir hataya goturur.
+      $('sSave').style.display = girisYapildi ? '' : 'none';
+      $('sTest').style.display = girisYapildi ? '' : 'none';
+      if(girisYapildi){
+        $('sSunucuNot').className = 'hint';
+        $('sSunucuNot').textContent =
+          'Sunucunun anahtarı etkin — model ve fiyat .env dosyasından okunur.';
+      } else {
+        $('sNow').textContent = 'parola gerekli';
+      }
+    } else {
+      $('sSave').style.display = '';
+      $('sTest').style.display = '';
+    }
+
     // Sunucunun kendi anahtarı seçildiğinde ne olduğunu ve parola şartını söyle.
     var ipucu=$('sProvHint');
     if($('sProv').value===''){
-      ipucu.className='hint warn';
-      ipucu.textContent='Sunucunun kendi API anahtarını kullanır (.env). '+
-        'Bu anahtar parola ile korunur — parolasız kullanılamaz. '+
-        'Kendi anahtarınızla çalışmak için listeden bir sağlayıcı seçip '+
-        'anahtarınızı aşağıya girin.';
+      ipucu.className = girisYapildi ? 'hint' : 'hint warn';
+      ipucu.textContent = girisYapildi
+        ? 'Sunucunun kendi API anahtarını kullanır (.env). Anahtar, model ve '+
+          'birim fiyat sunucuda tanımlıdır; burada girilecek bir şey yoktur.'
+        : 'Sunucunun kendi API anahtarını kullanır (.env). Bu anahtar parola ile '+
+          'korunur: kullanmak için aşağıya uygulama parolasını girin. Kendi '+
+          'anahtarınızla çalışmak isterseniz listeden bir sağlayıcı seçin.';
     } else {
       ipucu.className='hint'; ipucu.textContent='';
     }
