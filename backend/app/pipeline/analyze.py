@@ -2,13 +2,14 @@
 
 K1 Daraltma        : bir cagri = bir madde
 K2 Hipotez zerki   : playbook kirmizi cizgileri zorunlu kontrol listesi olarak zerk edilir
-K3 Bakis acisi     : sistem promptu tarafsiz ozetleyici degil, bankanin avukati
+K3 Bakis acisi     : sistem promptu tarafsiz ozetleyici degil, alicinin avukati
 K6 Effort tahsisi  : madde agirligina gore model/effort secimi
 K7 Karsi-gorus     : kritik bulgular ayri bir cagrida curutulmeye calisilir
 """
 from __future__ import annotations
 
 import json
+import re
 import logging
 from dataclasses import asdict, dataclass, field
 
@@ -203,7 +204,7 @@ def build_task_block(
     lines.append("</madde_metni>")
     lines.append("")
 
-    lines.append("=== BANKANIN STANDARDI ===")
+    lines.append("=== ALICININ STANDARDI ===")
     if ct.ideal_text_tr:
         lines.append("Ideal madde metni:")
         lines.append(ct.ideal_text_tr)
@@ -223,8 +224,15 @@ def build_task_block(
             lines.append(f"{i}. [{rl.severity}] {rl.text}{flag}")
         lines.append("")
         lines.append(
-            "Her madde icin karar ver: KARSILANDI / IHLAL / METINDE YOK. "
-            "IHLAL veya METINDE YOK ise bir bulgu uret ve alintiyi ver."
+            "Her kalem icin karar ver: KARSILANDI / IHLAL / BU MADDEDE DUZENLENMEMIS.\n"
+            "- IHLAL: bulgu uret. Alinti, SORUNU OLUSTURAN cumlenin kendisi olmali.\n"
+            "- KARSILANDI: bulgu URETME.\n"
+            "- BU MADDEDE DUZENLENMEMIS: bulgu URETME. Hic yazilmamis korumalar ayri bir\n"
+            "  asamada tum metin uzerinde aranir; burada uretirsen ayni eksik iki kez raporlanir.\n"
+            "  TEK ISTISNA: madde konuyu duzenliyor ama korumayi EKSIK birakiyorsa\n"
+            "  finding_type=WEAK kullan ve alinti olarak maddenin YETERSIZ KALAN cumlesini ver.\n"
+            "Alintinin kendisi iddiani DESTEKLEMELI. Bir yasagi ya da hakki ACIKCA veren bir\n"
+            "cumleyi alintilayip 'bu koruma yok' deme - alinti iddiani curutuyorsa bulgu yanlistir."
         )
     else:
         lines.append("(Bu madde tipi icin tanimli kirmizi cizgi yok - genel degerlendirme yap.)")
@@ -249,13 +257,27 @@ def build_task_block(
     lines.append("")
     lines.append(
         "proposed_text alanina, bu sozlesmenin diline ve numaralandirmasina uygun, "
-        "banka lehine ALTERNATIF MADDE METNI yaz. negotiation_note alanina tedarikciye "
+        "alici lehine ALTERNATIF MADDE METNI yaz. negotiation_note alanina tedarikciye "
         "soylenecek tek cumlelik muzakere argumanini yaz."
     )
     return "\n".join(lines)
 
 
 # --------------------------------------------------------------------------- #
+# Yokluk iddiasi: "... yok / eksik / duzenlenmemis / taninmamis". Bir alinti
+# yoklugu KANITLAYAMAZ; bu iddialar kirmizi cizgi ihlali degildir.
+_YOKLUK = re.compile(
+    r"\b(yok|yoktur|eksik|eksiktir|bulunmamakta|bulunmuyor|düzenlenmemiş|tanınmamış|"
+    r"öngörülmemiş|belirtilmemiş|tanımlanmamış|içermiyor|sağlanmamış|yer almıyor|"
+    r"hüküm yok|hükmü yok|kaydı yok)\b",
+    re.IGNORECASE,
+)
+
+
+def _yokluk_iddiasi(*parcalar: str | None) -> bool:
+    return bool(_YOKLUK.search(" ".join(p for p in parcalar if p)))
+
+
 def rule_findings(
     clause_number: str,
     ct: ClauseType,
@@ -280,7 +302,7 @@ def rule_findings(
                 severity=rl.severity,
                 title=rl.text,
                 rationale=(
-                    f"{ct.name_tr} maddesi bankanın standardını karşılamıyor: {rl.text}. "
+                    f"{ct.name_tr} maddesi alıcının standardını karşılamıyor: {rl.text}. "
                     + (ct.negotiation_argument_tr or "")
                 ).strip(),
                 quote=h.quote,
@@ -300,7 +322,7 @@ def rule_findings(
                 code=ct.code,
                 clause_number=clause_number,
                 finding_type="AMBIGUOUS",
-                # Sure belirsizligi, bankayi zayiflatan ifadeden daha hafiftir.
+                # Sure belirsizligi, aliciyi zayiflatan ifadeden daha hafiftir.
                 severity="ORTA" if tur == "zayiflatici" else "DUSUK",
                 title=f"Ölçülemez ifade: \"{phrase}\"",
                 rationale=(
@@ -376,6 +398,12 @@ def llm_findings(
             sev = "ORTA"
         ftype = f.get("finding_type", "WEAK")
         if ftype not in FINDING_TYPES:
+            ftype = "WEAK"
+        # RED_LINE, metnin ACIKCA zararli bir sey SOYLEDIGI durumdur. Model sik sik
+        # "bu koruma yok" diyip yine de RED_LINE isaretliyor; skorlamadaki veto kurali
+        # tek bir RED_LINE'da bandi KIRMIZI'ya cektigi icin bu, iyi yazilmis bir
+        # sozlesmeyi de kirmiziya boyuyor. Yokluk iddiasi olsa olsa WEAK'tir.
+        if ftype == "RED_LINE" and _yokluk_iddiasi(f.get("title"), f.get("rationale")):
             ftype = "WEAK"
         drafts.append(
             FindingDraft(

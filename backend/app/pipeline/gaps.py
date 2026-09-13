@@ -20,7 +20,8 @@ from .analyze import FindingDraft
 
 log = logging.getLogger(__name__)
 
-GAP_SYSTEM = """Sen bir Turk bankasinin sozlesme denetcisisin. Banka ALICI konumundadir.
+GAP_SYSTEM = """Sen bir sozlesme denetcisisin. Muvekkilin ALICI taraftir; gercek adi
+her sozlesme icin ayrica bildirilir, bu promptta taraf adi gecmez.
 
 Gorevin: Sana verilen sozlesme metninde, listelenen zorunlu korumalarin GERCEKTEN var olup
 olmadigini tespit etmek.

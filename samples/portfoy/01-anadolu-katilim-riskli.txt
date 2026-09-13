@@ -1,0 +1,65 @@
+YAZILIM HİZMETİ (SaaS) TEDARİK SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Anadolu Katılım Bankası A.Ş. ("ANADOLU KATILIM") ile diğer tarafta
+Veriteknoloji Bilişim Yazılım Ltd. Şti. ("TEDARİKÇİ") arasında 09.03.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" TEDARİKÇİ tarafından sunulan çözümü, "ANADOLU KATILIM Verisi" ANADOLU KATILIM'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+TEDARİKÇİ, ANADOLU KATILIM'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 5 yıldır.
+Sözleşme, en az doksan (90) gün önce feshedilmediği takdirde kendiliğinden birer yıl uzar.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 1.900.000 TL'dir. Bedelin tamamı her sözleşme yılının başında peşin olarak
+ödenir. TEDARİKÇİ, ücretleri her yıl tek taraflı olarak güncelleyebilir.
+
+MADDE 5 - SORUMLULUK
+5.1 TEDARİKÇİ hiçbir hâlde dolaylı zararlardan, kâr kaybından veya veri kaybından sorumlu değildir.
+5.2 TEDARİKÇİ'nin toplam sorumluluğu, talebin doğduğu tarihten önceki üç (3) ayda ödenen bedeli aşamaz.
+
+MADDE 6 - DENETİM
+ANADOLU KATILIM, yılda bir (1) kez ve en az otuz (30) gün önceden yazılı bildirimde bulunmak kaydıyla,
+mesai saatleri içinde denetim yapabilir. Denetim masrafları ANADOLU KATILIM'ya aittir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+ANADOLU KATILIM Verisi, TEDARİKÇİ'nin global altyapısında ve uygun göreceği veri merkezlerinde işlenebilir.
+TEDARİKÇİ, ANADOLU KATILIM Verisi'ni hizmetlerini geliştirmek amacıyla anonimleştirerek kullanabilir.
+
+MADDE 8 - GÜVENLİK
+8.1 TEDARİKÇİ, güvenlik ihlalini öğrenmesini müteakip makul bir süre içinde ANADOLU KATILIM'ya bildirimde bulunur.
+8.2 ANADOLU KATILIM'nın TEDARİKÇİ sistemleri üzerinde sızma testi yapması yasaktır.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üçüncü kişilerle paylaşmayacaktır. Bu yükümlülük Sözleşme'nin
+sona ermesinden itibaren bir (1) yıl süreyle devam eder.
+
+MADDE 10 - FESİH
+10.1 TEDARİKÇİ, herhangi bir sebep göstermeksizin otuz (30) gün önceden yazılı bildirimde
+bulunarak Sözleşme'yi feshedebilir.
+10.2 ANADOLU KATILIM, yalnızca TEDARİKÇİ'nin esaslı ihlali hâlinde ve doksan (90) günlük düzeltme süresi
+sonunda Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+İşbu Sözleşme'den doğan damga vergisi ve diğer tüm masraflar ANADOLU KATILIM tarafından karşılanır.
+
+MADDE 12 - ALT YÜKLENİCİ
+TEDARİKÇİ, dilediği alt yükleniciyi ANADOLU KATILIM'nın onayını almaksızın kullanabilir.
+
+MADDE 13 - HİZMET SEVİYESİ
+TEDARİKÇİ, hizmetin kesintisiz sunulması için ticari makul çaba gösterecektir. Kesinti hâlinde
+ANADOLU KATILIM'nın yegâne başvuru yolu, ilgili aya ait bedelin orantılı iadesidir.
+
+MADDE 14 - REFERANS
+TEDARİKÇİ, ANADOLU KATILIM'nın unvanını ve logosunu tanıtım materyallerinde referans olarak kullanabilir.
+
+MADDE 15 - UYGULANACAK HUKUK
+İşbu Sözleşme İngiltere hukukuna tabidir. Uyuşmazlıklar Londra Uluslararası Tahkim
+Mahkemesi (LCIA) kuralları uyarınca çözülür.
+
+MADDE 16 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.

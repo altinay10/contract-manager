@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 
 from ..textutil import fold
+from .parties import taraflari_ayir
 
 _AMOUNT = re.compile(
     r"(\d{1,3}(?:[.\s]\d{3})+(?:,\d{1,2})?|\d+(?:,\d{1,2})?)\s*"
@@ -18,9 +19,14 @@ _TERM = re.compile(
     r"\s*\(?\s*\d*\s*\)?\s*\b(yıl|yil|ay)[a-zçğıöşü]{0,5}\b",
     re.IGNORECASE,
 )
+# Sirket eki AYRI BIR SOZCUK olmali. Aksi halde noktasiz kisaltmalar (SA, BV, LTD)
+# Turkce kelimelerin icine denk gelir: "YAZILIM LISANS" -> "YAZILIM LISA",
+# "HIZMET SAGLAYICI" -> "HIZMET SA". Bunlar taraf sanilip karsi taraf alanini
+# belge basligiyla doldururdu.
 _PARTY = re.compile(
-    r"([A-ZÇĞİÖŞÜ][\w\.\-&'’ ]{2,60}?\s*"
-    r"(?:A\.?Ş\.?|Ltd\.?\s*Şti\.?|LTD|LLC|GmbH|Inc\.?|B\.?V\.?|S\.?A\.?))",
+    r"([A-ZÇĞİÖŞÜ][\w\.\-&'’ ]{2,60}?\s"
+    r"(?:A\.?Ş\.?|Ltd\.?\s*Şti\.?|LTD|LLC|GmbH|Inc\.?|B\.?V\.?|S\.?A\.?))"
+    r"(?![\wÇĞİÖŞÜçğıöşü])",
 )
 _BANK_HINT = re.compile(r"bank", re.IGNORECASE)
 
@@ -42,8 +48,7 @@ def extract_meta(text: str) -> dict:
         if name and len(name) > 3 and name not in parties:
             parties.append(name)
     out["parties"] = parties[:6]
-    counter = next((p for p in parties if not _BANK_HINT.search(p)), "")
-    out["counterparty"] = counter
+    out["counterparty"] = _karsi_taraf(parties, text)
 
     m = _AMOUNT.search(text)
     out["value_text"] = f"{m.group(1)} {m.group(2)}".strip() if m else ""
@@ -67,8 +72,13 @@ def extract_meta(text: str) -> dict:
         seg_start = low.find("damga vergisi")
         seg = text[max(0, seg_start - 200): seg_start + 300]
         seg_low = fold(seg)
-        if "banka" in seg_low and "eşit" not in seg_low and "esit" not in seg_low:
-            out["stamp_duty"] = "Bankaya ait (risk)"
+        # Alici tarafin adi "banka" olmak zorunda degil; sozlesmedeki gercek
+        # tanimli terimlerle ara. Aksi halde damga vergisi yuku alici tarafa
+        # yiklenmis olsa bile risk olarak isaretlenmezdi.
+        from .parties import alici_adlari
+        alici_izi = any(a in seg_low for a in alici_adlari(text))
+        if alici_izi and "eşit" not in seg_low and "esit" not in seg_low:
+            out["stamp_duty"] = "Alıcıya ait (risk)"
         elif "eşit" in seg_low or "esit" in seg_low or "yarı" in seg_low:
             out["stamp_duty"] = "Eşit paylaşım"
         else:
@@ -85,6 +95,28 @@ _LEAD_WORDS = re.compile(
     r"taraflar|ile|ve|arasında|arasinda)\b[\s:]*",
     re.IGNORECASE,
 )
+
+
+def _karsi_taraf(parties: list[str], text: str) -> str:
+    """Tam unvanlar arasindan TEDARIKCI olani sec.
+
+    "Icinde 'bank' gecmeyen ilk taraf" yetmiyor: alici taraf "Uludag Finans
+    Kurumu A.S." ya da "Idare" olabilir, o zaman bankanin kendisi karsi taraf
+    diye yazilirdi. Once tanimli terimlerden aliciyi cikarip onu eleriz;
+    hicbiri eslesmezse eski sezgiye duseriz.
+    """
+    if not parties:
+        return ""
+    alicilar, _ted = taraflari_ayir(text)
+    alici_kok = [fold(a) for a in alicilar if len(fold(a)) >= 3]
+    for p in parties:
+        kp = fold(p)
+        if any(a in kp or kp in a for a in alici_kok):
+            continue
+        if _BANK_HINT.search(p):
+            continue
+        return p
+    return next((p for p in parties if not _BANK_HINT.search(p)), parties[0])
 
 
 def _strip_lead(name: str) -> str:

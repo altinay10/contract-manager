@@ -1,0 +1,48 @@
+YAZILIM LİSANS VE BAKIM SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Kapadokya Dijital Banka A.Ş. ("KAPADOKYA DİJİTAL") ile diğer tarafta
+Veriteknoloji Bilişim Yazılım Ltd. Şti. ("TEDARİKÇİ") arasında 09.03.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" TEDARİKÇİ tarafından sunulan çözümü, "KAPADOKYA DİJİTAL Verisi" KAPADOKYA DİJİTAL'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+TEDARİKÇİ, KAPADOKYA DİJİTAL'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 2 yıldır.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 850.000 TL'dir. Ödemeler fatura tarihinden itibaren otuz gün içinde yapılır.
+
+MADDE 5 - SORUMLULUK
+5.1 TEDARİKÇİ'nin toplam sorumluluğu yıllık sözleşme bedeli ile sınırlıdır.
+5.2 Kasıt ve ağır kusur hâlleri bu sınırlamanın dışındadır.
+
+MADDE 6 - DENETİM
+KAPADOKYA DİJİTAL ve bağımsız denetçileri, TEDARİKÇİ'nin sistemlerini yılda iki kez denetleyebilir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+KAPADOKYA DİJİTAL Verisi Türkiye'de barındırılır. Yurt dışına aktarım KAPADOKYA DİJİTAL'nın onayına tabidir.
+
+MADDE 8 - GÜVENLİK
+8.1 TEDARİKÇİ, güvenlik ihlalini kırk sekiz (48) saat içinde KAPADOKYA DİJİTAL'ya bildirir.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üç (3) yıl süreyle korur.
+
+MADDE 10 - FESİH
+Taraflar altmış (60) gün önceden yazılı bildirimde bulunarak Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+Damga vergisi Taraflarca eşit olarak karşılanır.
+
+MADDE 12 - HİZMET SEVİYESİ
+TEDARİKÇİ, aylık erişilebilirliğin %99 olacağını taahhüt eder.
+
+MADDE 13 - UYGULANACAK HUKUK
+İşbu Sözleşme Türk hukukuna tabidir. İstanbul mahkemeleri yetkilidir.
+
+MADDE 14 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.

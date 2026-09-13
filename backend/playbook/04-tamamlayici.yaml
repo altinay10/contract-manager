@@ -20,14 +20,14 @@
       absent_patterns:
         - "(?:mevzuat|yasal\\s+düzenleme|kanun)[^.]{0,120}(?:değişikli|uyarla)"
   ideal_text_tr: >-
-    Bankacılık mevzuatında veya Banka'ya uygulanan düzenlemelerde meydana gelen
+    Bankacılık mevzuatında veya Alıcıya uygulanan düzenlemelerde meydana gelen
     değişiklikler nedeniyle Hizmet'te uyarlama gerekmesi hâlinde Tedarikçi, gerekli
     değişiklikleri ek bir bedel talep etmeksizin ve makul süre içinde gerçekleştirir.
-    Uyarlamanın mümkün olmaması hâlinde Banka Sözleşme'yi tazminatsız feshedebilir.
-  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "Banka iç politika: UYU-POL-011"]
+    Uyarlamanın mümkün olmaması hâlinde Alıcı Sözleşme'yi tazminatsız feshedebilir.
+  legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "Alıcı iç politika: UYU-POL-011"]
   negotiation_argument_tr: >-
-    Banka mevzuata uymak zorundadır; bu bir tercih değildir. Uyum maliyetinin tamamen
-    bankaya yüklenmesi, düzenleyici riskin tek taraflı devri anlamına gelir.
+    Alıcı mevzuata uymak zorundadır; bu bir tercih değildir. Uyum maliyetinin tamamen
+    alıcıya yüklenmesi, düzenleyici riskin tek taraflı devri anlamına gelir.
   severity_if_missing: YUKSEK
 
 - code: SUPPORT_SERVICE_STATUS
@@ -49,12 +49,12 @@
     Tedarikçi, Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik kapsamında destek
     hizmeti kuruluşu sıfatını haiz olduğunu kabul eder; anılan mevzuatın öngördüğü risk
     yönetimi, hizmet sürekliliği, gizlilik ve denetim yükümlülüklerine uyar. Tedarikçi,
-    Banka'nın bu kapsamda hazırlayacağı değerlendirme raporları için gerekli bilgi ve
+    Alıcının bu kapsamda hazırlayacağı değerlendirme raporları için gerekli bilgi ve
     belgeleri sağlar.
   legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik"]
   negotiation_argument_tr: >-
     Bu statü sözleşmeyle yaratılmaz, mevzuattan doğar. Sözleşmeye yazılmaması yükümlülüğü
-    ortadan kaldırmaz; yalnızca bankayı denetimde savunmasız bırakır.
+    ortadan kaldırmaz; yalnızca alıcıyı denetimde savunmasız bırakır.
   severity_if_missing: YUKSEK
 
 - code: PERSONNEL_SECURITY
@@ -73,9 +73,9 @@
       absent_patterns:
         - "(?:adli\\s+sicil|özgeçmiş\\s+kontrol|güvenlik\\s+soruşturma|taahhütname)"
   ideal_text_tr: >-
-    Tedarikçi, Banka verilerine erişecek personeli için adli sicil ve özgeçmiş kontrolü
+    Tedarikçi, Alıcı verilerine erişecek personeli için adli sicil ve özgeçmiş kontrolü
     yapar, her bir personelden yazılı gizlilik taahhütnamesi alır ve personelin
-    ayrılması hâlinde erişim yetkilerini derhâl iptal ederek Banka'ya bildirir.
+    ayrılması hâlinde erişim yetkilerini derhâl iptal ederek Alıcı'ya bildirir.
   legal_basis: ["6698 sayılı KVKK m.12", "Bankaların Bilgi Sistemleri Yönetmeliği"]
   negotiation_argument_tr: >-
     Veri sızıntılarının önemli bölümü teknik açıktan değil, yetkili personelden kaynaklanır.
@@ -102,13 +102,13 @@
       patterns:
         - "(?:yalnızca|sadece)\\s+sözleşme\\s+süresince[^.]{0,40}kullan"
   ideal_text_tr: >-
-    Lisans; Banka'yı, Banka'nın iştiraklerini ve Banka adına hizmet veren üçüncü tarafları
-    kapsar. Banka'nın birleşme, devir veya yeniden yapılanma hâllerinde lisans ek bedel
+    Lisans; Alıcı'yı, Alıcının iştiraklerini ve Alıcı adına hizmet veren üçüncü tarafları
+    kapsar. Alıcının birleşme, devir veya yeniden yapılanma hâllerinde lisans ek bedel
     talep edilmeksizin devam eder. Kullanıcı sayısındaki artışlar Ek'teki birim fiyat
     üzerinden faturalandırılır.
   legal_basis: ["5846 sayılı FSEK"]
   negotiation_argument_tr: >-
-    Dar tanımlı bir lisans, banka büyüdükçe sözleşmeyi yeniden pazarlık masasına taşır ve
+    Dar tanımlı bir lisans, alıcı büyüdükçe sözleşmeyi yeniden pazarlık masasına taşır ve
     tedarikçiye her seferinde kaldıraç verir.
   severity_if_missing: ORTA
 
@@ -141,7 +141,7 @@
     bedelinin %20'sini aşamaz ve Ek'te sabitlenir.
   legal_basis: ["TBK m.474 vd.", "6502 sayılı Kanun (uygulanabildiği ölçüde)"]
   negotiation_argument_tr: >-
-    Garanti sonrası bakım bedeli sözleşmede sabitlenmezse, tedarikçi bankanın bağımlılığı
+    Garanti sonrası bakım bedeli sözleşmede sabitlenmezse, tedarikçi alıcının bağımlılığı
     oluştuktan sonra fiyatı serbestçe belirler.
   severity_if_missing: ORTA
 
@@ -163,12 +163,12 @@
         - "(?:önceden\\s+)?bildirimde\\s+bulunmaksızın[^.]{0,60}değiştir"
   ideal_text_tr: >-
     Hizmet'in kapsamını, işlevselliğini veya teknik altyapısını esaslı biçimde etkileyen
-    değişiklikler en az altmış (60) gün önceden Banka'ya yazılı olarak bildirilir. Banka
+    değişiklikler en az altmış (60) gün önceden Alıcı'ya yazılı olarak bildirilir. Alıcı
     değişikliği kabul etmediği takdirde Sözleşme'yi cezasız feshedebilir. Güvenlik
     yamaları bu süreye tabi değildir ve gecikmeksizin uygulanır.
-  legal_basis: ["Banka iç politika: BT-POL-012"]
+  legal_basis: ["Alıcı iç politika: BT-POL-012"]
   negotiation_argument_tr: >-
-    Bankanın entegre olduğu bir hizmetin habersiz değişmesi, üretim ortamında kesinti
+    Alıcının entegre olduğu bir hizmetin habersiz değişmesi, üretim ortamında kesinti
     riski demektir; bildirim süresi tedarikçiye maliyet yüklemez.
   severity_if_missing: ORTA
 
@@ -190,10 +190,10 @@
   ideal_text_tr: >-
     Tedarikçi, sözleşme bedelinin %10'u tutarında süresiz ve kesin teminat mektubu verir.
     Ayrıca mesleki sorumluluk ve siber sorumluluk sigortası yaptırır; poliçe örneklerini
-    Banka'ya sunar ve sözleşme süresince yürürlükte tutar.
-  legal_basis: ["Banka iç politika: SAT-POL-018"]
+    Alıcı'ya sunar ve sözleşme süresince yürürlükte tutar.
+  legal_basis: ["Alıcı iç politika: SAT-POL-018"]
   negotiation_argument_tr: >-
-    Sigorta, tedarikçinin ödeme gücünü aşan bir zararda bankanın tek gerçek güvencesidir;
+    Sigorta, tedarikçinin ödeme gücünü aşan bir zararda alıcının tek gerçek güvencesidir;
     sorumluluk tavanı yüksek olsa bile tahsil edilemeyen tazminatın değeri yoktur.
   severity_if_missing: ORTA
 
@@ -247,11 +247,11 @@
         - "münhasır(?:an|lık)?[^.]{0,80}{ALICI}"
         - "{ALICI}[^.]{0,60}(?:yalnızca|sadece)\\s+tedarikçi(?:'?den|den)"
   ideal_text_tr: >-
-    Banka'nın asgari alım veya harcama taahhüdü bulunmamaktadır. Banka, aynı veya benzer
+    Alıcının asgari alım veya harcama taahhüdü bulunmamaktadır. Alıcı, aynı veya benzer
     ürün ve hizmetleri üçüncü kişilerden temin etmekte serbesttir.
-  legal_basis: ["4054 sayılı Rekabetin Korunması Hakkında Kanun", "Banka iç politika: SAT-POL-006"]
+  legal_basis: ["4054 sayılı Rekabetin Korunması Hakkında Kanun", "Alıcı iç politika: SAT-POL-006"]
   negotiation_argument_tr: >-
-    Asgari taahhüt, ihtiyaç azalsa bile ödeme yükümlülüğü doğurur; bankayı kendi talep
+    Asgari taahhüt, ihtiyaç azalsa bile ödeme yükümlülüğü doğurur; alıcıyı kendi talep
     riskini tedarikçi adına üstlenmiş duruma sokar.
   severity_if_missing: DUSUK
 
@@ -273,11 +273,11 @@
         - "(?:ayart|istihdam)[^.]{0,80}(?:brüt\\s+)?(?:yıllık\\s+)?(?:ücretinin|maaşının)\\s+[^.]{0,20}katı"
   ideal_text_tr: >-
     Tedarikçi, Sözleşme süresince ve sona ermesinden itibaren bir (1) yıl boyunca, işbu
-    Sözleşme kapsamında görev alan Banka personeline doğrudan iş teklifinde bulunmaz.
+    Sözleşme kapsamında görev alan Alıcı personeline doğrudan iş teklifinde bulunmaz.
     Genel ilana açık işe alım süreçleri bu hükmün kapsamı dışındadır.
   legal_basis: ["TBK m.26 (sözleşme özgürlüğü)", "Anayasa m.48-49 (çalışma hürriyeti)"]
   negotiation_argument_tr: >-
-    Bankayı bağlayan bir işe alım yasağı, bankanın kendi personel havuzunu daraltır ve
+    Alıcıyı bağlayan bir işe alım yasağı, alıcının kendi personel havuzunu daraltır ve
     çalışma hürriyeti bakımından da tartışmalıdır.
   severity_if_missing: BILGI
 
@@ -297,12 +297,12 @@
       absent_patterns:
         - "(?:davranış\\s+kural|etik|insan\\s+hakları|sürdürülebilir)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'nın Tedarikçi Davranış Kuralları'na uyacağını; çalışma standartları,
+    Tedarikçi, Alıcının Tedarikçi Davranış Kuralları'na uyacağını; çalışma standartları,
     insan hakları, çevre ve iş sağlığı-güvenliği mevzuatına riayet edeceğini taahhüt eder.
-    Esaslı ihlal hâlinde Banka Sözleşme'yi feshedebilir.
-  legal_basis: ["Banka iç politika: SRD-POL-001"]
+    Esaslı ihlal hâlinde Alıcı Sözleşme'yi feshedebilir.
+  legal_basis: ["Alıcı iç politika: SRD-POL-001"]
   negotiation_argument_tr: >-
-    Tedarikçi zincirindeki bir ihlal, bankanın sürdürülebilirlik raporlamasına ve itibarına
+    Tedarikçi zincirindeki bir ihlal, alıcının sürdürülebilirlik raporlamasına ve itibarına
     doğrudan yansır.
   severity_if_missing: BILGI
 
@@ -350,7 +350,7 @@
     İşbu Sözleşme ve ekleri Taraflar arasındaki mutabakatın tamamını oluşturur.
     Çelişki hâlinde öncelik sırası: (i) işbu Sözleşme metni, (ii) ekler, (iii) sipariş
     formları şeklindedir. Tedarikçi'nin çevrimiçi kullanım koşulları, standart şartları
-    veya tek taraflı güncellenebilen belgeleri Banka'yı bağlamaz.
+    veya tek taraflı güncellenebilen belgeleri Alıcı'yı bağlamaz.
   legal_basis: ["TBK m.20-25 (genel işlem koşulları)"]
   negotiation_argument_tr: >-
     Tek taraflı güncellenebilen bir çevrimiçi metnin sözleşmeye üstün tutulması, müzakere
@@ -378,7 +378,7 @@
     o haktan feragat ettiği anlamına gelmez.
   legal_basis: ["TBK m.27/2"]
   negotiation_argument_tr: >-
-    Zımni feragat kaydı, bankanın operasyonel yoğunluk nedeniyle geciken bir itirazını
+    Zımni feragat kaydı, alıcının operasyonel yoğunluk nedeniyle geciken bir itirazını
     hak kaybına çevirir.
   severity_if_missing: BILGI
 
@@ -404,12 +404,12 @@
         - "(?:kayıt|log|iz\\s+kayd)"
   ideal_text_tr: >-
     Tedarikçi, Hizmet kapsamındaki işlem ve erişim kayıtlarını değiştirilemez biçimde en az
-    on (10) yıl süreyle saklar; Banka'nın veya yetkili otoritelerin talebi hâlinde
+    on (10) yıl süreyle saklar; Alıcının veya yetkili otoritelerin talebi hâlinde
     gecikmeksizin ibraz eder. Kayıtlar Sözleşme sona erse dahi bu süre boyunca muhafaza edilir.
   legal_basis: ["5411 sayılı Bankacılık Kanunu m.42", "Bankaların Bilgi Sistemleri Yönetmeliği"]
   negotiation_argument_tr: >-
-    Bankanın kayıt saklama yükümlülüğü on yıldır; tedarikçinin daha kısa süre saklaması
-    bankayı denetimde belge sunamaz duruma düşürür.
+    Alıcının kayıt saklama yükümlülüğü on yıldır; tedarikçinin daha kısa süre saklaması
+    alıcıyı denetimde belge sunamaz duruma düşürür.
   severity_if_missing: ORTA
 
 - code: EVIDENCE_AGREEMENT
@@ -433,11 +433,11 @@
       absent_patterns:
         - "(?:kesin\\s+delil|delil\\s+anlaşması|münhasır\\s+delil)"
   ideal_text_tr: >-
-    Taraflar arasındaki uyuşmazlıklarda Banka'nın defter, kayıt, bilgisayar ve ses
+    Taraflar arasındaki uyuşmazlıklarda Alıcının defter, kayıt, bilgisayar ve ses
     kayıtları ile elektronik verileri HMK m.193 anlamında kesin delil teşkil eder.
     Tedarikçi'nin kayıtları bu nitelikte sayılmaz.
   legal_basis: ["6100 sayılı HMK m.193 (delil sözleşmesi)"]
   negotiation_argument_tr: >-
     Kesin delil anlaşması, uyuşmazlıkta kimin kayıtlarının esas alınacağını belirler.
-    Tek taraflı düzenlenirse banka kendi kayıtlarıyla iddiasını ispatlayamaz duruma düşer.
+    Tek taraflı düzenlenirse alıcı kendi kayıtlarıyla iddiasını ispatlayamaz duruma düşer.
   severity_if_missing: DUSUK

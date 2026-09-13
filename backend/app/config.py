@@ -60,11 +60,30 @@ class Settings:
     llm_deadline_seconds: int = _env_int("LLM_DEADLINE_SECONDS", 900)
     max_consecutive_failures: int = _env_int("MAX_CONSECUTIVE_FAILURES", 3)
     llm_timeout_seconds: int = _env_int("LLM_TIMEOUT_SECONDS", 90)
+    # Gecici saglayici hatalari (503/429) icin sinirli yeniden deneme. Yeniden
+    # deneme olmayinca tek bir 503 devre kesiciye hata yaziyor, ust uste ucu tum
+    # analizi durduruyordu.
+    # Kotasi biten model yerine sirayla denenecek yedekler (virgulle ayrilir).
+    # Bos birakilirsa devir yok: kota bitince analiz kural katmaniyla surer.
+    model_fallbacks: str = _env("MODEL_FALLBACKS", "")
+    llm_retry_attempts: int = _env_int("LLM_RETRY_ATTEMPTS", 3)
+    llm_retry_backoff_seconds: float = float(_env("LLM_RETRY_BACKOFF_SECONDS", "2"))
     # Modele gonderilecek azami madde sayisi (agirliga gore secilir). 0 = sinirsiz.
     max_llm_clauses: int = _env_int("MAX_LLM_CLAUSES", 40)
     # Coklu mercek ve karsi-gorus pahalidir; kapatilabilir.
     enable_lenses: bool = _env("ENABLE_LENSES", "1") not in ("0", "false", "False")
     enable_rebuttal: bool = _env("ENABLE_REBUTTAL", "1") not in ("0", "false", "False")
+
+    # --- surum karsilastirma ---
+    # Modele gonderilecek azami degisiklik sayisi. Fazlasi sablon aciklamayla
+    # kalir; deterministik fark yine tam gosterilir. 0 = sinirsiz.
+    max_compare_explain: int = _env_int("MAX_COMPARE_EXPLAIN", 30)
+    # Gri bant: benzerligi bu araliktaki ciftler modele "ayni madde mi?" diye
+    # sorulur. Ust sinir compare.SIM_THRESHOLD ile ayni olmali.
+    compare_gray_low: float = float(_env("COMPARE_GRAY_LOW", "0.45"))
+    # Ablasyon anahtarlari (docs/08 §7): her kaldirac tek tek olculebilsin.
+    enable_compare_adjudicate: bool = _env("ENABLE_COMPARE_ADJUDICATE", "1") not in ("0", "false", "False")
+    enable_compare_rebuttal: bool = _env("ENABLE_COMPARE_REBUTTAL", "1") not in ("0", "false", "False")
 
     # --- OCR (taranmış belgeler) ---
     ocr_enabled: bool = _env("OCR_ENABLED", "1") not in ("0", "false", "False")

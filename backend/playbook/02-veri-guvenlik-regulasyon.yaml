@@ -25,7 +25,7 @@
       patterns:
         - "denetim[^.]{0,80}(?:masraf|gider|maliyet)[^.]{0,40}{ALICI}"
   ideal_text_tr: >-
-    Banka, bağımsız denetçileri ve yetkili düzenleyici otoriteler (BDDK dâhil), Tedarikçi'nin
+    Alıcı, bağımsız denetçileri ve yetkili düzenleyici otoriteler (BDDK dâhil), Tedarikçi'nin
     işbu Sözleşme kapsamındaki faaliyetlerini, sistemlerini ve kayıtlarını yerinde veya uzaktan
     denetleme hakkına sahiptir. Güvenlik ihlali şüphesi hâlinde denetim önceden bildirim
     şartına tabi değildir. Denetimde tespit edilen uygunsuzlukların giderilme maliyeti
@@ -35,8 +35,8 @@
     - "Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik"
     - "Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında Yönetmelik"
   negotiation_argument_tr: >-
-    Denetim hakkı bankanın tercihi değil, regülatif yükümlülüğüdür. BDDK'nın erişemediği bir
-    tedarikçiyle çalışmak bankayı doğrudan uygunsuzluğa düşürür; bu madde müzakereye açık değildir.
+    Denetim hakkı alıcının tercihi değil, regülatif yükümlülüğüdür. BDDK'nın erişemediği bir
+    tedarikçiyle çalışmak alıcıyı doğrudan uygunsuzluğa düşürür; bu madde müzakereye açık değildir.
   severity_if_missing: KRITIK
 
 - code: SUBCONTRACTOR
@@ -57,14 +57,14 @@
         - "(?:alt\\s+yüklenici|üçüncü\\s+kişi)[^.]{0,80}(?:serbest(?:tir|çe)|dilediği|kendi\\s+takdirine)"
         - "(?:dilediği|uygun\\s+gördüğü)\\s+(?:alt\\s+yüklenici|üçüncü\\s+kişi)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'nın önceden yazılı onayı olmaksızın işbu Sözleşme kapsamındaki
+    Tedarikçi, Alıcının önceden yazılı onayı olmaksızın işbu Sözleşme kapsamındaki
     yükümlülüklerinin tamamını veya bir kısmını alt yüklenicilere devredemez. Onay verilen alt
     yükleniciler Ek'te listelenir; listedeki değişiklikler otuz (30) gün önceden bildirilir ve
-    Banka'nın itiraz hakkı saklıdır. Tedarikçi, alt yüklenicilerinin fiillerinden kendi fiili
+    Alıcının itiraz hakkı saklıdır. Tedarikçi, alt yüklenicilerinin fiillerinden kendi fiili
     gibi sorumludur.
   legal_basis: ["Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik", "6698 sayılı KVKK m.12"]
   negotiation_argument_tr: >-
-    Banka, hizmeti kimin verdiğini bilmek ve denetleyebilmek zorundadır. Onaysız alt yüklenici,
+    Alıcı, hizmeti kimin verdiğini bilmek ve denetleyebilmek zorundadır. Onaysız alt yüklenici,
     denetim zincirini ve veri sorumluluğunu kopartır.
   severity_if_missing: YUKSEK
 
@@ -91,16 +91,16 @@
       absent_patterns:
         - "(?:türkiye|yurt\\s*içi|yurtiçi)"
   ideal_text_tr: >-
-    Banka'ya ait veriler ile birincil ve ikincil sistemler Türkiye Cumhuriyeti sınırları içinde
-    bulundurulur ve işlenir. Verilerin yurt dışına aktarılması, Banka'nın önceden yazılı onayına
+    Alıcı'ya ait veriler ile birincil ve ikincil sistemler Türkiye Cumhuriyeti sınırları içinde
+    bulundurulur ve işlenir. Verilerin yurt dışına aktarılması, Alıcının önceden yazılı onayına
     ve 6698 sayılı Kanun'un 9. maddesindeki şartların sağlanmasına bağlıdır. Tedarikçi, veri
     merkezlerinin fiziksel konumunu Ek'te beyan eder ve değişiklikleri önceden bildirir.
   legal_basis:
     - "6698 sayılı KVKK m.9 (yurt dışına aktarım)"
     - "Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında Yönetmelik"
   negotiation_argument_tr: >-
-    Veri lokasyonu bankanın takdirinde olan bir tercih değil, mevzuat gereğidir. Bu madde
-    karşılanmıyorsa tedarikçi bankaya hizmet veremez.
+    Veri lokasyonu alıcının takdirinde olan bir tercih değil, mevzuat gereğidir. Bu madde
+    karşılanmıyorsa tedarikçi alıcıya hizmet veremez.
   severity_if_missing: KRITIK
 
 - code: BREACH_NOTIFICATION
@@ -124,18 +124,18 @@
       patterns:
         - "(?:kırk\\s+sekiz|48|yetmiş\\s+iki|72|beş|5|yedi|7)\\s*\\(?\\s*\\d*\\s*\\)?\\s*(?:saat|gün)[^.]{0,50}bildir"
   ideal_text_tr: >-
-    Tedarikçi, Banka'ya ait verileri etkileyen veya etkileme ihtimali bulunan her türlü güvenlik
-    ihlalini, ihlali öğrendiği andan itibaren en geç yirmi dört (24) saat içinde Banka'ya yazılı
+    Tedarikçi, Alıcı'ya ait verileri etkileyen veya etkileme ihtimali bulunan her türlü güvenlik
+    ihlalini, ihlali öğrendiği andan itibaren en geç yirmi dört (24) saat içinde Alıcı'ya yazılı
     olarak bildirir. Bildirim; ihlalin kapsamını, etkilenen veri kategorilerini ve alınan
     tedbirleri içerir. Kök neden analizi raporu en geç beş (5) iş günü içinde sunulur.
   legal_basis: ["6698 sayılı KVKK m.12", "Kişisel Verileri Koruma Kurulu 24.01.2019 tarihli ilke kararı (72 saat)"]
   negotiation_argument_tr: >-
-    Banka, ihlali Kurul'a 72 saat içinde bildirmek zorundadır. Tedarikçi 72 saatte bildirirse
-    bankanın kendi yükümlülüğünü yerine getirmesine sıfır süre kalır. 24 saat aritmetik bir zorunluluktur.
+    Alıcı, ihlali Kurul'a 72 saat içinde bildirmek zorundadır. Tedarikçi 72 saatte bildirirse
+    alıcının kendi yükümlülüğünü yerine getirmesine sıfır süre kalır. 24 saat aritmetik bir zorunluluktur.
   severity_if_missing: KRITIK
 
 - code: CONFIDENTIALITY
-  name_tr: Gizlilik ve Banka/Müşteri Sırrı
+  name_tr: Gizlilik ve Alıcı/Müşteri Sırrı
   category: VERI_GUVENLIK
   obligation: ZORUNLU
   applies_to: [SAAS, YAZILIM, HIZMET, DONANIM, DIS_KAYNAK, CERCEVE]
@@ -155,7 +155,7 @@
       absent_patterns:
         - "(?:banka\\s+sırrı|müşteri\\s+sırrı|5411)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'ya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı
+    Tedarikçi, Alıcıya ait her türlü bilgiyi gizli tutar. Banka sırrı ve müşteri sırrı
     niteliğindeki bilgilere ilişkin gizlilik yükümlülüğü süresizdir ve 5411 sayılı Bankacılık
     Kanunu'nun 73. maddesi hükümlerine tabidir. Diğer gizli bilgilere ilişkin yükümlülük
     Sözleşme'nin sona ermesinden itibaren beş (5) yıl devam eder.
@@ -183,13 +183,13 @@
         - "(?:model|yapay\\s+zeka|makine\\s+öğrenmesi|algoritma)[^.]{0,60}(?:eğit|geliştir|besle)"
         - "anonim(?:leştiril(?:miş|erek))?[^.]{0,60}(?:istatistik|analiz|kullanabilir)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'ya ait verileri yalnızca işbu Sözleşme kapsamındaki hizmeti sunmak amacıyla
-    işler. Banka verisi; anonimleştirilmiş, toplulaştırılmış veya türetilmiş biçimde dahi olsa
-    yapay zeka/makine öğrenmesi modellerinin eğitiminde, ürün geliştirmede veya Banka dışındaki
+    Tedarikçi, Alıcı'ya ait verileri yalnızca işbu Sözleşme kapsamındaki hizmeti sunmak amacıyla
+    işler. Alıcı verisi; anonimleştirilmiş, toplulaştırılmış veya türetilmiş biçimde dahi olsa
+    yapay zeka/makine öğrenmesi modellerinin eğitiminde, ürün geliştirmede veya Alıcı dışındaki
     herhangi bir amaçla kullanılamaz.
   legal_basis: ["6698 sayılı KVKK m.4 (amaçla bağlılık)", "5411 sayılı Bankacılık Kanunu m.73"]
   negotiation_argument_tr: >-
-    "Hizmeti geliştirmek" ifadesi pratikte sınırsız bir kullanım hakkıdır. Bankanın müşteri
+    "Hizmeti geliştirmek" ifadesi pratikte sınırsız bir kullanım hakkıdır. Alıcının müşteri
     verisinin tedarikçinin ürününe gömülmesi geri alınamaz bir işlemdir.
   severity_if_missing: YUKSEK
 
@@ -209,13 +209,13 @@
       absent_patterns:
         - "(?:talimat|teknik\\s+ve\\s+idari\\s+tedbir)"
   ideal_text_tr: >-
-    Tedarikçi, Banka'nın veri işleyeni sıfatıyla hareket eder ve kişisel verileri yalnızca
-    Banka'nın yazılı talimatları doğrultusunda işler. Tedarikçi, 6698 sayılı Kanun'un 12.
+    Tedarikçi, Alıcının veri işleyeni sıfatıyla hareket eder ve kişisel verileri yalnızca
+    Alıcının yazılı talimatları doğrultusunda işler. Tedarikçi, 6698 sayılı Kanun'un 12.
     maddesi uyarınca gerekli teknik ve idari tedbirleri alır; Sözleşme sona erdiğinde verileri
-    Banka'ya iade eder veya imha ederek imha tutanağını sunar.
+    Alıcı'ya iade eder veya imha ederek imha tutanağını sunar.
   legal_basis: ["6698 sayılı KVKK m.12", "Veri Sorumlusu ve Veri İşleyen ilişkisi"]
   negotiation_argument_tr: >-
-    Veri işleyen sözleşmesi kanunen zorunludur; yokluğu bankayı doğrudan idari yaptırıma açar.
+    Veri işleyen sözleşmesi kanunen zorunludur; yokluğu alıcıyı doğrudan idari yaptırıma açar.
   severity_if_missing: KRITIK
 
 - code: SECURITY_TESTING
@@ -234,10 +234,10 @@
       patterns:
         - "(?:sızma|penetrasyon|güvenlik)\\s+test[^.]{0,60}(?:yasak|yapamaz|izin\\s+ver(?:il)?mez)"
   ideal_text_tr: >-
-    Banka, yılda en az bir kez ve önemli değişiklik sonrasında Tedarikçi'nin sistemleri üzerinde
+    Alıcı, yılda en az bir kez ve önemli değişiklik sonrasında Tedarikçi'nin sistemleri üzerinde
     sızma testi ve zafiyet taraması yaptırma hakkına sahiptir. Tespit edilen kritik zafiyetler
     on beş (15) gün, yüksek zafiyetler otuz (30) gün içinde giderilir.
   legal_basis: ["Bankaların Bilgi Sistemleri Yönetmeliği"]
   negotiation_argument_tr: >-
-    Bankanın kendi güvenlik seviyesini doğrulayamadığı bir bağımlılığı taşıması mümkün değildir.
+    Alıcının kendi güvenlik seviyesini doğrulayamadığı bir bağımlılığı taşıması mümkün değildir.
   severity_if_missing: ORTA

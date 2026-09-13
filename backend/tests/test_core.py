@@ -5,6 +5,8 @@ bir grounding zafiyeti, ekranda hata vermeden yanlis rapor uretir.
 """
 from __future__ import annotations
 
+import pathlib
+
 import pytest
 
 from app.playbook.loader import load_playbook, mandatory_codes
@@ -393,6 +395,73 @@ def test_alici_taraf_adi_banka_olmak_zorunda_degil():
         "alıcı adı çözüldüğünde eşleşmeli"
 
 
+def test_playbook_metinleri_taraf_adina_sabitlenmemis():
+    """Tespit genellestirildi ama insanin okudugu metinler "banka" diyordu:
+    alici İDARE iken rapor "bankaya en fazla ne kadar odeyecegi" yaziyordu.
+
+    Mevzuat atiflari (legal_basis) ve hukuki terimler ("banka sirri",
+    "Bankalarin ... Yonetmelik") disarida birakilir; onlar taraf gondermesi degil.
+    """
+    import re
+    import yaml
+
+    kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    # Korunan hukuki terimler maskelenir; ayni satirdaki taraf gondermesi yine
+    # de yakalanir. Onceki surumde tum satir atlaniyordu ve "Banka'ya ait her
+    # turlu bilgi" ifadesi "Banka sirri" yuzunden gozden kaciyordu.
+    MASKE = [r"[Bb]ankacılık", r"Bankaların", r"[Bb]anka\s+sırrı"]
+    ihlal = []
+    for dosya in sorted(kok.glob("*.yaml")):
+        for no, satir in enumerate(dosya.read_text(encoding="utf-8").splitlines(), 1):
+            if "(?:" in satir or "\\s" in satir:      continue   # regex deseni
+            temiz = satir
+            for m in MASKE:
+                temiz = re.sub(m, "", temiz)
+            # Kesme isaretli cekimler dahil: Banka'ya, Banka'nin, Bankaya...
+            if re.search(r"\b[Bb]anka('(nın|ya|yı|da|dan))?(nın|ya|yı|da|dan)?\b", temiz):
+                ihlal.append(f"{dosya.name}:{no}")
+    assert not ihlal, ("playbook metinleri hâlâ alıcıyı 'banka' sanıyor: "
+                       + ", ".join(ihlal[:6]))
+
+
+def test_playbook_hukuki_atiflari_korunur():
+    """Genellestirme mevzuati bozmamali: 5411 sayili Kanun, BDDK yonetmelik
+    adlari ve "banka sirri" terimi taraf gondermesi degildir."""
+    kok = pathlib.Path(__file__).resolve().parents[1] / "playbook"
+    tumu = "\n".join(d.read_text(encoding="utf-8") for d in kok.glob("*.yaml"))
+    for terim in ("Bankacılık Kanunu", "Bankaların Destek", "Banka sırrı",
+                  "bankacılık mevzuat"):
+        assert terim.lower() in tumu.lower(), f"hukuki atıf kayboldu: {terim}"
+
+
+def test_damga_vergisi_banka_olmayan_alicida_da_yakalanir():
+    """Damga vergisi sezgiseli "banka" kelimesine bakiyordu; alici İDARE ise
+    yuk alici tarafa yiklenmis olsa bile risk olarak isaretlenmiyordu."""
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        'MADDE 1 - TARAFLAR\n'
+        'KAMU DİJİTAL HİZMETLER GENEL MÜDÜRLÜĞÜ ("İDARE") ile '
+        'Veriteknoloji Bilişim Ltd. Şti. ("YÜKLENİCİ") arasında akdedilmiştir.\n'
+        'MADDE 9 - DAMGA VERGİSİ\n'
+        'İşbu sözleşmeden doğan damga vergisi İDARE tarafından ödenir.\n'
+    )
+    assert extract_meta(metin)["stamp_duty"] == "Alıcıya ait (risk)"
+
+
+def test_damga_vergisi_bankada_da_calismaya_devam_eder():
+    """Eski davranis korunmali: alici gercekten banka ise yine yakalanir."""
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        'MADDE 1 - TARAFLAR\n'
+        'Örnek Bankası A.Ş. ("Banka") ile Tedarikçi Ltd. ("Tedarikçi") arasında.\n'
+        'MADDE 9 - DAMGA VERGİSİ\n'
+        'İşbu sözleşmeye ait damga vergisi Banka tarafından ödenecektir.\n'
+    )
+    assert extract_meta(metin)["stamp_duty"] == "Alıcıya ait (risk)"
+
+
 def test_banka_adiyla_da_calismaya_devam_eder():
     """Yer tutucu, varsayilan adlarla (banka, musteri...) da calismali."""
     from app.pipeline.redlines import evaluate_red_lines
@@ -429,3 +498,58 @@ def test_normal_metin_taslak_kusuru_uretmez():
     metin = ("Bu sözleşmeden doğan damga vergisi Banka tarafından ödenir. "
              "Tedarikçi, No:5 Ümraniye/İstanbul adresinde mukimdir.")
     assert not taslak_kusurlari(metin), "temiz metinde yanlış pozitif"
+
+
+# --------------------------------------------------------------------------- #
+# Karsi taraf cikarimi
+# --------------------------------------------------------------------------- #
+def test_sirket_eki_kelime_icinde_taraf_sayilmaz():
+    """'YAZILIM LİSANS' icindeki 'SA', 'S.A.' sirket eki degildir.
+
+    Noktasiz kisaltmalar (SA, BV, LTD) Turkce kelimelerin icine denk geliyordu;
+    belge basligi taraf sanilip karsi taraf alanina yaziliyordu.
+    """
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        "YAZILIM LİSANS VE BAKIM SÖZLEŞMESİ\n\n"
+        "İşbu Sözleşme, bir tarafta Marmara Yatırım Bankası A.Ş. (\"MARMARA YATIRIM\") ile "
+        "diğer tarafta Nexora Bulut Hizmetleri A.Ş. (\"HİZMET SAĞLAYICI\") arasında "
+        "16.06.2026 tarihinde akdedilmiştir.\n"
+    )
+    m = extract_meta(metin)
+    assert "YAZILIM LİSA" not in m["parties"]
+    assert "HİZMET SA" not in m["parties"]
+    assert m["counterparty"] == "Nexora Bulut Hizmetleri A.Ş"
+
+
+def test_karsi_taraf_adinda_bank_gecmeyen_alicida_da_dogru():
+    """Alici taraf 'Uludağ Finans Kurumu' ise karsi taraf o degildir.
+
+    'Icinde bank gecmeyen ilk taraf' sezgisi bu durumda bankanin kendisini
+    karsi taraf yaziyordu; tanimli terimlerden alici elenir.
+    """
+    from app.pipeline.meta import extract_meta
+
+    metin = (
+        "DONANIM TEDARİK SÖZLEŞMESİ\n\n"
+        "İşbu Sözleşme, bir tarafta Uludağ Finans Kurumu A.Ş. (\"ULUDAĞ FİNANS\") ile "
+        "diğer tarafta Beykoz Donanım Sistemleri A.Ş. (\"SATICI\") arasında akdedilmiştir.\n"
+    )
+    assert extract_meta(metin)["counterparty"] == "Beykoz Donanım Sistemleri A.Ş"
+
+
+def test_yokluk_iddiasi_kirmizi_cizgi_sayilmaz():
+    """"Bu koruma yok" bir kırmızı çizgi ihlali değildir.
+
+    Skorlamadaki veto kuralı tek bir RED_LINE'da bandı KIRMIZI'ya çeker. Model
+    yokluk iddialarını da RED_LINE işaretleyince iyi yazılmış sözleşmeler de
+    kırmızıya boyanıyordu. Bir alıntı yokluğu kanıtlayamaz.
+    """
+    from app.pipeline.analyze import _yokluk_iddiasi
+
+    assert _yokluk_iddiasi("Banka sırrı kavramına atıf yok", "")
+    assert _yokluk_iddiasi("", "Tazminat yükümlülüğü maddesi tamamen eksik")
+    assert _yokluk_iddiasi("Bildirim süresi belirtilmemiş", "")
+    assert not _yokluk_iddiasi("Sorumluluk tavanı yıllık bedelle sınırlanmış", "")
+    assert not _yokluk_iddiasi("Tedarikçiye tek taraflı fesih hakkı tanınmış", "")

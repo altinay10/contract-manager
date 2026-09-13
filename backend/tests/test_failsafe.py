@@ -298,3 +298,36 @@ def test_biten_analiz_iptal_edilemez():
     runner.execute(cid)
     assert runner.progress(cid)["run_status"] == "DONE"
     assert runner.cancel(cid) is False
+
+
+def test_cokme_sonrasi_sozlesme_hata_isaretlenir(monkeypatch, tmp_path):
+    """Analiz thread'i beklenmedik bir hatayla ölürse sözleşme HATA olur.
+
+    İşaretlenmezse sözleşme sonsuza dek "sürüyor" kalıyordu: ilerleme çubuğu
+    donuyor, kullanıcı devam da edemiyordu. Eşzamanlı iki analizde SQLite
+    "database is locked" verip thread'i öldürdüğünde tam olarak bu oluyordu.
+    """
+    import time as _t
+
+    from app.db import session_scope
+    from app.models import Contract
+    from app import runner
+
+    with session_scope() as s:
+        c = Contract(title="x", filename="x.txt", contract_type="SAAS", status="ISLENIYOR")
+        s.add(c)
+        s.flush()
+        cid = c.id
+
+    def patla(_cid):
+        raise RuntimeError("database is locked")
+
+    monkeypatch.setattr(runner, "execute", patla)
+    assert runner.start(cid)
+    for _ in range(50):
+        if not runner.is_running(cid):
+            break
+        _t.sleep(0.05)
+
+    with session_scope() as s:
+        assert s.get(Contract, cid).status == "HATA"

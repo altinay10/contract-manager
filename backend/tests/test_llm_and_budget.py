@@ -229,8 +229,11 @@ def test_k2_kirmizi_cizgi_kontrol_listesi_prompta_zerk_ediliyor(monkeypatch):
     _kos(monkeypatch, sag, max_llm_clauses=8, enable_lenses=False, enable_rebuttal=False)
     birlesik = "\n".join(sag.gorulen_promptlar)
     assert "KIRMIZI CIZGI KONTROL LISTESI" in birlesik
-    assert "KARSILANDI / IHLAL / METINDE YOK" in birlesik
+    assert "KARSILANDI / IHLAL / BU MADDEDE DUZENLENMEMIS" in birlesik
     assert "<madde_metni>" in birlesik
+    # Alinti iddiayi desteklemeli: yoklugu alintiyla "kanitlayan" bulgular
+    # iyi yazilmis sozlesmeleri de kirmiziya boyuyordu.
+    assert "alinti iddiani curutuyorsa bulgu yanlistir" in birlesik
 
 
 UYDURMA_METIN = "Bu cümle sözleşmede kesinlikle geçmiyor"
@@ -489,6 +492,88 @@ def test_sistem_promptu_taraf_adina_sabitlenmemis():
         assert "banka" not in metin.lower(), f"{ad} merceği 'banka' diyor"
 
 
+def test_metin_ureten_modelde_dusunme_modu_kapatilir():
+    """Düşünme modu bu iş için pahalı ve gereksiz.
+
+    Ölçüldü: qwen3.8-flash 19 sn / 994 token -> 5 sn / 400 token;
+    glm-5.2-fast-preview 39 sn / 3.942 token -> 1,2 sn / 27 token.
+    Akıl yürütme zinciri gerekmiyor, 90 sn'lik sınır aşılıyordu.
+
+    Aile listesi tutmak yerine metin üreten HER modelde bir kez denenir;
+    desteklemeyen servis 400 döner ve parametre bir daha gönderilmez.
+    Aksi halde yalnızca Qwen tanınıyordu ve GLM/Kimi/DeepSeek boşuna
+    akıl yürütüyordu."""
+    from app.llm.provider import _dusunme_kapatilabilir
+
+    for m in ("qwen3.8-max", "Qwen3-27B", "glm-5.2-fast-preview", "kimi-k3",
+              "deepseek-v3.2", "gpt-4o"):
+        assert _dusunme_kapatilabilir(m), f"{m} icin dusunme kapatilmiyor"
+    # Metin uretmeyen modellerde parametre anlamsiz
+    for m in ("qwen-image-3.0", "qwen-audio-3.0-asr-flash", "qwen3.7-text-embedding",
+              "qwen3-tts-flash", "qwen3-vl-plus", "wan2.7-image"):
+        assert not _dusunme_kapatilabilir(m), f"{m} icin gereksiz gonderiliyor"
+
+
+def test_dusunme_reddedilirse_onsuz_tekrar_denenir():
+    """Desteklemeyen servis 400 doner; saglayici parametreyi birakip devam
+    etmeli, analizi kaybetmemeli."""
+    from app.llm.provider import OpenAICompatProvider, Turn, _Uyumsuz
+
+    p = OpenAICompatProvider("anahtar", "https://ornek.test/v1", ad="custom")
+    cagri = {"n": 0}
+
+    def sahte_post(govde):
+        cagri["n"] += 1
+        if "enable_thinking" in govde:
+            raise _Uyumsuz("dusunme", "enable_thinking is not supported")
+        return {"choices": [{"message": {"content": '{"findings": []}'}}],
+                "usage": {"prompt_tokens": 5, "completion_tokens": 5}}
+
+    p._post = sahte_post
+    t = Turn(agent="Test", system="s", context_blocks=[], task_block="g",
+             schema={"type": "object", "properties": {}}, model="qwen3.8-flash",
+             max_tokens=100)
+    p._invoke(t)
+    assert cagri["n"] == 2, "parametre reddedilince onsuz tekrar denenmedi"
+    assert p._dusunme["qwen3.8-flash"] is False, "red bilgisi hatirlanmadi"
+
+
+def test_tum_llm_promptlari_taraf_adina_sabitlenmemis():
+    """Yalnizca analyze.py'yi denetlemek yetmedi: gaps.py'deki GAP_SYSTEM
+    "Sen bir Turk bankasinin sozlesme denetcisisin" diyordu ve gozden kacmisti.
+
+    Bu test modulleri tarayarak TUM prompt sabitlerini bulur; ileride yeni bir
+    prompt eklenirse o da kendiliginden kapsama girer.
+    """
+    import importlib
+
+    MODULLER = ["analyze", "gaps", "verify", "redline", "classify"]
+    bulunan, ihlal = 0, []
+    for ad in MODULLER:
+        try:
+            m = importlib.import_module(f"app.pipeline.{ad}")
+        except ImportError:
+            continue
+        for isim in dir(m):
+            if not isim.isupper():
+                continue
+            if not any(k in isim for k in ("SYSTEM", "PROMPT", "INSTRUCTION")):
+                continue
+            deger = getattr(m, isim)
+            metinler = ([deger] if isinstance(deger, str)
+                        else list(deger.values()) if isinstance(deger, dict)
+                        else list(deger) if isinstance(deger, (list, tuple)) else [])
+            for metin in metinler:
+                if not isinstance(metin, str):
+                    continue
+                bulunan += 1
+                if "banka" in metin.lower():
+                    ihlal.append(f"{ad}.{isim}")
+
+    assert bulunan >= 3, f"prompt sabiti bulunamadi ({bulunan}); test kendini kandiriyor"
+    assert not ihlal, ("su promptlar taraf adina sabitlenmis: " + ", ".join(sorted(set(ihlal))))
+
+
 def test_gorev_blogu_gercek_taraf_adlarini_tasir():
     from app.pipeline.analyze import build_task_block
     from app.pipeline.redlines import evaluate_red_lines
@@ -545,3 +630,168 @@ def test_prompt_uydurmayi_ve_sismeyi_acikca_yasaklar():
     assert "otomatik olarak silinir" in p          # alıntı doğrulaması caydırıcı
     assert "bulgu uretme" in p or "bulgu üretme" in p
     assert "tekrarlama" in p
+
+
+def test_gecici_hata_yeniden_deneniyor(monkeypatch):
+    """503 gibi geçici hatalar yeniden denenir, kalıcı hatalar denenmez.
+
+    Yeniden deneme yokken tek bir 503 devre kesiciye hata yazıyordu; üst üste
+    üçü tüm analizi durduruyordu. Beklemek geçici hatayı çözer, kalıcı olanı
+    (geçersiz anahtar, biten kota) çözmez.
+    """
+    from app.llm.provider import Completion, LLMError, LLMPermanentError, Turn, Usage, _Guarded
+
+    monkeypatch.setattr("app.llm.provider.time.sleep", lambda _s: None)
+
+    class Titrek(_Guarded):
+        name = "titrek"
+
+        def __init__(self, hatalar):
+            self.kalan = hatalar
+            self.cagri = 0
+
+        def _invoke(self, turn):
+            self.cagri += 1
+            if self.kalan:
+                self.kalan -= 1
+                raise LLMError("HTTP 503: overloaded")
+            return Completion(data={"ok": True}, usage=Usage(model="m"))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64)
+
+    p = Titrek(2)
+    assert p.complete_json(turn).data == {"ok": True}
+    assert p.cagri == 3, "iki geçici hatadan sonra üçüncü deneme başarılı olmalı"
+
+    # Denemeler tükenirse hata yine yükselir.
+    import pytest
+    with pytest.raises(LLMError):
+        Titrek(9).complete_json(turn)
+
+    class Kalici(_Guarded):
+        name = "kalici"
+
+        def __init__(self):
+            self.cagri = 0
+
+        def _invoke(self, turn):
+            self.cagri += 1
+            raise LLMPermanentError("HTTP 403: quota exhausted")
+
+    k = Kalici()
+    with pytest.raises(LLMPermanentError):
+        k.complete_json(turn)
+    assert k.cagri == 1, "kalıcı hata yeniden denenmemeli"
+
+
+def test_kotasi_biten_model_yedege_devreder(monkeypatch):
+    """Kota bitince analiz kural katmanına düşmez, sıradaki modele geçer.
+
+    Ücretsiz kotalar model başına ayrıdır; bir modelin kotası bittiğinde
+    sözleşmenin geri kalanını modelsiz analiz etmek gereksiz bir kayıptır.
+    Bozuk kurulum (geçersiz anahtar) ise devredilmez — orada beklemek ya da
+    model değiştirmek sorunu çözmez.
+    """
+    from app.llm.provider import (Completion, LLMPermanentError, Turn, Usage, _Guarded)
+
+    monkeypatch.setattr("app.llm.provider.settings.model_fallbacks", "model-b, model-c")
+
+    class Kotali(_Guarded):
+        name = "kotali"
+
+        def __init__(self, calisan):
+            self.calisan = calisan
+            self.denenen = []
+
+        def _invoke(self, turn):
+            m = turn.model or "model-a"
+            self.denenen.append(m)
+            if m != self.calisan:
+                raise LLMPermanentError('HTTP 403: {"message":"Free quota exhausted"}')
+            return Completion(data={"ok": True}, usage=Usage(model=m))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64, model="model-a")
+
+    p = Kotali("model-c")
+    assert p.complete_json(turn).data == {"ok": True}
+    assert p.denenen == ["model-a", "model-b", "model-c"]
+
+    # Yedekler de tükenirse hata yükselir.
+    import pytest
+    t2 = Kotali("hicbiri")
+    with pytest.raises(LLMPermanentError):
+        t2.complete_json(turn)
+
+    # Geçersiz anahtar devredilmez: ilk modelde durur.
+    class Yetkisiz(_Guarded):
+        name = "yetkisiz"
+
+        def __init__(self):
+            self.denenen = []
+
+        def _invoke(self, turn):
+            self.denenen.append(turn.model or "model-a")
+            raise LLMPermanentError("HTTP 401: invalid api key")
+
+    y = Yetkisiz()
+    with pytest.raises(LLMPermanentError):
+        y.complete_json(turn)
+    assert y.denenen == ["model-a"]
+
+
+def test_tukenen_model_hatirlanir(monkeypatch):
+    """Kotası bittiği anlaşılan model bir daha denenmez.
+
+    Hatırlanmazsa her çağrı önce tükenmiş modele gidip 403 yer; sözleşme
+    başına onlarca boşa gidiş-dönüş demektir.
+    """
+    from app.llm.provider import Completion, LLMPermanentError, Turn, Usage, _Guarded
+
+    monkeypatch.setattr("app.llm.provider.settings.model_fallbacks", "model-a,model-b")
+
+    class Sayan(_Guarded):
+        name = "sayan"
+
+        def __init__(self):
+            self.denenen = []
+
+        def _invoke(self, turn):
+            m = turn.model or "model-a"
+            self.denenen.append(m)
+            if m == "model-a":
+                raise LLMPermanentError('HTTP 403: {"message":"Free quota exhausted"}')
+            return Completion(data={"ok": True}, usage=Usage(model=m))
+
+    turn = Turn(agent="t", system="s", context_blocks=[], task_block="g",
+                schema={"type": "object"}, effort="low", max_tokens=64, model="model-a")
+
+    p = Sayan()
+    for _ in range(3):
+        assert p.complete_json(turn).data == {"ok": True}
+    # İlk çağrıda bir kez tükenmiş modele gidilir, sonrakiler doğrudan yedeğe.
+    assert p.denenen == ["model-a", "model-b", "model-b", "model-b"]
+
+
+def test_kayitli_ayarin_ortami_ezdigi_gorunur(tmp_path, monkeypatch):
+    """Kaydedilmiş arayüz ayarı ortam değişkenini ezer — ve bu görünür olmalı.
+
+    Docker biriminde kalan bir settings.json sağlayıcıyı heuristic'e
+    sabitlemişti; .env'deki LLM_PROVIDER=custom yok sayılıyor, günlükte de
+    "model anahtarı yok" yazıyordu. Anahtar duruyordu; operatör anahtarını
+    boşuna değiştirirdi.
+    """
+    from app import runtime_settings as rt
+
+    monkeypatch.setattr(rt.env_settings, "storage_dir", tmp_path)
+    rt.reset_cache()
+    assert rt.saglayici_kaynagi() == "ortam"
+
+    rt.save(provider="heuristic")
+    assert rt.saglayici_kaynagi() == "ayar"
+    assert rt.etkin_saglayici() == "heuristic"
+
+    rt.save(provider="")
+    assert rt.saglayici_kaynagi() == "ortam"
+    rt.reset_cache()

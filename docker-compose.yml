@@ -6,7 +6,7 @@ services:
       # Zorunlu: hedef verilmezse Docker en son aşamayı (test) üretir ve
       # üretim imajına pytest ile test paketleri girer.
       target: runtime
-    image: sozlesme-feneri:0.1
+    image: sozlesme-feneri:0.2
     container_name: sozlesme-feneri
     restart: unless-stopped
     ports:
@@ -23,6 +23,8 @@ services:
       MODEL_OPENAI: "${MODEL_OPENAI:-gpt-4.1}"
       CUSTOM_BASE_URL: "${CUSTOM_BASE_URL:-}"
       MODEL_CUSTOM: "${MODEL_CUSTOM:-}"
+      # Kotasi biten modelin yerine sirayla denenecek yedekler.
+      MODEL_FALLBACKS: "${MODEL_FALLBACKS:-}"
       LLM_PROVIDER: "${LLM_PROVIDER:-auto}"   # auto|anthropic|openai|gemini|custom|heuristic
       MODEL_MAIN: "${MODEL_MAIN:-claude-opus-5}"
       MODEL_GEMINI: "${MODEL_GEMINI:-gemini-flash-latest}"
@@ -35,6 +37,9 @@ services:
       LLM_DEADLINE_SECONDS: "${LLM_DEADLINE_SECONDS:-900}"
       LLM_TIMEOUT_SECONDS: "${LLM_TIMEOUT_SECONDS:-90}"
       MAX_CONSECUTIVE_FAILURES: "${MAX_CONSECUTIVE_FAILURES:-3}"
+      # Gecici saglayici hatasi (503/429) yeniden denenir; kalici hata denenmez.
+      LLM_RETRY_ATTEMPTS: "${LLM_RETRY_ATTEMPTS:-3}"
+      LLM_RETRY_BACKOFF_SECONDS: "${LLM_RETRY_BACKOFF_SECONDS:-2}"
       MAX_LLM_CLAUSES: "${MAX_LLM_CLAUSES:-40}"
       ENABLE_LENSES: "${ENABLE_LENSES:-1}"
       ENABLE_REBUTTAL: "${ENABLE_REBUTTAL:-1}"

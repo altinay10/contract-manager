@@ -19,7 +19,7 @@ from sqlalchemy import select
 
 from . import runner
 from .config import settings
-from .db import engine, ensure_schema, session_scope
+from .db import engine, ensure_schema, read_session, session_scope
 from .llm.provider import active_model, get_provider
 from .models import AnalysisRun, Base, Contract, Finding, LLMCall, Report, utcnow
 from . import audit, auth, ratelimit
@@ -199,7 +199,7 @@ def change_password(request: Request, new_password: str = Body(..., embed=True),
 def audit_kayitlari(limit: int = 200, kullanici: str = Depends(auth.require_user)) -> dict:
     from .models import AuditLog
 
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(s.scalars(select(AuditLog).order_by(AuditLog.at.desc()).limit(limit)))
         return {"entries": [
             {"at": r.at.isoformat() if r.at else "", "user": r.user, "action": r.action,
@@ -222,6 +222,9 @@ def health() -> dict:
     return {
         "ok": True,
         "provider": p.name,
+        # Secim nereden geliyor: kayitli arayuz ayari mi, ortam degiskeni mi.
+        # Kayitli ayar ortami sessizce eziyordu ve sebebi hicbir yerde yazmiyordu.
+        "provider_source": rt.saglayici_kaynagi(),
         "model": active_model(p),
         "playbook_size": len(load_playbook()),
         "model_error": rt.son_hata(),
@@ -342,6 +345,9 @@ def test_settings(
     """Girilen anahtarı tek küçük çağrıyla dener. Kaydetmez."""
     anahtar = (api_key or "").strip() or rt.etkin_anahtar(provider)
     uc = (base_url or "").strip().rstrip("/") or rt.etkin_base_url(provider)
+    # Anahtar ve uc nokta kayitli ayara duserken model dusmuyordu: kayitli bir
+    # yapilandirmayi govdesiz sinamak "model adi girmelisiniz" hatasi veriyordu.
+    model = (model or "").strip() or rt.etkin_model(provider)
     yerel = "localhost" in uc or "127.0.0.1" in uc
     if not anahtar and not yerel:
         return {"ok": False, "detail": "API anahtarı girilmedi"}
@@ -349,7 +355,7 @@ def test_settings(
         return {"ok": False, "detail": "Uç nokta adresi (base URL) girilmedi"}
     if provider in ("openai", "custom") and not (model or "").strip():
         return {"ok": False, "detail": "Bu sağlayıcı için model adı girmelisiniz"}
-    ok, detay = prov.dogrula(provider, anahtar or "yok", (model or "").strip(), uc)
+    ok, detay = prov.dogrula(provider, anahtar or "yok", model, uc)
     return {"ok": ok, "detail": detay}
 
 
@@ -579,7 +585,7 @@ def cancel(contract_id: str, request: Request,
 
 @app.get("/api/contracts/{contract_id}/findings")
 def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
-    with session_scope() as s:
+    with read_session() as s:
         _silinmemis(s, contract_id)
         rows = list(s.scalars(select(Finding).where(Finding.contract_id == contract_id)))
         order = {"KRITIK": 0, "YUKSEK": 1, "ORTA": 2, "DUSUK": 3, "BILGI": 4}
@@ -604,7 +610,7 @@ def findings(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> 
 @app.get("/api/contracts/{contract_id}/usage")
 def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dict:
     """Bu sözleşme için harcanan token ve maliyet dökümü."""
-    with session_scope() as s:
+    with read_session() as s:
         c = _silinmemis(s, contract_id)
         calls = list(s.scalars(select(LLMCall).where(LLMCall.contract_id == contract_id)))
         ozet = runner.usage_summary(calls)
@@ -619,18 +625,109 @@ def usage(contract_id: str, kullanici: str = Depends(auth.optional_user)) -> dic
         return ozet
 
 
+@app.get("/api/dashboard")
+def dashboard(kullanici: str = Depends(auth.optional_user)) -> dict:
+    """Portföy görünümü: tüm sözleşmelerin toplu durumu.
+
+    Tek bir sözleşmeyi incelemek ayrı, portföyü yönetmek ayrı bir iştir.
+    Bu uç ikincisini besler: hangi banka, hangi tedarikçi, hangi risk bandı,
+    en sık ihlal edilen maddeler.
+    """
+    from collections import Counter
+
+    from .models import Clause
+    from .playbook.loader import load_playbook
+
+    pb = load_playbook()
+    with read_session() as s:
+        # Silinmis sozlesmeler portfoyden de dusmeli. Bulgular ayrica suzulur:
+        # aksi halde silinen sozlesmenin bulgulari ozet sayilarinda ve "en sik
+        # ihlal" siralamasinda gorunmeye devam eder.
+        sozlesmeler = list(s.scalars(
+            select(Contract)
+            .where(Contract.silindi_at.is_(None))
+            .order_by(Contract.created_at.desc())
+        ))
+        canli = {c.id for c in sozlesmeler}
+        bulgular = [f for f in s.scalars(select(Finding)) if f.contract_id in canli]
+
+        bulgu_ix: dict[str, list] = {}
+        for f in bulgular:
+            bulgu_ix.setdefault(f.contract_id, []).append(f)
+
+        satirlar = []
+        for c in sozlesmeler:
+            fs = bulgu_ix.get(c.id, [])
+            sayac = Counter(f.severity for f in fs)
+            satirlar.append({
+                "id": c.id,
+                "alici": (c.meta_json or {}).get("alici") or "—",
+                "counterparty": c.counterparty or "—",
+                "filename": c.filename,
+                "contract_type": c.contract_type,
+                "status": c.status,
+                "risk_score": c.risk_score,
+                "risk_band": c.risk_band,
+                "value_text": c.value_text or "—",
+                "term_text": c.term_text or "—",
+                "kritik": sayac.get("KRITIK", 0),
+                "yuksek": sayac.get("YUKSEK", 0),
+                "orta": sayac.get("ORTA", 0),
+                "toplam": len(fs),
+                "eksik": sum(1 for f in fs if f.finding_type == "MISSING"),
+                "created_at": c.created_at.isoformat() if c.created_at else "",
+            })
+
+        bitmis = [r for r in satirlar if r["risk_score"] is not None]
+        bant = Counter(r["risk_band"] for r in bitmis)
+
+        # En sik ihlal edilen madde tipleri
+        ihlal = Counter(f.code for f in bulgular if f.severity in ("KRITIK", "YUKSEK"))
+        en_sik = [{"code": k, "name": pb[k].name_tr if k in pb else k, "adet": v}
+                  for k, v in ihlal.most_common(8)]
+
+        # En riskli tedarikciler
+        ted: dict[str, list] = {}
+        for r in bitmis:
+            ted.setdefault(r["counterparty"], []).append(r["risk_score"])
+        en_riskli = sorted(
+            ({"ad": k, "sozlesme": len(v), "ort_skor": round(sum(v) / len(v), 1)}
+             for k, v in ted.items() if k != "—"),
+            key=lambda x: x["ort_skor"])[:6]
+
+        return {
+            "ozet": {
+                "toplam": len(satirlar),
+                "tamamlanan": len(bitmis),
+                "kirmizi": bant.get("KIRMIZI", 0),
+                "sari": bant.get("SARI", 0),
+                "yesil": bant.get("YESIL", 0),
+                "ort_skor": round(sum(r["risk_score"] for r in bitmis) / len(bitmis), 1) if bitmis else None,
+                "toplam_bulgu": len(bulgular),
+                "kritik_bulgu": sum(1 for f in bulgular if f.severity == "KRITIK"),
+            },
+            "sozlesmeler": satirlar,
+            "en_sik_ihlal": en_sik,
+            "en_riskli_tedarikciler": en_riskli,
+        }
+
+
 @app.get("/api/reports/{report_id}")
 def download(report_id: str, request: Request,
              kullanici: str = Depends(auth.optional_user)) -> FileResponse:
-    with session_scope() as s:
+    with read_session() as s:
         r = s.get(Report, report_id)
         if r is None or not Path(r.path).exists():
             raise HTTPException(404, "Rapor bulunamadı")
         # Silinmis sozlesmenin raporu da gorunmez olmali; rapor kimligi
         # tahmin edilemez ama bir kez paylasildiktan sonra kalicidir.
-        ust = s.get(Contract, r.contract_id)
-        if ust is None or ust.silindi_at is not None:
-            raise HTTPException(404, "Rapor bulunamadı")
+        # comparison_id tasiyan raporlarda contract_id bos kalabilir — o
+        # durumda bagli bir sozlesme yoktur ve denetim atlanir, yoksa surum
+        # karsilastirma raporlari 404 olur.
+        if r.contract_id:
+            ust = s.get(Contract, r.contract_id)
+            if ust is None or ust.silindi_at is not None:
+                raise HTTPException(404, "Rapor bulunamadı")
         audit.kaydet(request, kullanici, "REPORT_DOWNLOAD", "report", report_id,
                      f"{r.fmt} · {r.filename}")
         if r.fmt == "HTML":
@@ -646,7 +743,7 @@ def download(report_id: str, request: Request,
 
 @app.get("/api/contracts")
 def list_contracts(limit: int = 30, kullanici: str = Depends(auth.optional_user)) -> dict:
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(
             s.scalars(
                 select(Contract)
@@ -722,7 +819,7 @@ def list_deleted(limit: int = 100, kullanici: str = Depends(auth.require_user)) 
     Bu uç olmadan yumuşak silme tek yönlü olurdu: damga konan sözleşme hiçbir
     listede görünmediği için kimliği bilinmeden geri alınamazdı.
     """
-    with session_scope() as s:
+    with read_session() as s:
         rows = list(
             s.scalars(
                 select(Contract)

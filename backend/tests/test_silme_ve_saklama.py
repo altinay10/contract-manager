@@ -105,6 +105,24 @@ def test_silinen_sozlesme_disariya_gorunmez(istemci, tmp_path):
     )
 
 
+def test_silinen_sozlesme_panelden_de_duser(istemci, tmp_path):
+    """Portfoy paneli ayri bir sorgu kullanir; suzgec orada da olmali.
+
+    Bulgular da suzulmeli, yoksa silinen sozlesmenin bulgulari ozet
+    sayilarinda ve "en sik ihlal" siralamasinda gorunmeye devam eder.
+    """
+    cid, _, _ = _dolu_sozlesme(tmp_path)
+    once = istemci.get("/api/dashboard").json()
+    assert cid in [x["id"] for x in once["sozlesmeler"]]
+
+    istemci.delete(f"/api/contracts/{cid}")
+    sonra = istemci.get("/api/dashboard").json()
+    assert cid not in [x["id"] for x in sonra["sozlesmeler"]], "silinen sozlesme panelde"
+    assert sonra["ozet"]["toplam_bulgu"] == once["ozet"]["toplam_bulgu"] - 1, (
+        "silinen sozlesmenin bulgusu ozet sayisinda kaldi"
+    )
+
+
 def test_silinenler_listelenir_ve_geri_alinir(istemci, tmp_path):
     """Yumusak silme tek yonlu olmamali: kimlik bilinmese de geri alinabilmeli."""
     cid, rid, _ = _dolu_sozlesme(tmp_path)

@@ -1,0 +1,48 @@
+YAZILIM HİZMETİ (SaaS) TEDARİK SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Trakya Ticaret Bankası A.Ş. ("TRAKYA TİCARET") ile diğer tarafta
+Aurora Ödeme Teknolojileri A.Ş. ("SAĞLAYICI") arasında 18.01.2026 tarihinde akdedilmiştir.
+
+MADDE 1 - TANIMLAR
+"Hizmet" SAĞLAYICI tarafından sunulan çözümü, "TRAKYA TİCARET Verisi" TRAKYA TİCARET'nın Hizmet üzerinde işlediği
+tüm verileri ifade eder.
+
+MADDE 2 - KONU
+SAĞLAYICI, TRAKYA TİCARET'ya işbu Sözleşme ve eklerinde tanımlanan hizmeti sunacaktır.
+
+MADDE 3 - SÜRE
+Sözleşme süresi imza tarihinden itibaren 3 yıldır.
+
+MADDE 4 - BEDEL VE ÖDEME
+Yıllık bedel 2.400.000 TL'dir. Ödemeler fatura tarihinden itibaren otuz gün içinde yapılır.
+
+MADDE 5 - SORUMLULUK
+5.1 SAĞLAYICI'nin toplam sorumluluğu yıllık sözleşme bedeli ile sınırlıdır.
+5.2 Kasıt ve ağır kusur hâlleri bu sınırlamanın dışındadır.
+
+MADDE 6 - DENETİM
+TRAKYA TİCARET ve bağımsız denetçileri, SAĞLAYICI'nin sistemlerini yılda iki kez denetleyebilir.
+
+MADDE 7 - VERİLERİN İŞLENMESİ
+TRAKYA TİCARET Verisi Türkiye'de barındırılır. Yurt dışına aktarım TRAKYA TİCARET'nın onayına tabidir.
+
+MADDE 8 - GÜVENLİK
+8.1 SAĞLAYICI, güvenlik ihlalini kırk sekiz (48) saat içinde TRAKYA TİCARET'ya bildirir.
+
+MADDE 9 - GİZLİLİK
+Taraflar gizli bilgileri üç (3) yıl süreyle korur.
+
+MADDE 10 - FESİH
+Taraflar altmış (60) gün önceden yazılı bildirimde bulunarak Sözleşme'yi feshedebilir.
+
+MADDE 11 - MASRAFLAR
+Damga vergisi Taraflarca eşit olarak karşılanır.
+
+MADDE 12 - HİZMET SEVİYESİ
+SAĞLAYICI, aylık erişilebilirliğin %99 olacağını taahhüt eder.
+
+MADDE 13 - UYGULANACAK HUKUK
+İşbu Sözleşme Türk hukukuna tabidir. İstanbul mahkemeleri yetkilidir.
+
+MADDE 14 - MUHTELİF
+İşbu Sözleşme iki nüsha olarak düzenlenmiş olup taraflarca imzalanmıştır.
