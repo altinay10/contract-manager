@@ -83,6 +83,13 @@ class Contract(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, onupdate=utcnow)
 
+    # --- koken: belgenin kendi olgusu (kim, nereden) ---------------------
+    # Analizin hangi motorla kostugu BURAYA yazilmaz; o kosunun olgusudur ve
+    # AnalysisRun'da durur. Ayni sozlesme yarin baska modelle yeniden kosabilir.
+    yukleyen: Mapped[str] = mapped_column(String(80), default="", index=True)
+    yukleyen_ip: Mapped[str] = mapped_column(String(64), default="", index=True)
+    yukleyen_ua: Mapped[str] = mapped_column(String(300), default="")
+
     # Yukleyen "sonucu yayimlama" dediginde isaretlenir. YALNIZCA yayimlamayi
     # etkiler: sozlesme asagidaki listeye ve portfoy paneline dusmez. Analiz
     # normal kosar, hicbir satir eksilmez, denetim izi yazilmaya devam eder ve
@@ -194,6 +201,18 @@ class AnalysisRun(Base):
     resumed_count: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str] = mapped_column(Text, default="")
 
+    # --- motor kunyesi: BU kosunun hangi parametrelerle yuruduğu ----------
+    # Kosu baslarken bir kez yazilir ve DONAR. Ayar ekranindaki secim global ve
+    # degisken; yarin baska bir saglayici secilirse dunku analizin neyle
+    # kostugu kaybolurdu. Burada donduruldugu icin gecmis okunabilir kalir.
+    saglayici: Mapped[str] = mapped_column(String(40), default="", index=True)
+    model: Mapped[str] = mapped_column(String(80), default="", index=True)
+    uc_nokta: Mapped[str] = mapped_column(String(300), default="")
+    # sunucu | kullanici | yok  (yok = kural katmani, model cagrilmadi)
+    anahtar_kaynagi: Mapped[str] = mapped_column(String(20), default="", index=True)
+    fiyat_in: Mapped[float] = mapped_column(Float, default=0.0)
+    fiyat_out: Mapped[float] = mapped_column(Float, default=0.0)
+
     started_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
     heartbeat_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -282,7 +301,11 @@ class AuditLog(Base):
     entity_type: Mapped[str] = mapped_column(String(40), default="")
     entity_id: Mapped[str] = mapped_column(String(64), default="", index=True)
     ip: Mapped[str] = mapped_column(String(64), default="")
+    user_agent: Mapped[str] = mapped_column(String(300), default="")
     detail: Mapped[str] = mapped_column(String(400), default="")
+    # Serbest metin sorgulanamiyor: "10 MB'tan buyuk yuklemeler" diye
+    # sorulamiyordu. Yapisal detay bunun icin; `detail` insan okusun diye kalir.
+    detail_json: Mapped[dict | None] = mapped_column(JSON, default=dict)
     at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, index=True)
 
 

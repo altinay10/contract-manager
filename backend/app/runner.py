@@ -842,6 +842,36 @@ def _log_call(ctx: Ctx, agent: str, comp) -> None:
 # --------------------------------------------------------------------------- #
 # CALISTIRICI
 # --------------------------------------------------------------------------- #
+def _motor_kunyesi_yaz(run: AnalysisRun, provider) -> None:
+    """Bu kosunun hangi parametrelerle yurudugunu koşu satirina DONDURUR.
+
+    Ayar ekranindaki secim global ve degisken: kullanici yarin baska bir
+    saglayici secerse, dunku analizin neyle kostugu hicbir yerden okunamazdi.
+    Burasi o olgunun evi — kosu basladiginda bir kez yazilir.
+
+    Devam ettirilen kosuda uzerine yazilir, cunku devam eden is o andaki motorla
+    yurur; kayit gerceği soylemeli, ilk niyeti degil.
+    """
+    from .llm.provider import active_model, fiyat_bul
+    from . import runtime_settings as rt
+
+    run.saglayici = getattr(provider, "name", "") or ""
+    run.model = active_model(provider) or ""
+    run.uc_nokta = ""
+    if provider.is_llm:
+        # Anahtar kullanicinin arayuzden girdigi mi, sunucunun .env'indeki mi?
+        run.anahtar_kaynagi = "kullanici" if rt.kullanici_anahtari_var() else "sunucu"
+        try:
+            run.uc_nokta = rt.etkin_base_url(run.saglayici) or ""
+        except Exception:
+            run.uc_nokta = ""
+        fiyat = fiyat_bul(run.model) if run.model else None
+        if fiyat:
+            run.fiyat_in, run.fiyat_out = float(fiyat[0]), float(fiyat[1])
+    else:
+        run.anahtar_kaynagi = "yok"      # kural katmani: model hic cagrilmadi
+
+
 def _get_or_create_run(s: Session, contract_id: str) -> AnalysisRun:
     run = s.scalar(
         select(AnalysisRun)
@@ -900,6 +930,7 @@ def execute(contract_id: str) -> None:
         budget = Budget() if provider.is_llm else None
 
         run = _get_or_create_run(s, contract_id)
+        _motor_kunyesi_yaz(run, provider)
         contract.status = "ISLENIYOR"
         commit_retry(s)
 

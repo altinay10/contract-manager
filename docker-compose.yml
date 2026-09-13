@@ -28,7 +28,10 @@ services:
       MODEL_CUSTOM: "${MODEL_CUSTOM:-}"
       # Kotasi biten modelin yerine sirayla denenecek yedekler.
       MODEL_FALLBACKS: "${MODEL_FALLBACKS:-}"
-      LLM_PROVIDER: "${LLM_PROVIDER:-auto}"   # auto|anthropic|openai|gemini|custom|heuristic
+      LLM_PROVIDER: "${LLM_PROVIDER:-auto}"
+      # Sunucunun kendi modelinin 1M token başına USD fiyatı. 0 = bilinmiyor.
+      DEFAULT_PRICE_IN: "${DEFAULT_PRICE_IN:-0}"
+      DEFAULT_PRICE_OUT: "${DEFAULT_PRICE_OUT:-0}"   # auto|anthropic|openai|gemini|custom|heuristic
       MODEL_MAIN: "${MODEL_MAIN:-claude-opus-5}"
       MODEL_GEMINI: "${MODEL_GEMINI:-gemini-flash-latest}"
       MODEL_GEMINI_CHEAP: "${MODEL_GEMINI_CHEAP:-gemini-flash-lite-latest}"

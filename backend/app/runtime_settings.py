@@ -255,6 +255,16 @@ def etkin_model(saglayici: str) -> str:
     return env_settings.model_custom       # custom: varsayilan yok, kullanici girer
 
 
+def kullanici_anahtari_var() -> bool:
+    """Arayuzden kendi anahtarini giren biri var mi?
+
+    Kayit icin onemli: analizin sunucunun .env anahtariyla mi yoksa kullanicinin
+    girdigi anahtarla mi kostugunu ancak bu ayirir. Anahtarin KENDISI hicbir
+    yere yazilmaz — yalnizca kaynagi kaydedilir.
+    """
+    return bool(load().api_key)
+
+
 def etkin_fiyat() -> tuple[float, float] | None:
     """Kullanicinin girdigi 1M token fiyatlari. Ikisi de 0 ise None."""
     r = load()

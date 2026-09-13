@@ -103,12 +103,20 @@ def fiyat_bilinir(model: str) -> bool:
 
 
 def fiyat_bul(model: str) -> tuple[float, float] | None:
-    """Once kullanicinin girdigi fiyat, sonra yerlesik tablo. Yoksa None."""
+    """Sirayla: kullanicinin girdigi fiyat, yerlesik tablo, sunucu varsayilani.
+
+    Sunucu varsayilani (.env: DEFAULT_PRICE_IN / DEFAULT_PRICE_OUT) en sonda
+    durur cunku en az ozgul olan odur: arayuzden fiyat giren kullanici da,
+    adi tabloda taninan bir model de ondan once gelir. Uc deger de yoksa None
+    doner ve rapor maliyeti "—" olarak gosterir.
+    """
     elle = rt.etkin_fiyat()
     if elle is not None:
         return elle
     if model in PRICING:
         return PRICING[model]
+    if settings.default_price_in or settings.default_price_out:
+        return (settings.default_price_in, settings.default_price_out)
     return None
 
 

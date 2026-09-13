@@ -204,7 +204,8 @@ def audit_kayitlari(limit: int = 200, kullanici: str = Depends(auth.require_user
         return {"entries": [
             {"at": r.at.isoformat() if r.at else "", "user": r.user, "action": r.action,
              "entity_type": r.entity_type, "entity_id": r.entity_id, "ip": r.ip,
-             "detail": r.detail}
+             "user_agent": r.user_agent, "detail": r.detail,
+             "detail_json": r.detail_json or {}}
             for r in rows]}
 
 
@@ -432,6 +433,8 @@ async def upload(
 ) -> JSONResponse:
     _yukleme_freni(request, kullanici)
 
+    istemci_ip, istemci_ua = audit.istemci_kimligi(request)
+
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in ALLOWED_SUFFIX:
         raise HTTPException(400, f"Desteklenmeyen dosya türü: {suffix or '(yok)'}. PDF, DOCX veya TXT yükleyin.")
@@ -455,6 +458,11 @@ async def upload(
             is_outsourcing=is_outsourcing,
             listede_gizli=listede_gizli,
             size_bytes=len(data),
+            # Kokeni belgenin kendi satirina yaz: denetim izini elle
+            # eslestirmeden "bunu kim, nereden yukledi" cevaplanabilsin.
+            yukleyen=kullanici,
+            yukleyen_ip=istemci_ip,
+            yukleyen_ua=istemci_ua,
         )
         s.add(c)
         s.flush()
@@ -467,7 +475,10 @@ async def upload(
         cid = c.id
 
     audit.kaydet(request, kullanici, "UPLOAD", "contract", cid,
-                 f"{file.filename} · {len(data)} bayt · {contract_type}")
+                 f"{file.filename} · {len(data)} bayt · {contract_type}",
+                 {"dosya": file.filename or "", "bayt": len(data),
+                  "tur": contract_type, "kisisel_veri": involves_personal_data,
+                  "dis_hizmet": is_outsourcing, "yayimlanmaz": listede_gizli})
     runner.start(cid)
     return JSONResponse({"contract_id": cid}, status_code=201)
 
@@ -733,7 +744,9 @@ def download(report_id: str, request: Request,
             if ust is None or ust.silindi_at is not None:
                 raise HTTPException(404, "Rapor bulunamadı")
         audit.kaydet(request, kullanici, "REPORT_DOWNLOAD", "report", report_id,
-                     f"{r.fmt} · {r.filename}")
+                     f"{r.fmt} · {r.filename}",
+                     {"bicim": r.fmt, "dosya": r.filename, "bayt": r.size_bytes,
+                      "sozlesme": r.contract_id})
         if r.fmt == "HTML":
             # Indirilmek yerine tarayicida acilir.
             return HTMLResponse(Path(r.path).read_text(encoding="utf-8"))
@@ -815,6 +828,87 @@ def restore_contract(contract_id: str, request: Request,
 
     audit.kaydet(request, kullanici, "CONTRACT_RESTORED", "contract", contract_id, ad)
     return {"ok": True, "silindi": False}
+
+
+@app.get("/api/contracts/{contract_id}/kunye")
+def kunye(contract_id: str, kullanici: str = Depends(auth.require_user)) -> dict:
+    """Bir sözleşmenin tam kaydı: kim, nereden, hangi motor, ne harcandı, ne indirildi.
+
+    Veriler ayrı tablolarda DURUR — sözleşme belgedir, koşu analizdir, çağrı
+    kullanımdır, denetim kaydı olaydır. Birleştirme saklama katmanında değil
+    BURADA yapılır: her olgu kendi evinde kalır, okuyan tek bir yerden sorar.
+
+    Korumalıdır: kim ne yükledi bilgisi parolasız görünmemeli.
+    """
+    from .models import AuditLog
+
+    with read_session() as s:
+        c = _silinmemis(s, contract_id)
+
+        kosular = list(s.scalars(
+            select(AnalysisRun)
+            .where(AnalysisRun.contract_id == contract_id)
+            .order_by(AnalysisRun.started_at)
+        ))
+        cagrilar = list(s.scalars(
+            select(LLMCall).where(LLMCall.contract_id == contract_id)
+        ))
+        raporlar = list(s.scalars(
+            select(Report).where(Report.contract_id == contract_id)
+        ))
+        # Sozlesmenin kendisine ve raporlarina dokunan her olay.
+        rapor_idleri = {r.id for r in raporlar}
+        olaylar = [
+            e for e in s.scalars(select(AuditLog).order_by(AuditLog.at.desc()).limit(2000))
+            if e.entity_id == contract_id or e.entity_id in rapor_idleri
+        ]
+
+        return {
+            "sozlesme": {
+                "id": c.id, "dosya": c.filename, "tur": c.contract_type,
+                "durum": c.status, "risk_skoru": c.risk_score, "risk_bandi": c.risk_band,
+                "boyut_bayt": c.size_bytes, "yayimlanmaz": c.listede_gizli,
+                "olusma": c.created_at.isoformat() if c.created_at else "",
+            },
+            "koken": {
+                "yukleyen": c.yukleyen or "(parolasız)",
+                "ip": c.yukleyen_ip or "—",
+                "tarayici": c.yukleyen_ua or "—",
+                "model_izinli": c.model_izinli,
+            },
+            "kosular": [
+                {
+                    "id": k.id, "durum": k.status,
+                    "saglayici": k.saglayici or "—", "model": k.model or "—",
+                    "uc_nokta": k.uc_nokta or "—",
+                    "anahtar_kaynagi": k.anahtar_kaynagi or "—",
+                    "fiyat_in": k.fiyat_in, "fiyat_out": k.fiyat_out,
+                    "devam_sayisi": k.resumed_count,
+                    "baslangic": k.started_at.isoformat() if k.started_at else "",
+                    "bitis": k.finished_at.isoformat() if k.finished_at else "",
+                }
+                for k in kosular
+            ],
+            "kullanim": {
+                "cagri": len(cagrilar),
+                "basarisiz": sum(1 for x in cagrilar if not x.ok),
+                "girdi_token": sum(x.input_tokens for x in cagrilar),
+                "cikti_token": sum(x.output_tokens for x in cagrilar),
+                "maliyet_usd": round(sum(x.cost_usd for x in cagrilar), 4),
+                "modeller": sorted({x.model for x in cagrilar if x.model}),
+            },
+            "raporlar": [
+                {"id": r.id, "bicim": r.fmt, "dosya": r.filename, "bayt": r.size_bytes,
+                 "olusma": r.created_at.isoformat() if r.created_at else ""}
+                for r in raporlar
+            ],
+            "olaylar": [
+                {"at": e.at.isoformat() if e.at else "", "kullanici": e.user,
+                 "eylem": e.action, "ip": e.ip, "tarayici": e.user_agent,
+                 "detay": e.detail, "detay_json": e.detail_json or {}}
+                for e in olaylar
+            ],
+        }
 
 
 @app.get("/api/contracts/silinmisler")
