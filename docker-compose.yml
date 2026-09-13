@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      # Zorunlu: hedef verilmezse Docker en son aşamayı (test) üretir ve
+      # üretim imajına pytest ile test paketleri girer.
+      target: runtime
     image: sozlesme-feneri:0.2
     container_name: sozlesme-feneri
     restart: unless-stopped
@@ -23,17 +26,17 @@ services:
       # Kotasi biten modelin yerine sirayla denenecek yedekler.
       MODEL_FALLBACKS: "${MODEL_FALLBACKS:-}"
       LLM_PROVIDER: "${LLM_PROVIDER:-auto}"   # auto|anthropic|openai|gemini|custom|heuristic
-      MODEL_MAIN: "claude-opus-5"
-      MODEL_GEMINI: "gemini-flash-latest"
-      MODEL_GEMINI_CHEAP: "gemini-flash-lite-latest"
+      MODEL_MAIN: "${MODEL_MAIN:-claude-opus-5}"
+      MODEL_GEMINI: "${MODEL_GEMINI:-gemini-flash-latest}"
+      MODEL_GEMINI_CHEAP: "${MODEL_GEMINI_CHEAP:-gemini-flash-lite-latest}"
 
       # --- token/maliyet tavanları: aşılınca model kapanır, analiz kural katmanıyla sürer ---
       MAX_LLM_CALLS: "${MAX_LLM_CALLS:-80}"
       MAX_COST_USD: "${MAX_COST_USD:-1.00}"
       MAX_TOTAL_TOKENS: "${MAX_TOTAL_TOKENS:-400000}"
       LLM_DEADLINE_SECONDS: "${LLM_DEADLINE_SECONDS:-900}"
-      LLM_TIMEOUT_SECONDS: "90"
-      MAX_CONSECUTIVE_FAILURES: "3"
+      LLM_TIMEOUT_SECONDS: "${LLM_TIMEOUT_SECONDS:-90}"
+      MAX_CONSECUTIVE_FAILURES: "${MAX_CONSECUTIVE_FAILURES:-3}"
       # Gecici saglayici hatasi (503/429) yeniden denenir; kalici hata denenmez.
       LLM_RETRY_ATTEMPTS: "${LLM_RETRY_ATTEMPTS:-3}"
       LLM_RETRY_BACKOFF_SECONDS: "${LLM_RETRY_BACKOFF_SECONDS:-2}"
@@ -47,6 +50,8 @@ services:
       SESSION_SECRET: "${SESSION_SECRET:-}"
       SESSION_HOURS: "${SESSION_HOURS:-12}"
       COOKIE_SECURE: "${COOKIE_SECURE:-0}"
+      # Swagger/OpenAPI. Açık ağa konulan kurulumda 0 kalmalı.
+      EXPOSE_DOCS: "${EXPOSE_DOCS:-0}"
 
       # --- OCR (taranmış belgeler) ---
       OCR_ENABLED: "${OCR_ENABLED:-1}"
@@ -56,10 +61,15 @@ services:
       SWEEPER_ENABLED: "${SWEEPER_ENABLED:-1}"
 
       # --- dayanıklılık ---
-      STAGE_MAX_ATTEMPTS: "3"
-      ITEM_MAX_ATTEMPTS: "2"
-      ORPHAN_AFTER_SECONDS: "90"
+      STAGE_MAX_ATTEMPTS: "${STAGE_MAX_ATTEMPTS:-3}"
+      ITEM_MAX_ATTEMPTS: "${ITEM_MAX_ATTEMPTS:-2}"
+      ORPHAN_AFTER_SECONDS: "${ORPHAN_AFTER_SECONDS:-90}"
       MAX_UPLOAD_MB: "${MAX_UPLOAD_MB:-40}"
+      # Parolasız yükleme hızı (IP/saat). 0 = sınırsız.
+      UPLOAD_LIMIT_PER_HOUR: "${UPLOAD_LIMIT_PER_HOUR:-20}"
+      # Saklama süresi. 0 = KAPALI. Pozitifse eski sözleşmeler silinmiş
+      # olarak İŞARETLENİR; veri düşürülmez, geri alınabilir.
+      RETENTION_DAYS: "${RETENTION_DAYS:-0}"
     # Küçük donanımda (Raspberry Pi) konteynerin belleği tüketmesini engeller.
     mem_limit: ${MEM_LIMIT:-1500m}
     logging:
