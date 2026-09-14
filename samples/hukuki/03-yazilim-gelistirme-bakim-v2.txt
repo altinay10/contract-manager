@@ -1,0 +1,130 @@
+YAZILIM GELİŞTİRME, BAKIM VE DESTEK SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Toros Katılım Bankası A.Ş. (bundan sonra "Banka" olarak
+anılacaktır) ile diğer tarafta Kavşak Yazılım Danışmanlık Ltd. Şti. (bundan sonra
+"Geliştirici" olarak anılacaktır) arasında 01.03.2026 tarihinde akdedilmiş olup
+Taraflar aşağıdaki hususlarda mutabık kalmıştır.
+
+MADDE 1 - SÖZLEŞMENİN KONUSU
+1.1. İşbu Sözleşme'nin konusu, Banka'nın kredi tahsis ve izleme süreçlerinde
+kullanılacak uygulama yazılımının Geliştirici tarafından geliştirilmesi, devreye
+alınması ve devamında bakım ve destek hizmetlerinin sunulmasıdır.
+1.2. Geliştirilecek yazılımın işlevsel gereksinimleri EK-1'de; teslim takvimi EK-2'de
+düzenlenmiştir.
+
+MADDE 2 - TESLİM TAKVİMİ VE KABUL
+2.1. Geliştirici, EK-2'de belirlenen kilometre taşlarını öngörülen tarihlerde teslim
+etmekle yükümlüdür. Nihai teslim tarihi 01.12.2026'dır.
+2.2. Her teslimat, Banka'nın kabul testlerinden geçtikten sonra kabul edilmiş sayılır.
+Kabul testleri teslimi izleyen on (10) iş günü içinde tamamlanır.
+2.3. Kabul testlerinde tespit edilen kusurlar, Geliştirici tarafından on (10) iş günü
+içinde ve ek bedel talep edilmeksizin giderilir.
+2.4. Banka'nın kabul testlerini süresinde tamamlamaması teslimatın zımnen kabul
+edildiği anlamına gelir.
+
+MADDE 3 - BEDEL VE ÖDEME
+3.1. Geliştirme bedeli sabit fiyat esaslı olup KDV hariç 3.250.000 TL'dir.
+3.2. Bakım ve destek bedeli, devreye alma tarihinden itibaren yıllık olarak geliştirme
+bedelinin %18'i oranında uygulanır.
+3.3. Ödemeler, kabul tutanağının imzalanmasını ve usulüne uygun faturanın Banka'ya
+tebliğini müteakip otuz (30) gün içinde yapılır.
+3.4. Geliştirici, işbu Sözleşme kapsamındaki bedellere ek olarak Banka'dan hiçbir ad
+altında ilave ücret talep edemez. Bu hüküm, EK-1'de açıkça yer almayan talepler ile
+Geliştirici'nin ürün yol haritası kapsamındaki değişiklikler bakımından uygulanmaz.
+
+MADDE 4 - FİKRİ MÜLKİYET HAKLARI
+4.1. İşbu Sözleşme kapsamında geliştirilen yazılıma, kaynak koda, arayüz tasarımlarına
+ve dokümantasyona ilişkin 5846 sayılı Fikir ve Sanat Eserleri Kanunu'nun 21, 22, 23,
+24 ve 25 inci maddelerinde sayılan mali haklardan çoğaltma ve yayma hakları, süresiz,
+yer ve sayı bakımından sınırsız olarak Banka'ya devredilmiştir.
+4.2. Geliştirici, teslim ettiği her sürümün kaynak kodunu ve derleme yönergelerini
+Banka'ya teslim etmekle yükümlüdür.
+4.3. Geliştirici, işbu Sözleşme kapsamında geliştirilen yazılımı veya bileşenlerini
+üçüncü kişilere devredemez ve lisanslayamaz.
+4.4. Yazılımda kullanılan açık kaynak bileşenler EK-3'te listelenir. Geliştirici,
+Banka'nın yazılımı ticari olarak kullanmasını kısıtlayan hiçbir açık kaynak lisansı
+kullanmayacağını taahhüt eder.
+
+MADDE 5 - GARANTİ
+5.1. Geliştirici, teslim ettiği yazılımın EK-1'deki gereksinimleri karşıladığını ve
+ayıptan âri olduğunu taahhüt eder.
+5.2. Garanti süresi, nihai kabul tarihinden itibaren on iki (12) aydır.
+5.3. Garanti süresi içinde tespit edilen kusurlar, Geliştirici tarafından ek bedel
+talep edilmeksizin giderilir.
+
+MADDE 6 - BAKIM VE DESTEK SEVİYELERİ
+6.1. Geliştirici, aşağıdaki müdahale ve çözüm sürelerine uymakla yükümlüdür.
+6.1.1. Kritik seviye arızalarda müdahale süresi en çok dört (4) saat, çözüm süresi en
+çok bir (1) iş günüdür.
+6.1.2. Yüksek seviye arızalarda müdahale süresi en çok dört (4) saat, çözüm süresi en
+çok bir (1) iş günüdür.
+6.1.3. Orta ve düşük seviye arızalarda çözüm süresi en çok beş (5) iş günüdür.
+6.2. Geliştirici, üretim ortamının aylık kullanılabilirlik oranının en az %99,0
+olacağını taahhüt eder.
+6.3. Destek hizmeti 7 gün 24 saat esasıyla ve Türkçe olarak sunulur.
+
+MADDE 7 - PERSONEL VE ANAHTAR KİŞİLER
+7.1. EK-4'te adı geçen anahtar personel, Banka'ya yazılı bildirimde bulunulmak
+kaydıyla değiştirilebilir.
+7.2. Geliştirici, projede görevlendirdiği personelin Banka'nın bilgi güvenliği
+politikalarına uymasını sağlamakla yükümlüdür.
+7.3. Geliştirici personelinin Banka nezdinde herhangi bir iş akdi bulunmadığı ve
+Geliştirici'nin işveren sıfatını haiz olduğu Taraflarca kabul edilmiştir.
+
+MADDE 8 - GİZLİLİK VE SIR SAKLAMA
+8.1. Geliştirici, Banka'ya ait her türlü bilgiyi gizli tutmakla yükümlüdür.
+8.2. Gizlilik yükümlülüğü, Sözleşme'nin sona ermesinden itibaren iki (2) yıl süreyle
+devam eder.
+8.3. Geliştirici, geliştirme ve test ortamlarında Banka'nın gerçek müşteri verilerini
+Banka'nın yazılı onayı ile kullanabilir.
+
+MADDE 9 - SORUMLULUK
+9.1. Geliştirici, kusuru nedeniyle Banka'nın uğrayacağı doğrudan zararlardan
+sorumludur.
+9.2. Geliştirici'nin toplam sorumluluğu, geliştirme bedelinin %50'si ile sınırlıdır.
+9.3. Gizlilik ihlali, kasıt ve ağır kusur hâllerinde sorumluluk sınırlaması
+uygulanmaz.
+
+MADDE 10 - KİŞİSEL VERİLER
+10.1. Geliştirici, Banka'nın veri işleyeni sıfatıyla hareket eder ve kişisel verileri
+yalnızca Banka'nın yazılı talimatı doğrultusunda işler.
+10.2. Geliştirici, kişisel verileri Banka'ya bildirimde bulunarak yurt dışına
+aktarabilir.
+10.3. Geliştirici, veri ihlalini teyit etmesinden itibaren makul bir süre içinde
+Banka'ya bildirimde bulunur.
+
+MADDE 11 - DENETİM
+11.1. Banka, Geliştirici'nin işbu Sözleşme kapsamındaki süreçlerini ve kod güvenliğini
+yılda en çok bir (1) kez denetleme hakkını haizdir.
+11.2. Geliştirici, denetim kapsamında talep edilen kaynak kod, kayıt ve belgeleri
+gecikmeksizin sunar.
+
+MADDE 12 - GECİKME CEZASI
+12.1. EK-2'de belirlenen kilometre taşlarının gecikmesi hâlinde, gecikilen her takvim
+günü için sözleşme bedelinin on binde biri (‰0,1) oranında gecikme cezası uygulanır.
+12.2. Gecikme cezasının toplamı sözleşme bedelinin %20'sini aşarsa Banka, Sözleşme'yi
+tazminat hakları saklı kalmak kaydıyla feshedebilir.
+
+MADDE 13 - SÖZLEŞMENİN FESHİ
+13.1. Taraflardan birinin esaslı ihlali hâlinde, yazılı ihtara rağmen otuz (30) gün
+içinde ihlalin giderilmemesi üzerine karşı Taraf Sözleşme'yi feshedebilir.
+13.2. Fesih hâlinde Geliştirici, o ana kadar üretilen tüm çıktıları ve kaynak kodu
+Banka'ya teslim etmekle yükümlüdür.
+MADDE 14 - UYUŞMAZLIKLARIN ÇÖZÜMÜ
+14.1. İşbu Sözleşme Türk hukukuna tabi olup, uyuşmazlıkların çözümünde Ankara
+mahkemeleri ve icra daireleri yetkilidir.
+
+MADDE 15 - MÜCBİR SEBEP
+15.1. Tarafların kontrolü dışındaki öngörülemez olaylar mücbir sebep sayılır ve
+etkilenen Taraf durumu beş (5) iş günü içinde karşı Tarafa bildirir.
+15.2. Mücbir sebep hâlinin altmış (60) günü aşması durumunda her iki Taraf da
+Sözleşme'yi tazminatsız feshedebilir.
+
+MADDE 16 - YÜRÜRLÜK
+16.1. On altı (16) maddeden ve dört (4) ekten ibaret işbu Sözleşme, 01.03.2026
+tarihinde iki nüsha olarak imzalanmıştır.
+
+EK-1 İŞLEVSEL GEREKSİNİM LİSTESİ
+EK-2 TESLİM TAKVİMİ VE KİLOMETRE TAŞLARI
+EK-3 AÇIK KAYNAK BİLEŞEN LİSTESİ
+EK-4 ANAHTAR PERSONEL LİSTESİ

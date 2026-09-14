@@ -1,0 +1,216 @@
+VERİ MERKEZİ VE SİSTEM İŞLETİM DESTEK HİZMETİ ALIMI SÖZLEŞMESİ
+
+Madde 1- Sözleşmenin tarafları
+1.1. İşbu sözleşme, bir tarafta Marmara Kalkınma ve Yatırım Bankası A.Ş. (bundan
+sonra "İdare" olarak anılacaktır) ile diğer tarafta Sarmal Veri Merkezi Hizmetleri
+Anonim Şirketi (bundan sonra "Yüklenici" olarak anılacaktır) arasında aşağıda yazılı
+şartlar dâhilinde akdedilmiştir.
+
+Madde 2- Taraflara ilişkin bilgiler
+2.1. İdarenin;
+a) Adı: Marmara Kalkınma ve Yatırım Bankası A.Ş.
+b) Adresi: Meclisi Mebusan Cad. No:81 Fındıklı, Beyoğlu/İstanbul
+c) Telefon numarası: 0212 393 60 00
+ç) Elektronik tebligat adresi: 25871-33104-89720
+2.2. Yüklenicinin;
+a) Ticaret unvanı: Sarmal Veri Merkezi Hizmetleri A.Ş.
+b) Vergi kimlik numarası: 7410336295
+c) Tebligata esas adresi: Gebze Organize Sanayi Bölgesi 1200. Cad. No:14 Gebze/Kocaeli
+ç) Elektronik tebligat adresi: 25871-71449-06188
+2.3. Her iki taraf 2.1 ve 2.2 nci maddelerde belirtilen adreslerini tebligat adresi
+olarak kabul etmiştir. Adres değişiklikleri usulüne uygun şekilde karşı tarafa tebliğ
+edilmedikçe en son bildirilen adrese yapılacak tebliğ ilgili tarafa yapılmış sayılır.
+
+Madde 3- Sözleşmenin dili
+3.1. İşbu sözleşme Türkçe olarak düzenlenmiştir. Sözleşmenin yorumunda ve
+uygulanmasında Türkçe metin esas alınır.
+
+Madde 4- Tanımlar
+4.1. İşbu sözleşmenin uygulanmasında;
+a) "Hizmet": EK-A'da kapsamı belirlenen veri merkezi barındırma, sistem işletim,
+yedekleme ve 7/24 izleme faaliyetlerini,
+b) "İdare Verisi": İdarenin, müşterilerinin veya personelinin Hizmet kapsamında
+işlenen, saklanan veya iletilen her türlü verisini,
+c) "Kritik Sistem": İdarenin bankacılık faaliyetlerinin kesintisiz yürütülmesi için
+zorunlu olan ve EK-A'da ayrıca işaretlenen sistemleri,
+ç) "Destek Hizmeti Mevzuatı": Bankaların Destek Hizmeti Almalarına İlişkin Yönetmelik
+ile Bankaların Bilgi Sistemleri ve Elektronik Bankacılık Hizmetleri Hakkında
+Yönetmelik'i ifade eder.
+
+Madde 5- İşin tanımı ve kapsamı
+5.1. Yüklenici, EK-A'da nitelik ve nicelikleri belirtilen Hizmet'i, sözleşme
+hükümlerine ve Destek Hizmeti Mevzuatı'na uygun olarak ifa etmeyi taahhüt eder.
+5.2. Yüklenici, işbu sözleşme kapsamında destek hizmeti kuruluşu sıfatını haiz olup
+Bankacılık Düzenleme ve Denetleme Kurumu'nun bu sıfattan doğan tüm yetkilerini kabul
+ettiğini beyan eder.
+
+Madde 6- Sözleşmenin türü, bedeli ve süresi
+6.1. İşbu sözleşme birim fiyat esaslı olup, toplam sözleşme bedeli KDV hariç
+12.400.000 TL (onikimilyondörtyüzbin Türk Lirası)'dır.
+6.2. Sözleşmenin süresi, işe başlama tarihinden itibaren kırk sekiz (48) aydır.
+6.3. İdare, sözleşme süresini aynı şartlarla ve tek taraflı olarak on iki (12) aya
+kadar uzatmaya yetkilidir. Bu hâlde birim fiyatlar değişmez.
+
+Madde 7- Ödeme yeri ve şartları
+7.1. Hak ediş bedelleri, muayene ve kabul komisyonunca düzenlenecek tutanağın
+onaylanmasını ve usulüne uygun faturanın İdareye tebliğini müteakip otuz (30) gün
+içinde ödenir.
+7.2. Yüklenici, ödemelerin gecikmesi hâlinde Hizmet'i durduramaz, askıya alamaz veya
+kalitesini düşüremez.
+
+Madde 8- Teminata ilişkin hükümler
+8.1. Yüklenici, sözleşmenin imzalanmasından önce kesin teminat vermekle yükümlüdür.
+8.2. Kesin teminata ilişkin esaslar aşağıda belirtilmiştir.
+8.2.1. Kesin teminat tutarı, sözleşme bedelinin %6'sı oranındadır.
+8.2.2. Kesin teminat, sözleşme konusu işin tamamlanmasını ve garanti süresinin
+dolmasını müteakip Yükleniciye veya sigorta şirketine iade edilir.
+8.2.3. Yüklenicinin sözleşmeye aykırı davranması hâlinde kesin teminat, ayrıca
+protesto çekmeye ve hüküm istihsaline gerek kalmaksızın İdarece gelir kaydedilir.
+
+Madde 9- Cezalar
+9.1. İdare tarafından uygulanacak cezalar aşağıda belirtilmiştir.
+9.1.1. Kritik Sistem'lerde EK-B'de taahhüt edilen kullanılabilirlik oranının altında
+kalınması hâlinde, gecikilen veya kesinti yaşanan her saat için sözleşme bedelinin
+binde ikisi (‰2) oranında ceza uygulanır.
+9.1.2. Yüklenicinin, EK-B'de belirlenen müdahale sürelerine uymaması hâlinde her
+aykırılık için sözleşme bedelinin on binde beşi (‰0,5) oranında ceza uygulanır.
+9.2. Kesilecek cezaların toplam tutarı, hiçbir durumda sözleşme bedelinin %30'unu
+geçemez. Bu oranın aşılması hâlinde İdare, ayrıca protesto çekmeye gerek kalmaksızın
+sözleşmeyi feshetmeye yetkilidir.
+9.3. Cezalar, ayrıca protesto çekmeye gerek kalmaksızın Yükleniciye yapılacak
+ödemelerden kesilir. Cezanın ödemelerden karşılanamaması hâlinde ceza tutarı
+Yükleniciden ayrıca tahsil edilir.
+9.4. Ceza uygulanması, İdarenin genel hükümlere göre doğmuş tazminat taleplerini ve
+fesih hakkını ortadan kaldırmaz.
+
+Madde 10- Gizlilik ve sır saklama
+10.1. Yüklenici, Hizmet'in ifası sırasında öğrendiği İdareye ve İdarenin müşterilerine
+ait her türlü bilgiyi süresiz olarak gizli tutmakla yükümlüdür.
+10.2. Yüklenici, 5411 sayılı Bankacılık Kanunu'nun 73 üncü maddesi kapsamındaki banka
+sırrı ve müşteri sırrı niteliğindeki bilgileri hiçbir surette üçüncü kişilerle
+paylaşamaz; bu bilgileri işin ifası dışında hiçbir amaçla kullanamaz.
+10.3. Yüklenici, personelinden ve alt yüklenicilerinden işbu maddedeki yükümlülüklerle
+aynı kapsamda yazılı gizlilik taahhüdü almakla yükümlüdür.
+10.4. Gizlilik yükümlülüğünün ihlali hâlinde Madde 15'teki sorumluluk sınırlaması
+uygulanmaz.
+
+Madde 11- İdare Verisinin işlenmesi ve lokasyonu
+11.1. Yüklenici, İdare Verisi bakımından 6698 sayılı Kanun anlamında veri işleyen
+sıfatıyla hareket eder ve yalnızca İdarenin yazılı talimatları doğrultusunda işlem
+yapar.
+11.2. Yüklenici, İdare Verisi'ni İdarenin yazılı onayı olmaksızın hiçbir amaçla
+kopyalayamaz, çoğaltamaz veya üçüncü kişilere aktaramaz.
+11.3. İdare Verisi'nin birincil ve ikincil kopyaları münhasıran Türkiye Cumhuriyeti
+sınırları içinde bulunan veri merkezlerinde tutulur. Yurt dışına her türlü aktarım
+İdarenin önceden alınmış yazılı onayına ve 6698 sayılı Kanun'un 9 uncu maddesinde
+öngörülen şartların sağlanmasına bağlıdır.
+11.4. Yüklenici, uzaktan erişim dâhil olmak üzere İdare Verisi'ne erişen tüm
+personelin kimlik ve erişim kayıtlarını en az on (10) yıl süreyle saklar ve İdarenin
+talebi hâlinde ibraz eder.
+
+Madde 12- Bilgi güvenliği ve ihlal bildirimi
+12.1. Yüklenici, Destek Hizmeti Mevzuatı'nda öngörülen teknik ve idari tedbirleri
+almakla yükümlüdür.
+12.2. Yüklenici, bir bilgi güvenliği ihlalini öğrenmesinden itibaren en geç yirmi
+dört (24) saat içinde İdareye yazılı bildirimde bulunur; kök neden analizi raporunu
+beş (5) iş günü içinde sunar.
+12.3. Yüklenici, İdarenin Kişisel Verileri Koruma Kuruluna ve Bankacılık Düzenleme
+ve Denetleme Kurumuna yapacağı bildirimler için gerekli bilgi ve belgeyi gecikmeksizin
+sağlar.
+
+Madde 13- İş sürekliliği
+13.1. Yüklenici, Kritik Sistem'ler için azami kesinti süresinin (RTO) iki (2) saati,
+azami veri kaybı süresinin (RPO) beş (5) dakikayı aşmayacağı bir felaketten kurtarma
+düzeni kurmak ve işletmekle yükümlüdür.
+13.2. Felaketten kurtarma tatbikatı yılda en az iki (2) kez İdarenin gözetiminde icra
+edilir. Tatbikat sonuç raporu on (10) iş günü içinde İdareye sunulur.
+
+Madde 14- Denetim, muayene ve kabul
+14.1. İdare, İdarenin bağımsız denetçisi ve Bankacılık Düzenleme ve Denetleme Kurumu,
+Yüklenicinin işbu sözleşme kapsamındaki sistem, süreç, defter, kayıt ve belgelerini
+yerinde veya uzaktan denetleme yetkisini haizdir. Yüklenici, tüm bilgi işlem sistemini
+denetim amaçlarına uygun olarak denetim yapan personele açmak zorundadır.
+14.2. Olağan denetimler en az on (10) iş günü önceden bildirilir. İhlal şüphesi veya
+düzenleyici otorite talebi hâlinde önceden bildirim şartı aranmaz.
+14.3. Denetim sonucunda tespit edilen uygunsuzluklar, İdarenin belirleyeceği süre
+içinde ve Yüklenicinin masrafları kendisine ait olmak üzere giderilir.
+14.4. Hizmet'in muayene ve kabul işlemleri, İdarece oluşturulacak komisyon marifetiyle
+aylık dönemler hâlinde yapılır.
+
+Madde 15- Yüklenicinin tazmin sorumluluğu
+15.1. Yüklenici, taahhüdü çerçevesinde kusurlu veya standartlara uygun olmayan
+malzeme, personel veya yöntem seçilmesi, uygulama yanlışlığı, denetim eksikliği ve
+benzeri nedenlerle ortaya çıkan zarar ve ziyandan doğrudan sorumludur.
+15.2. Yüklenicinin işbu sözleşmeden doğan toplam tazmin sorumluluğu, sözleşme
+bedelinin iki (2) katı ile sınırlıdır.
+15.3. Gizlilik ihlali, banka sırrı veya müşteri sırrının ifşası, kişisel verilerin
+korunmasına ilişkin yükümlülüklerin ihlali, kasıt ve ağır kusur hâllerinde Madde
+15.2'deki sınırlama uygulanmaz.
+15.4. Yüklenici, sözleşme konusu iş nedeniyle üçüncü kişilere verilecek zararlar
+bakımından mesleki sorumluluk sigortası yaptırmak ve poliçeyi sözleşme süresince
+geçerli tutmakla yükümlüdür. Sigorta bedeli sözleşme bedelinden az olamaz.
+
+Madde 16- Alt yüklenicilere ilişkin bilgiler ve sorumluluklar
+16.1. Yüklenici, işin tamamını veya bir kısmını İdarenin önceden alınmış yazılı onayı
+olmaksızın alt yükleniciye yaptıramaz.
+16.2. Onaylanan alt yükleniciler EK-C'de listelenir. Listede yapılacak her değişiklik
+İdarenin yazılı onayına tabidir.
+16.3. Yüklenici, alt yüklenicilerin fiil ve ihmallerinden kendi fiili gibi ve
+müteselsilen sorumludur.
+
+Madde 17- Kaynak kod emaneti (escrow)
+17.1. Yüklenici, Hizmet kapsamında kullanılan kendi geliştirdiği yazılımların kaynak
+kodunu, derleme yönergelerini ve teknik dokümantasyonunu, Taraflarca müştereken
+belirlenecek bir emanetçi kuruluşa tevdi etmekle yükümlüdür.
+17.2. Emanet edilen kaynak kod; Yüklenicinin iflası, faaliyetini durdurması,
+sözleşmeyi esaslı surette ihlal etmesi veya bakım yükümlülüğünü otuz (30) günden
+fazla yerine getirmemesi hâllerinde İdareye teslim edilir.
+17.3. İdare, teslim aldığı kaynak kodu yalnızca Hizmet'in sürdürülmesi amacıyla
+kullanabilir.
+
+Madde 18- Çıkış ve devir desteği
+18.1. Sözleşmenin herhangi bir sebeple sona ermesi hâlinde Yüklenici, İdarenin talebi
+üzerine altı (6) aya kadar devir desteği sağlar.
+18.2. Yüklenici, İdare Verisi'nin tamamını yaygın kullanılan açık bir formatta otuz
+(30) gün içinde İdareye teslim eder ve kendi sistemlerindeki nüshaları imha ederek
+tutanakla belgeler.
+18.3. Yüklenici, hiçbir gerekçeyle İdare Verisi üzerinde hapis hakkı ileri süremez.
+
+Madde 19- Mücbir sebepler
+19.1. Tarafların kontrolü dışında gelişen, öngörülemeyen ve önlenemeyen hâller mücbir
+sebep sayılır. Mücbir sebep hâlinde etkilenen taraf durumu beş (5) iş günü içinde
+karşı tarafa bildirir.
+19.2. Mücbir sebeplerden dolayı sözleşmenin feshedilmesi hâlinde, sözleşme konusu
+işlere ilişkin hesap genel hükümlere göre tasfiye edilerek kesin teminat ve varsa ek
+kesin teminatlar iade edilir.
+
+Madde 20- Sözleşmenin feshi
+20.1. Yüklenicinin sözleşme hükümlerine aykırı davranması hâlinde İdare, en az on (10)
+gün süreli yazılı ihtarda bulunur. İhtarda belirtilen sürenin bitmesine rağmen aynı
+durumun devam etmesi hâlinde, ayrıca protesto çekmeye gerek kalmaksızın kesin teminat
+gelir kaydedilir ve sözleşme feshedilerek hesabı genel hükümlere göre tasfiye edilir.
+20.2. Gizlilik, banka sırrı, kişisel verilerin korunması yükümlülüklerinin ihlali ile
+Destek Hizmeti Mevzuatı'na aykırılık hâllerinde ihtar şartı aranmaksızın derhâl fesih
+hakkı doğar.
+20.3. İdare, kamu yararı veya düzenleyici otorite talebi gerekçesiyle sözleşmeyi
+altmış (60) gün önceden bildirimde bulunarak tazminatsız feshedebilir.
+
+Madde 21- Devir ve temlik
+21.1. Yüklenici, sözleşmeden doğan hak ve alacaklarını İdarenin yazılı onayı olmaksızın
+devir ve temlik edemez.
+
+Madde 22- Hüküm bulunmayan hâller
+22.1. İşbu sözleşme ve eklerinde hüküm bulunmayan hâllerde genel hükümlere göre hareket
+edilir.
+
+Madde 23- Anlaşmazlıkların çözümü
+23.1. İşbu sözleşme ve eklerinin uygulanmasından doğabilecek her türlü anlaşmazlığın
+çözümünde İstanbul mahkemeleri ve icra daireleri yetkilidir.
+
+Madde 24- Yürürlük
+24.1. Yirmi dört (24) maddeden ibaret işbu sözleşme, taraflarca 12.01.2026 tarihinde
+imzalanmış ve imzalandığı tarihte yürürlüğe girmiştir.
+
+EK-A İŞ TANIMI VE TEKNİK ŞARTNAME
+EK-B HİZMET SEVİYESİ TAAHHÜTLERİ
+EK-C ONAYLI ALT YÜKLENİCİ LİSTESİ
