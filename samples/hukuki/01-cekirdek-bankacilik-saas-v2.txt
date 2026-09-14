@@ -1,0 +1,250 @@
+BULUT TABANLI ÇEKİRDEK BANKACILIK YAZILIMI HİZMET ALIMI SÖZLEŞMESİ
+
+İşbu Sözleşme, bir tarafta Anadolu Yatırım Bankası A.Ş. (Ticaret Sicil No: 412887,
+Mersis No: 0068 0041 2887 0015, Esentepe Mah. Büyükdere Cad. No:171 Şişli/İstanbul
+adresinde mukim; bundan sonra "BANKA" olarak anılacaktır) ile diğer tarafta
+Nirengi Bilgi Teknolojileri ve Yazılım Anonim Şirketi (Ticaret Sicil No: 908114,
+Vergi Kimlik No: 6310548822, İTÜ Teknokent ARI-3 Binası No:14 Sarıyer/İstanbul
+adresinde mukim; bundan sonra "YÜKLENİCİ" olarak anılacaktır) arasında aşağıda
+yazılı şartlar dâhilinde 04.02.2026 tarihinde akdedilmiştir.
+
+BANKA ve YÜKLENİCİ birlikte "Taraflar", ayrı ayrı "Taraf" olarak anılacaktır.
+
+MADDE 1 - TANIMLAR VE YORUM
+1.1. İşbu Sözleşme'de büyük harfle başlayan aşağıdaki terimler, karşılarında
+belirtilen anlamları haizdir.
+"Hizmet": YÜKLENİCİ tarafından bulut altyapısı üzerinden abonelik esasıyla sunulan,
+EK-1'de teknik kapsamı belirlenmiş çekirdek bankacılık uygulama yazılımını ve buna
+bağlı destek, bakım ve güncelleme faaliyetlerini,
+"BANKA Verisi": BANKA'nın, müşterilerinin veya çalışanlarının Hizmet üzerinde veya
+Hizmet vesilesiyle işlenen her türlü verisini,
+"Müşteri Sırrı": 5411 sayılı Bankacılık Kanunu'nun 73 üncü maddesi kapsamında sır
+niteliği taşıyan her türlü bilgi ve belgeyi,
+"Kişisel Veri": 6698 sayılı Kişisel Verilerin Korunması Kanunu'nda tanımlandığı
+şekliyle kimliği belirli veya belirlenebilir gerçek kişiye ilişkin her türlü bilgiyi,
+"Mevzuat": Bankacılık Kanunu, KVKK, Bankaların Bilgi Sistemleri ve Elektronik
+Bankacılık Hizmetleri Hakkında Yönetmelik, Bankaların Destek Hizmeti Almalarına
+İlişkin Yönetmelik ile bunların yerine geçen veya bunları tadil eden her türlü
+düzenlemeyi ifade eder.
+1.2. Madde başlıkları yalnızca kolaylık amacıyla konulmuş olup yorumda esas
+alınmaz; tekil ifadeler çoğulu, çoğul ifadeler tekili de kapsar.
+
+MADDE 2 - SÖZLEŞMENİN KONUSU VE KAPSAMI
+2.1. İşbu Sözleşme'nin konusu, YÜKLENİCİ tarafından BANKA'ya Hizmet'in sunulmasına
+ilişkin tarafların hak ve yükümlülüklerinin belirlenmesidir.
+2.2. Hizmet'in teknik kapsamı EK-1'de, hizmet seviyesi taahhütleri EK-2'de, kişisel
+verilerin işlenmesine ilişkin hükümler EK-3'te, ücretlendirme EK-4'te düzenlenmiştir.
+Ekler işbu Sözleşme'nin ayrılmaz parçasıdır.
+2.3. Ekler ile Sözleşme metni arasında çelişki bulunması hâlinde YÜKLENİCİ'nin
+standart hizmet tanımını içeren EK-1 esas alınır.
+
+MADDE 3 - SÖZLEŞMENİN SÜRESİ
+3.1. Sözleşme, imza tarihinde yürürlüğe girer ve üç (3) yıl süreyle geçerlidir.
+3.2. Sözleşme süresinin bitiminden en az doksan (90) gün önce Taraflardan biri
+yazılı olarak yenilememe iradesini bildirmediği takdirde Sözleşme, aynı şartlarla
+birer yıllık dönemler hâlinde uzar.
+
+MADDE 4 - YÜKLENİCİNİN GENEL YÜKÜMLÜLÜKLERİ
+4.1. YÜKLENİCİ, Hizmet'i işbu Sözleşme, ekleri ve Mevzuat hükümlerine uygun olarak,
+basiretli bir tacirden beklenen özeni göstererek ifa etmeyi taahhüt eder.
+4.2. YÜKLENİCİ, Hizmet'in sunulması için gerekli her türlü izin, lisans ve yetki
+belgesini kendi nam ve hesabına temin etmekle yükümlüdür.
+
+MADDE 5 - BANKANIN YÜKÜMLÜLÜKLERİ
+5.1. BANKA, Hizmet'in ifası için gerekli olan ve YÜKLENİCİ tarafından makul surette
+talep edilen bilgi ve erişimi zamanında sağlar.
+5.2. BANKA'nın işbu maddedeki yükümlülüklerini yerine getirmemesi hâlinde YÜKLENİCİ,
+etkilenen edimleri bakımından temerrüde düşmüş sayılmaz ve bu nedenle doğan gecikme
+ve masraflar BANKA'ya aittir.
+
+MADDE 6 - HİZMET SEVİYESİ VE CEZAİ ŞART
+6.1. YÜKLENİCİ, Hizmet'in aylık kullanılabilirlik oranının en az %99,9 olacağını
+taahhüt eder. Ölçüm yöntemi EK-2'de düzenlenmiştir.
+6.2. Taahhüt edilen kullanılabilirlik oranının altında kalınan her tam yüzde puanı
+için, ilgili aya ait hizmet bedelinin %2'si oranında hizmet kredisi uygulanır.
+Verilecek hizmet kredisinin aylık toplamı, ilgili aya ait hizmet bedelinin %15'ini
+aşamaz. Hizmet kredisi, BANKA'nın kullanılabilirlik eksikliğine ilişkin yegâne ve
+münhasır başvuru yoludur.
+6.3. Cezai şart, ayrıca protesto çekmeye ve hüküm istihsaline gerek kalmaksızın
+YÜKLENİCİ'ye yapılacak ilk ödemeden mahsup edilir.
+
+MADDE 7 - BEDEL, ÖDEME VE VERGİLER
+7.1. Yıllık hizmet bedeli KDV hariç 4.800.000 TL (dörtmilyonsekizyüzbin Türk Lirası)
+olup, eşit üç aylık taksitler hâlinde ve ilgili dönem başında peşin fatura edilir.
+7.2. Fatura bedelleri, fatura tarihinden itibaren kırk beş (45) gün içinde ödenir.
+Ödemede gecikilmesi hâlinde YÜKLENİCİ, aylık %5 oranında temerrüt faizi talep etmeye
+ve Hizmet'i askıya almaya yetkilidir.
+7.3. Hizmet bedeli, Madde 8 hükümleri saklı kalmak kaydıyla ilgili sözleşme yılı
+için sabittir.
+7.4. İşbu Sözleşme'den doğan damga vergisi ile her türlü vergi, resim, harç ve
+masraf BANKA tarafından karşılanır.
+
+MADDE 8 - ÜCRET GÜNCELLEMESİ
+8.1. YÜKLENİCİ, her sözleşme yılının başında hizmet bedelini, bir önceki on iki (12)
+aylık dönemde gerçekleşen Yurt İçi Üretici Fiyat Endeksi (Yİ-ÜFE) değişim oranına on
+(10) puan ilave etmek suretiyle tek taraflı olarak güncellemeye yetkilidir.
+8.2. Güncellenen bedel, YÜKLENİCİ'nin bildirimini takip eden ilk fatura döneminden
+itibaren geçerli olur. BANKA'nın ayrıca onayı aranmaz.
+8.3. BANKA'nın güncellemeye itiraz etmesi hâlinde YÜKLENİCİ, Sözleşme'yi otuz (30)
+gün önceden bildirimde bulunarak feshedebilir.
+
+MADDE 9 - FİKRİ VE SINAİ MÜLKİYET HAKLARI
+9.1. Hizmet'e ilişkin fikri ve sınai mülkiyet hakları YÜKLENİCİ'ye aittir.
+YÜKLENİCİ, BANKA'ya Sözleşme süresince münhasır olmayan, devredilemez bir kullanım
+lisansı verir.
+9.2. BANKA'nın talebi üzerine geliştirilen özelleştirmelere ilişkin tüm fikri
+mülkiyet hakları YÜKLENİCİ'de kalır. BANKA'ya bu özelleştirmeler bakımından Madde
+9.1'deki kapsamda kullanım hakkı tanınmış olup ayrıca bir hak devri söz konusu
+değildir.
+9.3. YÜKLENİCİ, Hizmet'in üçüncü kişilerin fikri mülkiyet haklarını ihlal etmediğini
+taahhüt eder. Bu yönde bir iddia ileri sürülmesi hâlinde YÜKLENİCİ, BANKA'yı her
+türlü talep, dava ve zarardan âri tutar.
+
+MADDE 10 - SORUMLULUK
+10.1. Her bir Taraf, işbu Sözleşme'nin ihlalinden doğan doğrudan zararlardan genel
+hükümler çerçevesinde sorumludur.
+10.2. YÜKLENİCİ'nin işbu Sözleşme'den doğan toplam sorumluluğu, talebin doğduğu
+tarihten önceki son üç (3) ayda BANKA tarafından ödenen bedel ile sınırlıdır.
+YÜKLENİCİ hiçbir hâlde dolaylı zararlardan, kâr kaybından, iş kaybından, itibar
+zararından veya veri kaybından sorumlu tutulamaz.
+10.3. İşbu maddedeki sorumluluk sınırlaması; kasıt ve ağır kusur ile üçüncü kişilere
+verilen bedensel zararlar bakımından uygulanmaz.
+10.4. 6098 sayılı Türk Borçlar Kanunu'nun 115 inci maddesi saklıdır.
+
+MADDE 11 - GİZLİLİK VE SIR SAKLAMA
+11.1. Taraflar, işbu Sözleşme vesilesiyle öğrendikleri her türlü bilgiyi gizli
+tutmak ve yalnızca Sözleşme'nin ifası amacıyla kullanmakla yükümlüdür.
+11.2. Gizlilik yükümlülüğü, Sözleşme'nin sona ermesinden itibaren iki (2) yıl süreyle
+devam eder.
+11.3. YÜKLENİCİ, Müşteri Sırrı'nı 5411 sayılı Kanun'un 73 üncü maddesine aykırı
+olarak hiçbir surette üçüncü kişilerle paylaşamaz. Bu yükümlülüğün ihlali esaslı
+ihlal sayılır.
+11.4. Mevzuat gereği veya yetkili merci kararıyla yapılan açıklamalar gizlilik
+ihlali sayılmaz; ancak açıklamayı yapan Taraf, hukuken mümkün olduğu ölçüde diğer
+Taraf'ı önceden bilgilendirir.
+
+MADDE 12 - VERİLERİN İŞLENMESİ, SAKLANMASI VE LOKASYONU
+12.1. BANKA Verisi ve Kişisel Veriler, YÜKLENİCİ'nin küresel bulut altyapısında ve
+YÜKLENİCİ'nin uygun göreceği veri merkezlerinde işlenebilir ve saklanabilir.
+12.2. YÜKLENİCİ, yurt dışına aktarım bakımından uyguladığı standart sözleşme
+hükümlerinin KVKK'ya uygunluğunu beyan eder. BANKA'nın ayrıca onayı aranmaz.
+12.3. YÜKLENİCİ, BANKA Verisi üzerinde veri işleyen sıfatıyla hareket eder ve
+yalnızca BANKA'nın yazılı talimatları doğrultusunda işlem yapar. Ayrıntılı hükümler
+EK-3'te düzenlenmiştir.
+12.4. YÜKLENİCİ, BANKA Verisi'ni anonimleştirmek ve toplulaştırmak suretiyle kendi
+ürün ve hizmetlerini geliştirmek, model eğitmek ve istatistik üretmek amacıyla
+kullanabilir.
+
+MADDE 13 - BİLGİ GÜVENLİĞİ VE İHLAL BİLDİRİMİ
+13.1. YÜKLENİCİ, bir veri ihlalini veya güvenlik olayını öğrenmesini müteakip
+gecikmeksizin ve makul bir süre içinde BANKA'ya bildirimde bulunur.
+13.2. YÜKLENİCİ, olaya ilişkin özet bilgilendirmeyi makul bir süre içinde BANKA'ya
+sunar.
+13.3. BANKA'nın veya BANKA adına hareket eden üçüncü kişilerin YÜKLENİCİ sistemleri
+üzerinde sızma testi, zafiyet taraması veya benzeri güvenlik değerlendirmesi yapması
+yasaktır.
+13.4. YÜKLENİCİ, ISO/IEC 27001 belgesini Sözleşme süresince geçerli tutar.
+
+MADDE 14 - İŞ SÜREKLİLİĞİ VE FELAKETTEN KURTARMA
+14.1. YÜKLENİCİ, azami veri kaybı süresinin (RPO) on beş (15) dakikayı, azami
+kesinti süresinin (RTO) dört (4) saati aşmayacağı bir felaketten kurtarma çözümü
+bulundurur.
+14.2. İş sürekliliği tatbikatı yılda en az bir kez YÜKLENİCİ tarafından icra edilir
+ve özet sonuç BANKA ile paylaşılır.
+
+MADDE 15 - MEVZUATA UYUM VE DEĞİŞİKLİK
+15.1. Mevzuat'ta işbu Sözleşme'yi veya Hizmet'i etkileyen bir değişiklik olması
+hâlinde uyum için gerekli düzenlemelerin bedeli, Taraflarca ayrıca müzakere edilir.
+15.2. Uyumun teknik veya ticari olarak mümkün olmadığı hâllerde Taraflar
+Sözleşme'yi karşılıklı mutabakatla sona erdirebilir.
+
+MADDE 16 - ALT YÜKLENİCİLER
+16.1. YÜKLENİCİ, işbu Sözleşme kapsamındaki edimlerinin tamamını veya bir kısmını
+BANKA'ya bildirimde bulunmak kaydıyla alt yükleniciye devredebilir.
+16.2. YÜKLENİCİ'nin kullandığı alt yükleniciler, YÜKLENİCİ'nin internet sitesinde
+bilgilendirme amacıyla yayımlanır.
+16.3. YÜKLENİCİ, alt yüklenicilerinin seçiminde makul özeni gösterir.
+
+MADDE 17 - ÇIKIŞ VE VERİLERİN İADESİ
+17.1. Sözleşme'nin sona ermesi hâlinde YÜKLENİCİ, BANKA Verisi'nin tamamını
+YÜKLENİCİ'nin standart dışa aktarım formatında, otuz (30) gün içinde BANKA'ya
+teslim eder.
+17.2. YÜKLENİCİ, teslimi müteakip kendi sistemlerindeki tüm nüshaları geri
+döndürülemez şekilde imha eder ve imha tutanağını BANKA'ya sunar.
+17.3. YÜKLENİCİ, BANKA'nın talebi hâlinde, sona ermeden itibaren otuz (30) güne
+kadar geçiş desteği sağlar. Geçiş desteği bedeli YÜKLENİCİ'nin güncel birim
+fiyatları üzerinden hesaplanır.
+
+MADDE 18 - SÖZLEŞMENİN FESHİ
+18.1. Taraflardan biri işbu Sözleşme'den doğan yükümlülüklerini ihlal eder ve
+kendisine yapılan yazılı ihtara rağmen doksan (90) gün içinde ihlali gidermezse,
+diğer Taraf Sözleşme'yi feshedebilir.
+18.2. Gizlilik, Müşteri Sırrı, kişisel verilerin korunması veya rüşvet ve yolsuzlukla
+mücadele yükümlülüklerinin ihlali hâlinde ihtar ve süre verme şartı aranmaksızın
+derhâl fesih hakkı doğar.
+18.3. YÜKLENİCİ, herhangi bir gerekçe göstermeksizin otuz (30) gün önceden yazılı
+bildirimde bulunarak Sözleşme'yi feshedebilir.
+18.4. YÜKLENİCİ'nin iflası, konkordato talebi, acze düşmesi veya kontrol değişikliği
+hâllerinde BANKA, Sözleşme'yi derhâl feshedebilir.
+
+MADDE 19 - DEVİR VE TEMLİK
+19.1. YÜKLENİCİ, işbu Sözleşme'yi ve Sözleşme'den doğan hak ve alacaklarını
+BANKA'ya bildirimde bulunmak kaydıyla üçüncü kişilere devir ve temlik edebilir.
+19.2. BANKA, Sözleşme'yi YÜKLENİCİ'nin yazılı onayı olmaksızın devredemez.
+
+MADDE 20 - ETİK, YAPTIRIM VE RÜŞVETLE MÜCADELE
+20.1. YÜKLENİCİ, kendisinin, ortaklarının ve çalışanlarının ulusal ve uluslararası
+yaptırım listelerinde yer almadığını beyan eder.
+20.2. YÜKLENİCİ, 5237 sayılı Türk Ceza Kanunu ve ilgili uluslararası düzenlemeler
+kapsamında rüşvet ve yolsuzluk teşkil eden hiçbir fiilde bulunmayacağını taahhüt eder.
+
+MADDE 21 - REKABET YASAĞI VE PERSONEL
+21.1. Taraflar, Sözleşme süresince ve sona ermesinden itibaren bir (1) yıl boyunca
+diğer Taraf'ın Hizmet'te görevlendirilmiş personelini yazılı onay olmaksızın istihdam
+etmemeyi kabul eder.
+
+MADDE 22 - REFERANS VE TANITIM KULLANIMI
+22.1. YÜKLENİCİ, BANKA'nın ticaret unvanını ve logosunu müşteri referans listelerinde,
+internet sitesinde, tanıtım materyallerinde ve ihale dosyalarında BANKA'nın ayrıca
+onayını almaksızın kullanabilir.
+22.2. YÜKLENİCİ, işbu Sözleşme'nin konusunu ve kapsamını içeren bir vaka çalışmasını
+yayımlamaya yetkilidir.
+
+MADDE 23 - TEBLİGAT
+23.1. Taraflar, işbu Sözleşme'nin başında yazılı adreslerini tebligat adresi olarak
+kabul etmiştir. Adres değişiklikleri usulüne uygun şekilde bildirilmedikçe son
+bildirilen adrese yapılan tebligat geçerli sayılır.
+23.2. Kayıtlı elektronik posta (KEP) yoluyla yapılan bildirimler yazılı bildirim
+hükmündedir.
+
+MADDE 24 - SÖZLEŞMEDE DEĞİŞİKLİK
+24.1. YÜKLENİCİ, Hizmet'e ilişkin standart hizmet şartlarını ve teknik ekleri,
+BANKA'ya otuz (30) gün önceden bildirimde bulunmak suretiyle tek taraflı olarak
+güncelleyebilir. BANKA'nın bu süre içinde itiraz etmemesi kabul sayılır.
+24.2. Taraflardan birinin herhangi bir hakkını kullanmaması, o haktan feragat ettiği
+anlamına gelmez.
+
+MADDE 25 - MÜCBİR SEBEPLER
+25.1. Tarafların kontrolü dışında gelişen, öngörülemeyen ve kaçınılamayan olaylar
+mücbir sebep sayılır. Mücbir sebep hâlinde etkilenen Taraf, durumu beş (5) iş günü
+içinde diğer Taraf'a bildirir.
+25.2. Mücbir sebep hâlinin otuz (30) günü aşması durumunda Taraflardan her biri
+Sözleşme'yi tazminatsız feshedebilir.
+25.3. Ödeme yükümlülüğünün yerine getirilmemesi mücbir sebep olarak ileri sürülemez.
+
+MADDE 26 - UYGULANACAK HUKUK VE UYUŞMAZLIKLARIN ÇÖZÜMÜ
+26.1. İşbu Sözleşme İsviçre hukukuna tabidir.
+26.2. Sözleşme'nin uygulanmasından doğabilecek her türlü uyuşmazlık, Milletlerarası
+Ticaret Odası (ICC) Tahkim Kuralları uyarınca Cenevre'de ve İngilizce olarak yürütülecek
+tahkim yoluyla nihai olarak çözümlenir.
+26.3. İşbu Sözleşme ve eklerinde hüküm bulunmayan hâllerde genel hükümlere göre
+hareket edilir.
+
+MADDE 27 - YÜRÜRLÜK
+27.1. Yirmi yedi (27) maddeden ve dört (4) ekten ibaret işbu Sözleşme, Taraflarca
+04.02.2026 tarihinde iki nüsha olarak imzalanmış ve imza tarihinde yürürlüğe girmiştir.
+
+EK-1 HİZMET KAPSAMI VE TEKNİK GEREKSİNİMLER
+EK-2 HİZMET SEVİYESİ TAAHHÜTLERİ VE ÖLÇÜM YÖNTEMİ
+EK-3 KİŞİSEL VERİLERİN İŞLENMESİNE İLİŞKİN EK
+EK-4 ÜCRETLENDİRME VE BİRİM FİYATLAR

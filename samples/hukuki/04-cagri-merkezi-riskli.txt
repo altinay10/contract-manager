@@ -1,0 +1,94 @@
+ÇAĞRI MERKEZİ VE MÜŞTERİ İLETİŞİM HİZMETLERİ SÖZLEŞMESİ
+
+İşbu Sözleşme, Ege Ticaret Bankası A.Ş. ("Müşteri") ile Vektör Çağrı Merkezi
+Hizmetleri A.Ş. ("Hizmet Sağlayıcı") arasında 20.04.2026 tarihinde imzalanmıştır.
+
+MADDE 1 - KONU
+Hizmet Sağlayıcı, Müşteri'nin banka müşterilerine yönelik gelen ve giden çağrı
+hizmetlerini, dijital kanal yazışmalarını ve tahsilat aramalarını yürütecektir.
+
+MADDE 2 - SÜRE
+Sözleşme beş (5) yıl süreyle geçerlidir ve Müşteri tarafından süre bitiminden en az
+yüz seksen (180) gün önce yazılı olarak feshedilmediği takdirde aynı şartlarla beşer
+yıllık dönemler hâlinde kendiliğinden uzar.
+
+MADDE 3 - BEDEL VE FİYAT DEĞİŞİKLİĞİ
+3.1. Aylık sabit hizmet bedeli 950.000 TL olup, aylık dönem başında peşin ödenir.
+3.2. Hizmet Sağlayıcı, hizmet bedelini yılda iki kez ve tek taraflı olarak
+güncellemeye yetkilidir. Güncellenen bedel bildirim tarihinde yürürlüğe girer.
+3.3. Ödemenin beş (5) gün gecikmesi hâlinde Hizmet Sağlayıcı, ihbara gerek olmaksızın
+hizmeti durdurabilir ve aylık %8 gecikme faizi talep edebilir.
+3.4. İşbu Sözleşme'den doğan damga vergisi ve tüm masraflar Müşteri'ye aittir.
+
+MADDE 4 - HİZMET SEVİYESİ
+4.1. Hizmet Sağlayıcı, hizmetin sunulması için ticari açıdan makul çabayı gösterecektir.
+4.2. Hizmet seviyesi hedeflerine ulaşılamaması hâlinde Müşteri'nin yegâne başvuru
+yolu, ilgili aya ait bedelin azami %2'si oranında hizmet kredisidir. Müşteri'nin bunun
+dışında herhangi bir talep, tazminat veya fesih hakkı bulunmamaktadır.
+
+MADDE 5 - ALT YÜKLENİCİLER
+Hizmet Sağlayıcı, hizmetin tamamını veya bir kısmını dilediği üçüncü kişilere,
+Müşteri'nin onayını almaksızın ve bildirimde bulunmaksızın gördürebilir. Hizmet
+Sağlayıcı, alt yüklenicilerin fiillerinden sorumlu değildir.
+
+MADDE 6 - VERİLERİN İŞLENMESİ
+6.1. Müşteri'ye ait çağrı kayıtları, müşteri iletişim bilgileri ve görüşme
+dökümanları Hizmet Sağlayıcı'nın küresel altyapısında ve Hizmet Sağlayıcı'nın uygun
+göreceği ülkelerde işlenebilir ve saklanabilir.
+6.2. Hizmet Sağlayıcı, bu verileri kalite geliştirme, model eğitimi ve yeni ürün
+geliştirme amaçlarıyla süresiz olarak kullanabilir.
+6.3. Hizmet Sağlayıcı, çağrı kayıtlarını kendi belirleyeceği süre boyunca saklar;
+Müşteri'nin silme talebi Hizmet Sağlayıcı'nın teknik imkânlarıyla sınırlıdır.
+
+MADDE 7 - GİZLİLİK
+Taraflar, birbirlerinden öğrendikleri gizli bilgileri üçüncü kişilerle
+paylaşmayacaktır. Bu yükümlülük Sözleşme'nin sona ermesinden itibaren bir (1) yıl
+süreyle devam eder.
+
+MADDE 8 - GÜVENLİK
+8.1. Hizmet Sağlayıcı, endüstri standardı güvenlik tedbirlerini uygular.
+8.2. Bir güvenlik olayının Müşteri'ye bildirilmesi, Hizmet Sağlayıcı'nın iç inceleme
+sürecinin tamamlanmasından sonra ve makul bir süre içinde yapılır.
+8.3. Müşteri'nin veya Müşteri adına hareket eden üçüncü kişilerin Hizmet Sağlayıcı
+sistemleri üzerinde güvenlik testi yapması yasaktır.
+
+MADDE 9 - SORUMLULUK
+9.1. Hizmet Sağlayıcı hiçbir hâlde dolaylı zararlardan, kâr kaybından, itibar
+zararından, müşteri kaybından veya veri kaybından sorumlu değildir.
+9.2. Hizmet Sağlayıcı'nın her türlü talebe ilişkin toplam sorumluluğu, talebin
+doğduğu ayda ödenen aylık bedeli aşamaz. Bu sınırlama istisnasız olarak uygulanır.
+9.3. Müşteri, Hizmet Sağlayıcı'yı üçüncü kişilerin ileri süreceği her türlü talepten
+âri tutmayı ve bu taleplerden doğan zararı tazmin etmeyi kabul eder.
+
+MADDE 10 - FESİH
+10.1. Hizmet Sağlayıcı, herhangi bir gerekçe göstermeksizin otuz (30) gün önceden
+bildirimde bulunarak Sözleşme'yi feshedebilir.
+10.2. Müşteri, Sözleşme'yi yalnızca Hizmet Sağlayıcı'nın esaslı ihlali hâlinde ve
+yüz seksen (180) günlük düzeltme süresinin sonuçsuz kalması kaydıyla feshedebilir.
+10.3. Müşteri'nin süresinden önce fesih talebi hâlinde, kalan sözleşme süresine
+isabet eden bedelin tamamı erken fesih tazminatı olarak muaccel hâle gelir.
+
+MADDE 11 - SÖZLEŞME SONRASI
+Sözleşme'nin sona ermesi hâlinde Hizmet Sağlayıcı, Müşteri'ye ait verileri kendi
+politikalarına uygun olarak imha eder. Veri iadesi ve geçiş desteği ayrı bir ticari
+anlaşmaya tabidir.
+
+MADDE 12 - REFERANS
+Hizmet Sağlayıcı, Müşteri'nin unvanını, logosunu ve işbu Sözleşme'nin kapsamını
+tanıtım materyallerinde, basın bültenlerinde ve ihale dosyalarında serbestçe
+kullanabilir.
+
+MADDE 13 - DEVİR
+13.1. Hizmet Sağlayıcı, Sözleşme'yi dilediği üçüncü kişiye serbestçe devredebilir.
+13.2. Müşteri, Sözleşme'yi Hizmet Sağlayıcı'nın yazılı onayı olmaksızın devredemez.
+
+MADDE 14 - SÖZLEŞME DEĞİŞİKLİĞİ
+Hizmet Sağlayıcı, hizmet şartlarını ve eklerini internet sitesinde yayımlamak
+suretiyle tek taraflı olarak değiştirebilir. Yayım, bildirim yerine geçer.
+
+MADDE 15 - UYGULANACAK HUKUK
+İşbu Sözleşme İrlanda hukukuna tabidir. Uyuşmazlıklar Dublin mahkemelerinin münhasır
+yetkisindedir.
+
+MADDE 16 - YÜRÜRLÜK
+İşbu Sözleşme imza tarihinde yürürlüğe girmiştir.

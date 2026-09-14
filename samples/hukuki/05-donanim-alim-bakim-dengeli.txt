@@ -1,0 +1,175 @@
+DONANIM ALIMI, KURULUM, BAKIM VE GARANTİ SÖZLEŞMESİ
+
+İşbu Sözleşme; bir tarafta Boğaziçi Kalkınma Bankası A.Ş. (bundan böyle kısaca
+"BANKA" olarak anılacaktır) ile diğer tarafta Meridyen Bilgi Sistemleri Sanayi ve
+Ticaret Anonim Şirketi (bundan böyle kısaca "SATICI" olarak anılacaktır) arasında,
+aşağıda münderecatı yazılı şartlar tahtında 18.05.2026 tarihinde tanzim ve imza
+edilmiştir. BANKA ve SATICI müştereken "Taraflar", münferiden "Taraf" olarak
+anılacaktır.
+
+MADDE 1 - SÖZLEŞMENİN MEVZUU
+1.1. İşbu Sözleşme'nin mevzuu; EK-1'de cins, adet ve teknik evsafı tayin ve tespit
+olunan sunucu, depolama ve ağ donanımının BANKA'ya satışı, BANKA'nın göstereceği
+mahallere teslimi, kurulumu, devreye alınması ile müteakip bakım ve garanti
+hizmetlerinin ifasına müteallik hak ve vecibelerin tanzimidir.
+1.2. İşbu Sözleşme'nin ekleri, Sözleşme'nin lâyenfek cüzü olup Sözleşme ile birlikte
+hüküm ifade eder. Ekler ile Sözleşme metni arasında tearuz hâlinde Sözleşme metni
+esas alınır.
+
+MADDE 2 - TESLİM, KURULUM VE KABUL
+2.1. SATICI, EK-1'de münderiç donanımı, Sözleşme'nin imza tarihinden itibaren
+doksan (90) gün zarfında BANKA'nın İstanbul ve Ankara'daki veri merkezlerine teslim
+ve tesis etmekle mükelleftir.
+2.2. Teslim edilen donanımın muayenesi, BANKA'ca teşkil olunacak komisyon marifetiyle
+yapılır. Muayene ve kabul tutanağının BANKA yetkililerince imzalanmasından evvel
+hiçbir donanım kabul edilmiş addolunmaz.
+2.3. Muayenede ayıp veya eksiklik tespiti hâlinde SATICI, keyfiyetin kendisine
+tebliğinden itibaren on (10) iş günü zarfında ve bilâbedel ikmal ve ıslah ile
+mükelleftir.
+2.4. BANKA'nın muayeneyi süresinde icra etmemesi, zımnî kabul olarak yorumlanamaz.
+
+MADDE 3 - BEDEL, ÖDEME VE VERGİLER
+3.1. Sözleşme bedeli, KDV hariç 28.750.000 TL (yirmisekizmilyonyediyüzellibin Türk
+Lirası) olup işbu bedel sabittir ve hiçbir surette artırılamaz.
+3.2. Ödeme; kabul tutanağının tanzim ve imzasını ve usulüne muvafık faturanın
+BANKA'ya tebliğini müteakip otuz (30) gün zarfında icra olunur.
+3.3. Bakım bedeli, garanti süresinin hitamını takiben yıllık olarak ve sözleşme
+bedelinin %8'ini tecavüz etmemek üzere EK-3'te tayin olunan birim fiyatlar üzerinden
+tahakkuk ettirilir.
+3.4. İşbu Sözleşme'den mütevellit damga vergisi Taraflarca müsavi surette karşılanır.
+Sair vergi, resim ve harçlar kendi mükellefine racidir.
+
+MADDE 4 - MÜLKİYETİN İNTİKALİ VE HASAR
+4.1. Donanımın mülkiyeti, kabul tutanağının imzası ve bedelin tediyesi ile BANKA'ya
+intikal eder.
+4.2. Teslim ve kabul anına kadar doğacak bilcümle hasar ve ziya SATICI'ya aittir.
+SATICI, nakliye ve montaj rizikolarına karşı sigorta akdetmekle mükelleftir.
+
+MADDE 5 - GARANTİ
+5.1. SATICI, teslim ettiği donanımın EK-1'de münderiç teknik evsafı haiz olduğunu ve
+her türlü imalat ayıbından âri bulunduğunu beyan, kabul ve taahhüt eder.
+5.2. Garanti müddeti, nihaî kabul tarihinden itibaren otuz altı (36) aydır.
+5.3. Garanti müddeti zarfında vaki arızalar, SATICI tarafından bilâbedel ve azamî
+yirmi dört (24) saat zarfında giderilir. Tamiri mümkün olmayan arızalarda muadili
+veya daha üstün evsaftaki donanım ile ivazsız tebdil cihetine gidilir.
+5.4. Garanti kapsamındaki tamir ve tebdil müddetleri, garanti müddetine ilâve olunur.
+5.5. SATICI, donanım için asgarî yedi (7) yıl müddetle yedek parça ve teknik destek
+temin edeceğini taahhüt eder.
+
+MADDE 6 - BAKIM HİZMETİ VE HİZMET SEVİYESİ
+6.1. SATICI, bakım hizmetini 7 gün 24 saat esasıyla ve Türkçe olarak ifa eder.
+6.2. Kritik arızalarda azamî müdahale müddeti bir (1) saat, azamî çözüm müddeti dört
+(4) saattir. Sair arızalarda çözüm müddeti bir (1) iş gününü tecavüz edemez.
+6.3. Taahhüt olunan müddetlere riayetsizlik hâlinde, her bir vaka için aylık bakım
+bedelinin %10'u nispetinde cezaî şart tahakkuk eder. Cezaî şartın aylık yekûnu, aylık
+bakım bedelinin %50'sini tecavüz edemez.
+6.4. Cezaî şartın tahsili, BANKA'nın umumî hükümlere müsteniden doğmuş tazminat
+taleplerini ve fesih hakkını iskat etmez.
+6.5. Cezaî şart, ayrıca protesto keşidesine ve hüküm istihsaline hacet kalmaksızın
+SATICI'ya yapılacak ilk tediyeden mahsup edilir.
+
+MADDE 7 - BANKA VERİSİ VE GİZLİLİK
+7.1. SATICI, işbu Sözleşme'nin ifası münasebetiyle muttali olduğu BANKA'ya ve BANKA
+müşterilerine ait bilcümle malumatı müebbeden mahrem tutmakla mükelleftir.
+7.2. 5411 sayılı Bankacılık Kanunu'nun 73 üncü maddesi hükmü mahfuz olup, banka sırrı
+ve müşteri sırrı niteliğindeki malumatın üçüncü şahıslara ifşası kat'iyen memnudur.
+7.3. Bakım ve onarım işlemleri esnasında BANKA verisi ihtiva eden disk ve saklama
+üniteleri hiçbir surette BANKA tesisleri haricine çıkarılamaz. Arızalı üniteler
+BANKA nezdinde imha edilir ve imha keyfiyeti tutanakla tevsik olunur.
+7.4. SATICI personeli, BANKA tesislerinde refakatsiz bulunamaz; erişim kayıtları
+BANKA tarafından muhafaza edilir.
+
+MADDE 8 - KİŞİSEL VERİLERİN KORUNMASI
+8.1. SATICI, 6698 sayılı Kanun anlamında veri işleyen sıfatını haiz olup kişisel
+verileri münhasıran BANKA'nın yazılı talimatı dairesinde işler.
+8.2. Kişisel veriler yurt dışına aktarılamaz.
+8.3. SATICI, bir veri ihlaline muttali olmasından itibaren azamî yirmi dört (24) saat
+zarfında BANKA'ya yazılı ihbarda bulunur ve kök sebep raporunu beş (5) iş günü
+zarfında tevdi eder.
+
+MADDE 9 - DENETİM HAKKI
+9.1. BANKA, bağımsız denetçisi ve Bankacılık Düzenleme ve Denetleme Kurumu, SATICI'nın
+işbu Sözleşme'ye müteallik faaliyetlerini mahallinde veya uzaktan denetlemeye
+yetkilidir.
+9.2. Olağan denetim talepleri on (10) iş günü evvelinden ihbar olunur; ihlal şüphesi
+veya düzenleyici otorite talebi hâlinde ihbar şartı aranmaz.
+9.3. Denetimde esaslı uygunsuzluk tespiti hâlinde denetim masrafları SATICI'ya racidir.
+
+MADDE 10 - ALT YÜKLENİCİ
+10.1. SATICI, işbu Sözleşme'den mütevellit vecibelerini BANKA'nın evvelce alınmış
+yazılı muvafakati olmaksızın üçüncü şahıslara gördüremez.
+10.2. SATICI, muvafakat verilen alt yüklenicilerin fiil ve ihmallerinden kendi fiili
+gibi ve müteselsilen mesuldür.
+
+MADDE 11 - MESULİYET
+11.1. SATICI, işbu Sözleşme'ye mugayir fiillerinden mütevellit doğrudan zararlardan
+umumî hükümler dairesinde mesuldür.
+11.2. SATICI'nın işbu Sözleşme'den doğan toplam mesuliyeti, sözleşme bedelinin iki (2)
+katı ile mahduttur.
+11.3. İşbu maddedeki tahdit; kasıt ve ağır kusur, gizlilik ihlali, banka sırrı ve
+müşteri sırrının ifşası, kişisel verilerin korunmasına müteallik vecibelerin ihlali,
+fikrî mülkiyet tecavüzü ile üçüncü şahıslara verilen bedenî zararlar bakımından
+tatbik olunmaz; bu hâllerde mesuliyet gayrimahduttur.
+11.4. 6098 sayılı Türk Borçlar Kanunu'nun 115 inci maddesi hükmü mahfuzdur.
+
+MADDE 12 - MÜCBİR SEBEP
+12.1. Tarafların iradesi haricinde tahaddüs eden, öngörülemeyen ve içtinabı kabil
+olmayan hâller mücbir sebep addolunur. Mücbir sebebe maruz kalan Taraf, keyfiyeti
+beş (5) iş günü zarfında karşı Tarafa ihbar eder.
+12.2. Mücbir sebep hâlinin altmış (60) günü tecavüzü hâlinde her bir Taraf
+Sözleşme'yi tazminatsız feshe yetkilidir.
+12.3. Tediye vecibesinin ifa edilmemesi mücbir sebep olarak dermeyan olunamaz.
+
+MADDE 13 - FESİH
+13.1. Taraflardan birinin Sözleşme'ye mugayir davranışı hâlinde, keşide olunacak
+ihtarnameye rağmen otuz (30) gün zarfında aykırılığın izale edilmemesi hâlinde karşı
+Taraf, tazminat hakları mahfuz kalmak kaydıyla Sözleşme'yi feshe yetkilidir.
+13.2. Gizlilik, banka sırrı, kişisel verilerin korunması veya rüşvetle mücadele
+vecibelerinin ihlali hâlinde ihtar ve mehil şartı aranmaksızın derhâl fesih hakkı
+doğar.
+13.3. BANKA, altmış (60) gün evvelinden yazılı ihbarda bulunmak suretiyle Sözleşme'yi
+tazminatsız feshe yetkilidir. Bu hâlde yalnızca fiilen ifa edilmiş edimlerin bedeli
+tediye olunur.
+13.4. SATICI'nın iflası, konkordato talebi, aczi veya hâkimiyet değişikliği hâlinde
+BANKA derhâl fesih hakkını haizdir.
+
+MADDE 14 - DEVİR VE TEMLİK
+14.1. SATICI, işbu Sözleşme'den doğan hak ve alacaklarını BANKA'nın yazılı muvafakati
+olmaksızın üçüncü şahıslara devir ve temlik edemez.
+
+MADDE 15 - ETİK VE YAPTIRIM UYUMU
+15.1. SATICI; kendisinin, ortaklarının ve müstahdemlerinin millî ve milletlerarası
+yaptırım listelerinde münderiç olmadığını beyan ve taahhüt eder.
+15.2. SATICI, rüşvet ve yolsuzluk teşkil eden hiçbir fiilde bulunmayacağını kabul ve
+taahhüt eder. Bu vecibenin ihlali esaslı ihlal addolunur.
+
+MADDE 16 - TEBLİGAT
+16.1. Taraflar, Sözleşme'nin başında münderiç adreslerini kanunî tebligat adresi
+olarak kabul etmiştir. Adres tebeddülü usulüne muvafık surette ihbar edilmedikçe eski
+adrese vaki tebligat muteber addolunur.
+16.2. Kayıtlı elektronik posta marifetiyle yapılan tebligat yazılı tebligat
+hükmündedir.
+
+MADDE 17 - MUHTELİF HÜKÜMLER
+17.1. İşbu Sözleşme'de yapılacak her türlü tadilât, Tarafların salâhiyetli
+mümessillerince imzalanacak yazılı ek protokolle muteberdir.
+17.2. Taraflardan birinin bir hakkını kullanmaması, mezkûr haktan feragat ettiği
+manasına gelmez.
+17.3. Sözleşme hükümlerinden birinin butlanı, sair hükümlerin muteberiyetine halel
+getirmez.
+
+MADDE 18 - TATBİK OLUNACAK HUKUK VE İHTİLAFLARIN HALLİ
+18.1. İşbu Sözleşme Türk hukukuna tabidir.
+18.2. Sözleşme'nin tatbikinden mütevellit ihtilafların hallinde İstanbul (Çağlayan)
+mahkemeleri ve icra daireleri salâhiyetlidir.
+18.3. İşbu Sözleşme ve eklerinde hüküm bulunmayan hâllerde umumî hükümler tatbik
+olunur.
+
+MADDE 19 - YÜRÜRLÜK
+19.1. On dokuz (19) maddeden ve üç (3) ekten ibaret işbu Sözleşme, Taraflarca
+18.05.2026 tarihinde iki nüsha olarak tanzim ve imza edilmiş olup imza tarihinde
+yürürlüğe girmiştir.
+
+EK-1 DONANIM LİSTESİ VE TEKNİK EVSAF
+EK-2 TESLİM MAHALLERİ VE KURULUM PLANI
+EK-3 BAKIM BİRİM FİYATLARI
