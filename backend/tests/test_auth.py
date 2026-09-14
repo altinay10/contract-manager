@@ -438,6 +438,29 @@ def test_rapor_indirme_denetlenir(korumali_istemci):
     assert isinstance(d["entries"], list)
 
 
+def test_csv_dugmesi_parolasiz_kullaniciya_gorunmez(korumali_istemci):
+    """CSV düğmesi korumalı bölümün İÇİNDE olmalı.
+
+    Bölüm (`kysec`) varsayılan olarak gizli ve yalnızca giriş yapılınca
+    açılıyor; düğme dışına taşınırsa parolasız kullanıcıya görünür hâle gelir.
+    """
+    h = korumali_istemci.get("/").text
+    assert 'id="kyCsv"' in h, "CSV düğmesi yok"
+
+    bas = h.index('id="kysec"')
+    son = h.index("</section>", bas)
+    bolum = h[bas:son]
+    assert 'id="kyCsv"' in bolum, "CSV düğmesi korumalı bölümün dışında kalmış"
+
+    # Bölüm varsayılan gizli ve oturum durumuna bağlı.
+    assert 'id="kysec" style="padding-top:0;display:none"' in h, (
+        "Kayıtlar bölümü varsayılan olarak gizli değil"
+    )
+    assert "$('kysec').style.display = g ? '' : 'none'" in h, (
+        "bölüm görünürlüğü oturum durumuna bağlanmamış"
+    )
+
+
 def test_giris_ekrani_betik_sonda_olsa_da_calisir(korumali_istemci):
     """Gercek hata: DOMContentLoaded betikten once tetiklendiginde sayfa bos kaliyordu."""
     h = korumali_istemci.get("/").text
