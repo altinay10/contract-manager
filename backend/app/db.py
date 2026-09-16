@@ -145,6 +145,7 @@ def ensure_schema() -> None:
                       "yukleyen_ua": "VARCHAR(300) DEFAULT ''"},
         "audit_log": {"user_agent": "VARCHAR(300) DEFAULT ''",
                       "detail_json": "JSON"},
+        "llm_calls": {"run_id": "VARCHAR(32) DEFAULT ''"},
         "reports": {"comparison_id": "VARCHAR(32) DEFAULT ''"},
         "clause_changes": {
             "materiality": "VARCHAR(20) DEFAULT ''",
@@ -212,7 +213,20 @@ def geri_doldur() -> None:
             WHERE COALESCE(model, '') = ''
         """))
 
-        # 3) Anahtarin kaynagi: model cagrisi varsa sunucunun anahtari
+        # 3) Cagriyi kosusuna bagla — ama YALNIZCA belirsizlik yoksa.
+        #    Sozlesmenin tek kosusu varsa cagri ona aittir. Birden fazla kosu
+        #    varsa hangi cagrinin hangisine ait oldugu hicbir yerde tutulmamis;
+        #    tahmin etmek yanlis maliyet dagilimi uretir, bos birakmak dogrudur.
+        conn.execute(text("""
+            UPDATE llm_calls SET
+              run_id = COALESCE((SELECT r.id FROM analysis_runs r
+                                 WHERE r.contract_id = llm_calls.contract_id), '')
+            WHERE COALESCE(run_id, '') = ''
+              AND (SELECT COUNT(*) FROM analysis_runs r2
+                   WHERE r2.contract_id = llm_calls.contract_id) = 1
+        """))
+
+        # 4) Anahtarin kaynagi: model cagrisi varsa sunucunun anahtari
         #    kullanilmistir (gecmiste kullanici anahtari kosu basina tutulmuyordu);
         #    hic cagri yoksa analiz kural katmaniyla kosmus demektir.
         conn.execute(text("""

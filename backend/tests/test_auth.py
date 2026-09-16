@@ -438,6 +438,26 @@ def test_rapor_indirme_denetlenir(korumali_istemci):
     assert isinstance(d["entries"], list)
 
 
+def test_cerez_adi_ayardan_okunur(korumali_istemci):
+    """Çerezler portu ayırt etmez; aynı makinede iki kurulum için ad değişebilmeli.
+
+    Varsayılan değişmemeli — değişirse mevcut oturumlar düşer.
+    """
+    from app.config import settings as ayar
+
+    assert ayar.cookie_name == "feneri_oturum", "varsayılan çerez adı değişmiş"
+    assert auth.CEREZ_ADI == ayar.cookie_name, "auth sabit adı ayardan okumuyor"
+
+    # Uçlar çerezi bu adla çözebiliyor mu?
+    korumali_istemci.cookies.clear()
+    korumali_istemci.post("/api/login", json={"password": "cok-gizli-parola-123"})
+    assert korumali_istemci.cookies.get(ayar.cookie_name) is not None, (
+        "oturum çerezi ayarlanan adla yazılmamış"
+    )
+    assert korumali_istemci.get("/api/settings").status_code == 200
+    assert korumali_istemci.get("/api/session").json()["authenticated"] is True
+
+
 def test_csv_dugmesi_parolasiz_kullaniciya_gorunmez(korumali_istemci):
     """CSV düğmesi korumalı bölümün İÇİNDE olmalı.
 

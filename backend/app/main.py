@@ -168,7 +168,8 @@ def logout(request: Request, response: Response) -> dict:
 
 
 @app.get("/api/session")
-def session_durumu(feneri_oturum: str | None = Cookie(default=None)) -> dict:
+def session_durumu(feneri_oturum: str | None = Cookie(default=None,
+                                                     alias=auth.CEREZ_ADI)) -> dict:
     """Arayüz açılışta bunu sorar.
 
     Uygulama herkese açıktır; giriş yalnızca sunucunun LLM anahtarını ve

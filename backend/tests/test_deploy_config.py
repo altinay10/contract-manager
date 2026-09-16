@@ -95,3 +95,19 @@ def test_dockerfile_test_asamasi_uretimden_ayri():
         "test bagimliliklari uretim asamasinda kuruluyor"
     )
     assert "requirements-dev" in test_asamasi
+
+
+def test_docker_up_derleme_yapar():
+    """`docker-up` sadece baslatirsa kod guncellense bile eski imaj ayaga kalkar.
+
+    Gercek hata: kod degistirildi, `make docker-up` calistirildi, konteyner eski
+    imajla dondu ve "guncelledim ama degismedi" tuzagi kuruldu.
+    """
+    mf = KOK / "Makefile"
+    if not mf.exists():
+        import pytest
+        pytest.skip("Makefile bu baglamda yok")
+    metin = mf.read_text(encoding="utf-8")
+    hedef = metin.split("docker-up:", 1)[1].split("\n\n", 1)[0]
+    assert "--build" in hedef, "docker-up derleme yapmiyor"
+

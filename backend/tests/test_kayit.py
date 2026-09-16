@@ -178,3 +178,46 @@ def test_geri_doldurma_llm_cagrisi_olmayani_yok_isaretler(istemci):
             select(AnalysisRun).where(AnalysisRun.contract_id == cid)
         ).first()
         assert k.anahtar_kaynagi == "yok"
+
+
+# --------------------------------------------------- cagri -> kosu baglantisi
+def test_geri_doldurma_cagriyi_tek_kosuya_baglar(istemci):
+    """Sözleşmenin tek koşusu varsa çağrı ona aittir — belirsizlik yok."""
+    with session_scope() as s:
+        c = Contract(title="tek", filename="tek.txt")
+        s.add(c); s.flush(); cid = c.id
+        r = AnalysisRun(contract_id=cid, status="DONE")
+        s.add(r); s.flush(); rid = r.id
+        for _ in range(3):
+            s.add(LLMCall(contract_id=cid, model="deneme", input_tokens=5))
+
+    geri_doldur()
+
+    with session_scope() as s:
+        cagrilar = list(s.scalars(select(LLMCall).where(LLMCall.contract_id == cid)))
+        assert cagrilar, "çağrı yok"
+        assert all(x.run_id == rid for x in cagrilar), (
+            "çağrılar tek koşuya bağlanmadı: %s" % [x.run_id for x in cagrilar]
+        )
+
+
+def test_geri_doldurma_belirsizse_bos_birakir(istemci):
+    """İki koşu varsa hangi çağrının hangisine ait olduğu bilinmiyor.
+
+    Tahmin etmek yanlış maliyet dağılımı üretir; boş bırakmak dürüsttür.
+    """
+    with session_scope() as s:
+        c = Contract(title="cift", filename="cift.txt")
+        s.add(c); s.flush(); cid = c.id
+        s.add(AnalysisRun(contract_id=cid, status="DONE"))
+        s.add(AnalysisRun(contract_id=cid, status="DONE"))
+        s.add(LLMCall(contract_id=cid, model="deneme", input_tokens=5))
+
+    geri_doldur()
+
+    with session_scope() as s:
+        cagri = s.scalars(select(LLMCall).where(LLMCall.contract_id == cid)).first()
+        assert cagri.run_id == "", (
+            "belirsiz durumda koşu uydurulmuş: %r" % cagri.run_id
+        )
+

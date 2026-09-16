@@ -31,7 +31,10 @@ from .config import settings
 
 log = logging.getLogger(__name__)
 
-CEREZ_ADI = "feneri_oturum"
+# Ayardan gelir; ayni makinede iki kurulum icin farklilastirilabilir.
+# Parametre adi sabit kalir, cerez adi alias ile cozulur — FastAPI cerezi
+# parametre adiyla arar, alias verilmezse ayar hic ise yaramazdi.
+CEREZ_ADI = settings.cookie_name
 _lock = threading.Lock()
 _durum: "AuthDurum | None" = None
 
@@ -180,7 +183,8 @@ def giris_sifirla(ip: str) -> None:
 
 # --------------------------------------------------------------------------- #
 def require_user(request: Request,
-                 feneri_oturum: str | None = Cookie(default=None)) -> str:
+                 feneri_oturum: str | None = Cookie(default=None,
+                                                    alias=CEREZ_ADI)) -> str:
     """Korumali uc noktalarda bagimlilik olarak kullanilir."""
     if not settings.auth_enabled:
         return "anonim"
@@ -192,7 +196,8 @@ def require_user(request: Request,
 
 
 def optional_user(request: Request,
-                  feneri_oturum: str | None = Cookie(default=None)) -> str:
+                  feneri_oturum: str | None = Cookie(default=None,
+                                                     alias=CEREZ_ADI)) -> str:
     """Girisin zorunlu olmadigi uc noktalar icin.
 
     Oturum varsa kullanici adini, yoksa bos dizge doner; 401 atmaz.
