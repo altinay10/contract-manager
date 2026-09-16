@@ -568,7 +568,7 @@ def stage_report(ctx: Ctx) -> str:
             if (f["agent"], f["error"]) in kayitli:
                 continue  # yeniden calistirmada mukerrer yazma
             ctx.s.add(LLMCall(
-                contract_id=ctx.contract.id, agent=f["agent"],
+                contract_id=ctx.contract.id, run_id=ctx.run.id, agent=f["agent"],
                 model=f["model"] or (active_model(ctx.provider) or ""),
                 latency_ms=f["latency_ms"], ok=False, error=f["error"],
             ))
@@ -831,7 +831,7 @@ def _log_call(ctx: Ctx, agent: str, comp) -> None:
     u = comp.usage
     ctx.s.add(
         LLMCall(
-            contract_id=ctx.contract.id, agent=agent, model=u.model,
+            contract_id=ctx.contract.id, run_id=ctx.run.id, agent=agent, model=u.model,
             input_tokens=u.input_tokens, output_tokens=u.output_tokens,
             cache_read_tokens=u.cache_read_tokens, cache_write_tokens=u.cache_write_tokens,
             cost_usd=u.cost_usd, latency_ms=u.latency_ms, ok=u.ok, error=u.error,

@@ -104,6 +104,11 @@ class Settings:
     app_password: str = _env("APP_PASSWORD", "")
     session_secret: str = _env("SESSION_SECRET", "")
     session_hours: int = _env_int("SESSION_HOURS", 12)
+    # Cerezler PORTU AYIRT ETMEZ: ayni makinede iki kurulum calisirsa
+    # (ornegin uretim ve deneme) ikisi de ayni ada yazar ve birine giris
+    # digerinin oturumunu duşurur. Sirlar farkliysa imza dogrulanmaz ama
+    # cerez yine de ezilir. Kurulum basina farkli ad vermek bunu bitirir.
+    cookie_name: str = _env("COOKIE_NAME", "feneri_oturum")
     cookie_secure: bool = _env("COOKIE_SECURE", "0") not in ("0", "false", "False")
     # Swagger arayüzü ve OpenAPI şeması. Varsayılan KAPALI: uygulama açık ağa
     # konulduğunda tüm uç listesini ve gövde şemalarını dışarı verirler.

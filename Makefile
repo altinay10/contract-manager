@@ -12,7 +12,7 @@ help:
 	@echo "make sample-pdf   - örnek PDF'i yeniden üret"
 	@echo "make docker-build - konteyner imajını üret"
 	@echo "make docker-test  - testleri konteynerde çalıştır (host'ta venv gerekmez)"
-	@echo "make docker-up    - konteyneri başlat"
+	@echo "make docker-up    - konteyneri derle ve başlat"
 	@echo "make docker-down  - konteyneri durdur"
 	@echo "make clean        - veritabanı ve üretilen dosyaları sil"
 
@@ -51,8 +51,11 @@ docker-test:
 	docker build -f backend/Dockerfile --target test -t sozlesme-feneri:test .
 	docker run --rm sozlesme-feneri:test
 
+# --build zorunlu: onsuz kod guncellense bile eski imaj ayaga kalkar ve
+# "guncelledim ama degismedi" tuzagini kurar. Katmanlar onbellekli, degisiklik
+# yoksa maliyeti yok.
 docker-up:
-	docker compose up -d
+	docker compose up -d --build
 	@echo "http://localhost:$(PORT)"
 
 docker-down:

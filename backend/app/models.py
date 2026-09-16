@@ -273,6 +273,10 @@ class LLMCall(Base):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=new_id)
     contract_id: Mapped[str] = mapped_column(String(32), index=True, default="")
+    # Cagri KOSUYA aittir, sozlesmeye degil: ayni sozlesme iki kez analiz
+    # edilirse hangi harcamanin hangi kosuya ait oldugu ancak boyle ayrilir.
+    # contract_id de duruyor — sozlesme bazli sorgular tek atlamayla kalsin.
+    run_id: Mapped[str] = mapped_column(String(32), index=True, default="")
     agent: Mapped[str] = mapped_column(String(60), default="")
     prompt_id: Mapped[str] = mapped_column(String(80), default="")
     model: Mapped[str] = mapped_column(String(60), default="")

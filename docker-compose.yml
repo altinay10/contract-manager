@@ -55,6 +55,8 @@ services:
       APP_PASSWORD: "${APP_PASSWORD:-}"
       SESSION_SECRET: "${SESSION_SECRET:-}"
       SESSION_HOURS: "${SESSION_HOURS:-12}"
+      # Aynı makinede iki kurulum varsa farklılaştırın; çerezler portu ayırmaz.
+      COOKIE_NAME: "${COOKIE_NAME:-feneri_oturum}"
       COOKIE_SECURE: "${COOKIE_SECURE:-0}"
       # Swagger/OpenAPI. Açık ağa konulan kurulumda 0 kalmalı.
       EXPOSE_DOCS: "${EXPOSE_DOCS:-0}"
