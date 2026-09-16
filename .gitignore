@@ -6,4 +6,9 @@ backend/storage/
 .pytest_cache/
 *.egg-info/
 .env
+# .env kopyaları da dışlanır: yedek alırken .env.yedek-… gibi bir dosya
+# bırakmak kolay, içinde parola ve API anahtarları var. Bir kez `git add -A`
+# denmesi yeterdi.
+.env.*
+!.env.example
 *.key
